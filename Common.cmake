@@ -68,7 +68,7 @@ endif()
 if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
-add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_ALL_DYN_LINK) # Don't use 'pragma lib' on Windows
+add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
@@ -109,6 +109,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   endif()
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
+elseif(CMAKE_COMPILER_IS_XLCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -q64")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -q64")
 endif()
 
 if(MSVC)
