@@ -35,7 +35,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
         WORKING_DIRECTORY "${DIR}")
     endforeach()
 
-    execute_process(COMMAND "${GIT_EXECUTABLE}" pull
+    execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${DIR}")
     if(nok)
