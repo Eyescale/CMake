@@ -5,7 +5,7 @@ CMake/.gitexternals in your project:
 
     include(GitExternal)
     git_external("${CMAKE_CURRENT_LIST_DIR}/CMake/common"
-      "https://github.com/Eyescale/CMake.git" "d91b46f")
+      "https://github.com/Eyescale/CMake.git" "fca9d25")
 
 Copy GitExternals.cmake from this repository to CMake/, and use it in
 your top-level CMakeLists.txt:
