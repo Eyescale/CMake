@@ -13,6 +13,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
   if(NOT EXISTS "${DIR}")
+    message("git clone ${REPO} ${DIR}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone "${REPO}" "${DIR}"
       RESULT_VARIABLE nok ERROR_VARIABLE error
