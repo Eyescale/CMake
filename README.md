@@ -4,7 +4,8 @@ This repository contains common CMake modules. To use it, create a
 CMake/.gitexternals in your project:
 
     include(GitExternal)
-    git_external("${CMAKE_CURRENT_LIST_DIR}/common" "https://github.com/Eyescale/CMake.git" "d91b46f")
+    git_external("${CMAKE_CURRENT_LIST_DIR}/CMake/common"
+      "https://github.com/Eyescale/CMake.git" "d91b46f")
 
 Copy GitExternals.cmake from this repository to CMake/, and use it in
 your top-level CMakeLists.txt:
