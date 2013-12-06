@@ -79,6 +79,7 @@ endif()
 
 include(Compiler) # compiler-specific default options and warnings
 include(TestCPP11)
+include(Coverage)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
