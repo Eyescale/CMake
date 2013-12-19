@@ -4,10 +4,12 @@
 include(CMakeParseArguments)
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
+
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
   set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
 endmacro()
+
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
 

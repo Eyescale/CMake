@@ -14,6 +14,11 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 
+option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
+if(ENABLE_WARN_DEPRECATED)
+  add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
+endif()
+
 set(COMMON_GCC_FLAGS
   "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
 
