@@ -1,7 +1,7 @@
 # CMake Modules
 
 This repository contains common CMake modules. To use it, create a
-CMake/.gitexternals in your project:
+.gitexternals in your project:
 
     # -*- mode: cmake -*-
     include(GitExternal)
