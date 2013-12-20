@@ -12,15 +12,19 @@ if(NOT DOXYGEN_CONFIG_FILE)
 endif()
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
+if(NOT INSTALL_DEPENDS)
+  message(FATAL_ERROR "No targets in CMake project, Common.cmake not used?")
+endif()
+
 add_custom_target(doxygen_install
   ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
-  DEPENDS ${ALL_DEP_TARGETS})
+  DEPENDS ${INSTALL_DEPENDS})
 
 add_custom_target(doxygen
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
-  COMMENT "Generating API documentation using doxygen" VERBATIM)
-add_dependencies(doxygen doxygen_install)
+  COMMENT "Generating API documentation using doxygen" VERBATIM
+  DEPENDS doxygen_install)
 
 make_directory(${CMAKE_BINARY_DIR}/doc/html)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
@@ -38,13 +42,11 @@ if(GIT_DOCUMENTATION_REPO)
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
-    VERBATIM)
-  add_dependencies(doxycopy doxygen)
+    DEPENDS doxygen VERBATIM)
 endif()
 
 add_custom_target(doxygit
   COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}" -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}" -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
   COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
-  )
-add_dependencies(doxygit doxycopy)
+  DEPENDS doxycopy)

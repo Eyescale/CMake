@@ -1,8 +1,9 @@
 # CMake Modules
 
 This repository contains common CMake modules. To use it, create a
-CMake/.gitexternals in your project:
+.gitexternals in your project:
 
+    # -*- mode: cmake -*-
     include(GitExternal)
     git_external("${CMAKE_CURRENT_LIST_DIR}/CMake/common"
       "https://github.com/Eyescale/CMake.git" "fca9d25")
