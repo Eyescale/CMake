@@ -24,14 +24,14 @@ else()
   set(_DISPLAYCLUSTER_output 1)
 endif()
 
-find_path(_DISPLAYCLUSTER_INCLUDE_DIR dcStream.h
+find_path(_DISPLAYCLUSTER_INCLUDE_DIR dc/Stream.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{DISPLAYCLUSTER_ROOT} ${DISPLAYCLUSTER_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt /opt/local)
 
-if(_DISPLAYCLUSTER_INCLUDE_DIR AND EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcStream.h")
-  if(EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcVersion.h")
-   set(_DISPLAYCLUSTER_Version_file "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcVersion.h")
+if(_DISPLAYCLUSTER_INCLUDE_DIR AND EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Stream.h")
+  if(EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Version.h")
+   set(_DISPLAYCLUSTER_Version_file "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Version.h")
    file(READ ${_DISPLAYCLUSTER_Version_file} _DISPLAYCLUSTER_header_contents)
    string(REGEX REPLACE ".*#define DISPLAYCLUSTER_VERSION ([0-9].[0-9].[0-9]).*" "\\1"
      _DISPLAYCLUSTER_VERSION "${_DISPLAYCLUSTER_header_contents}")
@@ -45,7 +45,7 @@ else()
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
   if(_DISPLAYCLUSTER_output)
     message(${_DISPLAYCLUSTER_output_type}
-      "Can't find DisplayCluster header file dcStream.h.")
+      "Can't find DisplayCluster header file dc/Stream.h.")
   endif()
 endif()
 
