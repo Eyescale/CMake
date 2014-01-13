@@ -19,6 +19,11 @@ if ( POPPLER_LIBRARIES )
    SET(Poppler_FIND_QUIETLY TRUE)
 endif ( POPPLER_LIBRARIES )
 
+if (NOT QT_VERSION_MAJOR)
+  message(SEND_ERROR "QT_VERSION_MAJOR is undefined. Run find_package(Qt) before find_package(Poppler).")
+  return()
+endif()
+
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
 if( NOT WIN32 )
