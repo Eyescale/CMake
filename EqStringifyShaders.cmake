@@ -10,7 +10,7 @@ macro(EQ_STRINGIFY_SHADERS SOURCES)
     add_custom_command(OUTPUT ${OUTPUT_FILES}
       COMMAND ${CMAKE_COMMAND} -DEQ_STRINGIFY_SHADERS_PROCESSING_MODE=ON
         -DINPUT="${INPUT}" -DOUTPUT="${OUTPUT}"
-        -P ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
+        -P ${CMAKE_CURRENT_LIST_DIR}/EqStringifyShaders.cmake
       DEPENDS ${INPUT}
       )
     list(APPEND ${SOURCES} ${OUTPUT_FILES})
