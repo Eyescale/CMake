@@ -64,7 +64,7 @@ if(DISPLAYCLUSTER_FIND_VERSION AND DISPLAYCLUSTER_VERSION)
   endif()
 endif()
 
-find_library(DISPLAYCLUSTER_LIBRARY DisplayCluster
+find_library(DISPLAYCLUSTER_LIBRARY dcstream
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{DISPLAYCLUSTER_ROOT} ${DISPLAYCLUSTER_ROOT}
   PATH_SUFFIXES lib lib64
   PATHS /usr /usr/local /opt /opt/local)
