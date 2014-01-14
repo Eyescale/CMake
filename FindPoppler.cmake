@@ -5,8 +5,8 @@
 #  POPPLER_HAS_XPDF - A boolean indicating if Poppler XPDF headers are available
 #  POPPLER_NEEDS_FONTCONFIG - A boolean indicating if libpoppler depends on libfontconfig
 #  POPPLER_XPDF_INCLUDE_DIR - the include directory for Poppler XPDF headers
-#  POPPLER_QT4_INCLUDE_DIR - the include directory for Poppler-Qt4 headers
-#  POPPLER_QT4_LIBRARIES  - Link this to use only libpoppler-Qt4
+#  POPPLER_QT_INCLUDE_DIR - the include directory for Poppler-Qt4 headers
+#  POPPLER_QT_LIBRARIES  - Link this to use only libpoppler-Qt4
 #  POPPLER_LIBRARIES - Link these to use Poppler and Poppler-Qt4
 #
 # Note: the Poppler-cpp include directory is currently not needed by TeXworks
@@ -18,6 +18,11 @@ if ( POPPLER_LIBRARIES )
    # in cache already
    SET(Poppler_FIND_QUIETLY TRUE)
 endif ( POPPLER_LIBRARIES )
+
+if (NOT QT_VERSION_MAJOR)
+  message(SEND_ERROR "QT_VERSION_MAJOR is undefined. Run find_package(Qt) before find_package(Poppler).")
+  return()
+endif()
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
