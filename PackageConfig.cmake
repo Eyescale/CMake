@@ -8,6 +8,7 @@
 #
 # Input variables
 #    ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link libraries, format is ${CMAKE_PROJECT_NAME}
+#    ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries are produced
 #
 # Output variables
 #    ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified components found?
@@ -52,6 +53,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "\n"
 # add dependent library finding
   "@DEPENDENTS@"
+  "set(${UPPER_PROJECT_NAME}_FIND_FILES ${${UPPER_PROJECT_NAME}_FIND_FILES})\n"
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
@@ -86,8 +88,19 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "      endif()\n"
   "    endforeach()\n"
+# search for ${UPPER_PROJECT_NAME}_FIND_FILES
+  "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
+  "    find_file(${UPPER_PROJECT_NAME}_FILE NAMES ${${UPPER_PROJECT_NAME}_FIND_FILES} NO_DEFAULT_PATH\n"
+  "              PATHS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES include)\n"
+  "    if(${UPPER_PROJECT_NAME}_FILE MATCHES \"${UPPER_PROJECT_NAME}_FILE-NOTFOUND\")\n"
+  "      set(_fail \"${${UPPER_PROJECT_NAME}_FIND_FILES} not found\")\n"
+  "      if(_out)\n"
+  "        message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
+  "          \"file in \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include.\")\n"
+  "      endif()\n"
+  "    endif()\n"
   "  else()\n"
-# if no component was specified, find all produced libraries
+# if no component or file was specified, find all produced libraries
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
   "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
