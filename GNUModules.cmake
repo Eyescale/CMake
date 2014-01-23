@@ -55,14 +55,16 @@ if(NOT MODULE_ENV)
 endif()
 
 # Load dependend modules if any
-if(${UPPER_PROJECT_NAME}_DEPENDS)
-  foreach(MODULE_DEP ${${UPPER_PROJECT_NAME}_DEPENDS})
-    if(${MODULE_DEP}_MODULE_FILENAME) # comes from PackageConfig.cmake
-      list(INSERT MODULE_ENV 0
-        "module load ${${MODULE_DEP}_MODULE_FILENAME}\\n"
-        "prereq      ${${MODULE_DEP}_MODULE_FILENAME}\\n\\n")
-    endif()
-  endforeach()
+if(NOT MODULE_SNAPSHOT_DIR) # comes from Buildyard
+  if(${UPPER_PROJECT_NAME}_DEPENDS)
+    foreach(MODULE_DEP ${${UPPER_PROJECT_NAME}_DEPENDS})
+      if(${MODULE_DEP}_MODULE_FILENAME) # comes from PackageConfig.cmake
+        list(INSERT MODULE_ENV 0
+          "module load ${${MODULE_DEP}_MODULE_FILENAME}\\n"
+          "prereq      ${${MODULE_DEP}_MODULE_FILENAME}\\n\\n")
+      endif()
+    endforeach()
+  endif()
 endif()
 
 string(REGEX REPLACE ";" "" MODULE_ENV ${MODULE_ENV})
