@@ -2,16 +2,18 @@
 # ALL_LIB_TARGETS for future processing
 
 include(CMakeParseArguments)
+include(CppcheckTargets)
+
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
-
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
+  add_cppcheck(${_target})
   set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
 endmacro()
-
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
+  add_cppcheck(${_target})
 
   # ignore IMPORTED add_library from finders (e.g. Qt)
   cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})

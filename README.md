@@ -21,12 +21,12 @@ To update, simply change the SHA hash in .gitexternals.
 ## Documentation
 
 * **Common** does a common CMake setup, including:
-
-* **DoxygenRule**: *doxygen* target to build documentation into
-    CMAKE_BINARY_DIR/doc. Optional *github* target to copy result to
+** **DoxygenRule**: *doxygen* target to build documentation into
+   CMAKE_BINARY_DIR/doc. Optional *github* target to copy result to
     ../GITHUB_ORGANIZATION/Project-M.m/.
-* **GNUModules**: *module* target to create a
-    [GNU module](http://modules.sourceforge.net/). See file for details.
-* [GitTargets documentation](doc/GitTargets.md)
-* **UpdateFile**: *update_file* CMake function which uses configure_file
-    but leaves target untouched if unchanged. Uses @ONLY.
+** **GNUModules**: *module* target to create a
+   [GNU module](http://modules.sourceforge.net/). See file for details.
+** [GitTargets documentation](doc/GitTargets.md)
+** **UpdateFile**: *update_file* CMake function which uses configure_file
+     but leaves target untouched if unchanged. Uses @ONLY.
+** **CppcheckTargets**: *cppcheck* target for static code analysis
