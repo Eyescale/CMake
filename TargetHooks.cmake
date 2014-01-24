@@ -6,14 +6,17 @@ include(CppcheckTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
+set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
+  -D${UPPER_PROJECT_NAME}_API=)
+
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
-  add_cppcheck(${_target})
+  add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS)
   set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
 endmacro()
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
-  add_cppcheck(${_target})
+  add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS)
 
   # ignore IMPORTED add_library from finders (e.g. Qt)
   cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
