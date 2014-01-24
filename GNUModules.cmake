@@ -28,7 +28,7 @@
 # - MODULE_WHATIS: the whatis description of the module.
 #                  default ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
 
-if(MSVC)
+if(MSVC OR APPLE)
   return()
 endif()
 
