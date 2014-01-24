@@ -43,7 +43,8 @@ endif()
 function(add_cppcheck_sources _targetname)
 	if(CPPCHECK_FOUND)
 		set(_cppcheck_args --force -I ${CMAKE_SOURCE_DIR}
-                  --error-exitcode=2 --suppress=unusedFunction)
+                  --error-exitcode=2 --inline-suppr
+                  --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
 		set(_input ${ARGN})
 		list(FIND _input UNUSED_FUNCTIONS _unused_func)
 		if("${_unused_func}" GREATER "-1")
@@ -140,7 +141,8 @@ function(add_cppcheck _name)
 	endif()
 	if(CPPCHECK_FOUND)
 		set(_cppcheck_args --force -I ${CMAKE_SOURCE_DIR}
-                  --error-exitcode=2 --suppress=unusedFunction)
+                  --error-exitcode=2 --inline-suppr
+                  --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
 
 		list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
 		if("${_unused_func}" GREATER "-1")

@@ -6,6 +6,9 @@ include(CppcheckTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
+set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
+  -D${UPPER_PROJECT_NAME}_API=)
+
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
   add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS)
