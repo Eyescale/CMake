@@ -27,18 +27,13 @@ endif()
 set(__add_cppcheck YES)
 
 if(NOT CPPCHECK_FOUND)
-	find_package(cppcheck)
+	find_package(cppcheck 1.53)
 endif()
 
 if(NOT CPPCHECK_FOUND)
   add_custom_target(cppcheck
     COMMENT "cppcheck executable not found")
   set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
-elseif(CPPCHECK_VERSION VERSION_LESS 1.53.0)
-  add_custom_target(cppcheck
-    COMMENT "Need at least cppcheck 1.53, found ${CPPCHECK_VERSION}")
-  set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
-  set(CPPCHECK_FOUND)
 endif()
 
 if(NOT TARGET cppcheck)

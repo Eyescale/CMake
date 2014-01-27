@@ -157,7 +157,8 @@ string(REGEX REPLACE ".* ([0-9]\\.([0-9]\\.[0-9])?)" "\\1"
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(cppcheck
-	DEFAULT_MSG
+	VERSION_VAR CPPCHECK_VERSION
+	REQUIRED_VARS
 	CPPCHECK_ALL
 	CPPCHECK_EXECUTABLE
 	CPPCHECK_POSSIBLEERROR_ARG
@@ -171,3 +172,7 @@ if(CPPCHECK_FOUND OR CPPCHECK_MARK_AS_ADVANCED)
 endif()
 
 mark_as_advanced(CPPCHECK_EXECUTABLE)
+
+if(CPPCHECK_FOUND AND NOT CPPCHECK_FIND_QUIETLY)
+  message(STATUS "Found cppcheck ${CPPCHECK_VERSION} in ${CPPCHECK_EXECUTABLE}")
+endif()
