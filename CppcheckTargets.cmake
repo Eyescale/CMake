@@ -27,17 +27,17 @@ endif()
 set(__add_cppcheck YES)
 
 if(NOT CPPCHECK_FOUND)
-	find_package(cppcheck)
+	find_package(cppcheck 1.53)
 endif()
 
-if(CPPCHECK_FOUND)
-	if(NOT TARGET cppcheck)
-		add_custom_target(cppcheck)
-	endif()
-else()
+if(NOT CPPCHECK_FOUND)
   add_custom_target(cppcheck
     COMMENT "cppcheck executable not found")
   set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif()
+
+if(NOT TARGET cppcheck)
+  add_custom_target(cppcheck)
 endif()
 
 function(add_cppcheck_sources _targetname)

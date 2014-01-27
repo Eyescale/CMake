@@ -33,7 +33,8 @@ endforeach(FILE ${TEST_FILES})
 
 add_custom_target(runtests
   COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_TESTS}
-  COMMENT "Running all unit tests")
+  COMMENT "Running all unit tests"
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 if(COVERAGE)
   add_custom_target(lcov-gather
