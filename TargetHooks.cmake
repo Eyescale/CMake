@@ -7,7 +7,7 @@ include(CppcheckTargets)
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
 set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
-  -D${UPPER_PROJECT_NAME}_API=)
+  -D${UPPER_PROJECT_NAME}_STATIC=)
 
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
