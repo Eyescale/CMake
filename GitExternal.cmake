@@ -2,8 +2,10 @@
 # Usage:
 #  git_external(<directory> <giturl> <gittag> [RESET <files>])
 #  git_external_manage(<file>)
-#    calls git_external and provides an update target which bumps the tag to the
-#    master revision in the given file. The file has to contain:
+#    is used for a managed .gitexternal file which is parsed and
+#    updated by this function, which calls git_external and provides
+#    an update target to bump the tag to the master revision by
+#    recreating the given file. The file has to contain:
 #      include(GitExternal)
 #      git_external_manage(${CMAKE_CURRENT_LIST_FILE})
 #      #-> CMake/common https://github.com/Eyescale/CMake.git 8324611
@@ -47,6 +49,10 @@ function(GIT_EXTERNAL_MANAGE FILE)
           add_custom_target(update)
         endif()
         if(NOT TARGET update_git_external)
+          add_custom_target(update_git_external)
+          add_dependencies(update update_git_external)
+        endif()
+        if(NOT TARGET update_git_external_header)
           set(GIT_EXTERNAL_SCRIPT
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdateexternal.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}"
@@ -54,7 +60,7 @@ function(GIT_EXTERNAL_MANAGE FILE)
 include(GitExternal)
 git_external_manage(\\\${CMAKE_CURRENT_LIST_FILE})
 \")")
-          add_custom_target(update_git_external
+          add_custom_target(update_git_external_header
             COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
             COMMENT "Recreate ${FILE}"
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -77,9 +83,10 @@ endif()")
         add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
           COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
           COMMENT "Update ${REPO} in ${FILE}"
-          DEPENDS update_git_external
+          DEPENDS update_git_external_header
           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-        add_dependencies(update update_git_external_${GIT_EXTERNAL_NAME})
+        add_dependencies(update_git_external
+          update_git_external_${GIT_EXTERNAL_NAME})
       endif()
     endif()
   endforeach()
