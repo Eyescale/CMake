@@ -7,8 +7,13 @@
 #      include(GitExternal)
 #      git_external_manage(${CMAKE_CURRENT_LIST_FILE})
 #      #-> CMake/common https://github.com/Eyescale/CMake.git 8324611
-#    Where the last line can appear multiple times, once for each external repo
-#    It has to start with '#->'.
+#    Where the last line can appear multiple times, once for each
+#    external repo It has to start with '#->'. This function parses
+#    the file for this pattern and then calls git_external on each
+#    found entry. The entries are encoded into a target which will
+#    recreate the file on invocation. Since only the '#-> ' lines are
+#    parsed, everything else is ignored. Since the file is under git
+#    control, there should be no risk of data loss.
 
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
@@ -37,11 +42,11 @@ function(GIT_EXTERNAL_MANAGE FILE)
         # pull in identified external
         git_external(${DIR} ${REPO} ${TAG})
 
-        # update target to bump external
+        # Create update script and target to bump external spec
         if(NOT TARGET update)
           add_custom_target(update)
         endif()
-        if(NOT TARGET update_external)
+        if(NOT TARGET update_git_external)
           set(GIT_EXTERNAL_SCRIPT
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdateexternal.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}"
@@ -49,13 +54,13 @@ function(GIT_EXTERNAL_MANAGE FILE)
 include(GitExternal)
 git_external_manage(\\\${CMAKE_CURRENT_LIST_FILE})
 \")")
-          add_custom_target(update_external
+          add_custom_target(update_git_external
             COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
             COMMENT "Recreate ${FILE}"
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         endif()
 
-        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR})
+        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR}) # unique, flat name
         set(GIT_EXTERNAL_SCRIPT
           "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
         file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
@@ -69,12 +74,12 @@ if(newref)
 else()
   file(APPEND ${FILE} \"#-> ${DIR} ${REPO} ${TAG}\n\")
 endif()")
-        add_custom_target(update_external_${GIT_EXTERNAL_NAME}
+        add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
           COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
           COMMENT "Update ${REPO} in ${FILE}"
-          DEPENDS update_external
+          DEPENDS update_git_external
           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-        add_dependencies(update update_external_${GIT_EXTERNAL_NAME})
+        add_dependencies(update update_git_external_${GIT_EXTERNAL_NAME})
       endif()
     endif()
   endforeach()
