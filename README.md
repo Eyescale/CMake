@@ -4,16 +4,14 @@ This repository contains common CMake modules. To use it, create a
 .gitexternals in your project:
 
     # -*- mode: cmake -*-
-    include(GitExternal)
-    git_external_manage(${CMAKE_CURRENT_LIST_FILE})
-    #-> CMake/common https://github.com/Eyescale/CMake.git d0a01c6
+    # CMake/common https://github.com/Eyescale/CMake.git 1778185
 
 Copy GitExternals.cmake from this repository to CMake/, and use it in
 your top-level CMakeLists.txt:
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
       ${CMAKE_SOURCE_DIR}/CMake/common)
-    include(.gitexternals)
+    include(GitExternals)
     include(Common)
 
 Run 'make update' to change the SHA hash in .gitexternals to the newest
