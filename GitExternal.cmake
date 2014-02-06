@@ -133,7 +133,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
       WORKING_DIRECTORY "${DIR}"
       )
     if(nok)
-      message(FATAL_ERROR "${DIR} git checkout ${TAG} failed: ${error}\n")
+      message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
     endif()
   endif()
 endfunction()
