@@ -83,7 +83,9 @@ if(EXISTS ${GIT_EXTERNALS})
         list(GET DATA 0 DIR)
         list(GET DATA 1 REPO)
         list(GET DATA 2 TAG)
-        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR}) # unique, flat name
+
+        # Create a unique, flat name
+        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR})
 
         if(NOT TARGET update_git_external_${GIT_EXTERNAL_NAME}) # not done
           # pull in identified external
@@ -97,7 +99,12 @@ if(EXISTS ${GIT_EXTERNALS})
             add_custom_target(update_git_external)
             add_dependencies(update update_git_external)
           endif()
-          string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS})
+
+          # Create a unique, flat name
+          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_SOURCE_DIR}
+            ${GIT_EXTERNALS})
+          string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS_BASE})
+
           set(GIT_EXTERNAL_TARGET update_git_external_${GIT_EXTERNAL_TARGET})
           if(NOT TARGET ${GIT_EXTERNAL_TARGET})
             set(GIT_EXTERNAL_SCRIPT
@@ -106,7 +113,7 @@ if(EXISTS ${GIT_EXTERNALS})
               "file(WRITE ${GIT_EXTERNALS} \"# -*- mode: cmake -*-\n\")\n")
             add_custom_target(${GIT_EXTERNAL_TARGET}
               COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
-              COMMENT "Recreate ${GIT_EXTERNALS}"
+              COMMENT "Recreate ${GIT_EXTERNALS_BASE}"
               WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           endif()
 
@@ -125,7 +132,7 @@ else()
 endif()")
           add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
             COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
-            COMMENT "Update ${REPO} in ${GIT_EXTERNALS}"
+            COMMENT "Update ${REPO} in ${GIT_EXTERNALS_BASE}"
             DEPENDS ${GIT_EXTERNAL_TARGET}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           add_dependencies(update_git_external
