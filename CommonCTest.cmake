@@ -1,11 +1,12 @@
 # Copyright (c) 2010 Daniel Pfeifer
-#               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+#               2010-2014, Stefan Eilemann <eile@eyescale.ch>
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 endif()
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/test ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 list(SORT TEST_FILES)
@@ -48,10 +49,11 @@ if(COVERAGE)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)
   add_custom_target(lcov-html
-    COMMAND ${GENHTML} -q -o CoverageReport lcov2.info
-    COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/CoverageReport/index.html "
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${GENHTML} -q -o CoverageReport ${CMAKE_BINARY_DIR}/lcov2.info
+    COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/doc/html/CoverageReport/index.html "
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
     DEPENDS lcov-remove)
+  make_directory(${CMAKE_BINARY_DIR}/doc/html)
 
   # workaround: 'make test' does not build tests beforehand
   add_custom_target(tests DEPENDS lcov-html)

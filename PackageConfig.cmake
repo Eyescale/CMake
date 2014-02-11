@@ -7,28 +7,33 @@
 # supersedes the Find${CMAKE_PROJECT_NAME}.cmake file.
 #
 # Input variables
-#    ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link libraries, format is ${CMAKE_PROJECT_NAME}
-#    ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries are produced
+#   ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link
+#     libraries, format is ${CMAKE_PROJECT_NAME}
+#   ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries
+#     are produced
 #
 # Output variables
-#    ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified components found?
+#   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
+#     components found?
 #
-#    ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
-#
-#    ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
-#
-#    ${UPPER_PROJECT_NAME}_LIBRARIES - The project link libraries
-#
-#    ${UPPER_PROJECT_NAME}_LIBRARY - The produced (core) library
-#
-#    ${UPPER_PROJECT_NAME}_COMPONENTS - A list of components found
-#
-#    ${UPPER_PROJECT_NAME}_${component}_LIBRARY - The path & name of the ${component} library
-#
-#    ${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES - A list of dependencies for the CPack deb generator
-#    ${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY - The runtime dependency for the CPack deb generator
-#    ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for the CPack deb generator
+#   ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
+#   ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
+#   ${UPPER_PROJECT_NAME}_LIBRARIES - The project link libraries
+#   ${UPPER_PROJECT_NAME}_LIBRARY - The produced (core) library
+#   ${UPPER_PROJECT_NAME}_COMPONENTS - A list of components found
+#   ${UPPER_PROJECT_NAME}_${component}_LIBRARY - The path & name of the
+#     ${component} library
+#   ${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES - A list of dependencies for the
+#     CPack deb generator
+#   ${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY - The runtime dependency for the
+#     CPack deb generator
+#   ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for
+#     the CPack deb generator
 
+if(PACKAGECONFIG_DONE)
+  return()
+endif()
+set(PACKAGECONFIG_DONE ON)
 
 include(CMakePackageConfigHelpers)
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
@@ -194,7 +199,8 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     endif()
   endif()
   if(NOT ${_dependent}_name)
-    message(FATAL_ERROR "Dependent library ${_dependent} was not properly resolved")
+    message(FATAL_ERROR
+      "Dependent library ${_dependent} was not properly resolved")
   endif()
   if(${${_dependent}_name}_VERSION)
     set(${${_dependent}_name}_findmode EXACT)

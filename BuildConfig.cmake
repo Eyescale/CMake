@@ -1,6 +1,6 @@
 # Installs CMakeCache.txt, environment and information about git repository
 
-include(Revision)
+include(GitInfo)
 
 install (PROGRAMS "${CMAKE_BINARY_DIR}/CMakeCache.txt" DESTINATION
   share/${CMAKE_PROJECT_NAME}/CMake/BuildParams)

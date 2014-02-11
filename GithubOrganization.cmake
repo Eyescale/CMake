@@ -2,7 +2,7 @@
 # sets GIT_ORIGIN_ORG based on root or origin remote github.com/<Org>/...
 # sets GIT_ORIGIN_org to lower-case of GIT_ORIGIN_ORG
 
-include(Revision)
+include(GitInfo)
 
 if(GIT_ROOT_URL)
   set(_git_origin_url ${GIT_ROOT_URL})

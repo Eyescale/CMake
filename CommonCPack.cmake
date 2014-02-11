@@ -97,7 +97,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 # Auto-package-version magic
-include(Revision)
+include(GitInfo)
 set(CMAKE_PACKAGE_VERSION "" CACHE
   STRING "Additional build version for packages")
 mark_as_advanced(CMAKE_PACKAGE_VERSION)
@@ -188,3 +188,5 @@ include(InstallRequiredSystemLibraries)
 set(CPACK_PACKAGE_FILE_NAME_BACKUP "${CPACK_PACKAGE_FILE_NAME}")
 include(CPack)
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME_BACKUP}")
+
+include(PackageConfig)
