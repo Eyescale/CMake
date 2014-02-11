@@ -49,8 +49,8 @@ if(COVERAGE)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)
   add_custom_target(lcov-html
-    COMMAND ${GENHTML} -q -o CoverageReport ../../lcov2.info
-    COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/CoverageReport/index.html "
+    COMMAND ${GENHTML} -q -o CoverageReport ${CMAKE_BINARY_DIR}/lcov2.info
+    COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/doc/html/CoverageReport/index.html "
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
     DEPENDS lcov-remove)
   make_directory(${CMAKE_BINARY_DIR}/doc/html)
