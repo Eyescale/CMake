@@ -1,4 +1,11 @@
-# Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2012-2014 Stefan Eilemann <eile@eyescale.ch>
+
+# Configures a Doxyfile and provides doxygen and doxygit targets. Relies on
+# TargetHooks installed by Common and must be included after all targets!
+#
+# * doxygen runs doxygen after compiling and installing the project
+# * doxygit runs doxygen and installs the documentation in
+#   GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org
 
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
@@ -25,6 +32,9 @@ add_custom_target(doxygen
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
   DEPENDS doxygen_install)
+if(COVERAGE)
+  add_dependencies(doxygen tests) # Generates CoverageReport
+endif()
 
 make_directory(${CMAKE_BINARY_DIR}/doc/html)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html

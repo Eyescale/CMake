@@ -1,9 +1,10 @@
 # Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
+#
 # Sets compiler optimization, definition and warnings according to
-# chosen compiler
-# Supported compilers are XL, Intel, Clang and GNU
+# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.1
+# or later) and Visual Studio (2008 or later).
 
-# Compiler settings
+# Compiler name
 if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
   set(CMAKE_COMPILER_IS_XLCXX ON)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -13,6 +14,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
+# use MSVC for Visual Studio
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
 if(ENABLE_WARN_DEPRECATED)
@@ -96,12 +98,6 @@ if(MSVC)
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
-
-  # By default, do not warn when built on machines using only VS Express
-  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
-  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  endif()
 
   # By default, do not warn when built on machines using only VS Express
   # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
