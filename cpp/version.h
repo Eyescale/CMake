@@ -64,6 +64,20 @@ public:
 
     /** @return the current @CMAKE_PROJECT_NAME@ version plus the git SHA hash (MM.mm.pp.rev). */
     static std::string getRevString();
+
+    /**
+     * Runtime check for ABI compatibility.
+     *
+     * Call from code using @CMAKE_PROJECT_NAME@. Will fail if the executable
+     * was compiled against a version incompatible with the runtime version.
+     *
+     * @return true if the link-time and compile-time DSO are compatible.
+     */
+    static bool check()
+    {
+        return getMajor()==@UPPER_PROJECT_NAME@_VERSION_MAJOR &&
+               getMinor()==@UPPER_PROJECT_NAME@_VERSION_MINOR;
+    }
 };
 
 }
