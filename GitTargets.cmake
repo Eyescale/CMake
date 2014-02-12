@@ -1,4 +1,4 @@
-# Copyright (c) 2012 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2012-2014 Stefan.Eilemann@epfl.ch
 # See doc/GitTargets.md for documentation
 
 # Options:
@@ -9,6 +9,8 @@
 if(GITTARGETS_FOUND)
   return()
 endif()
+set(GITTARGETS_FOUND 1)
+
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
   return()
@@ -92,9 +94,6 @@ add_custom_target(retag
   DEPENDS erase)
 
 # tarball
-if(NOT LAST_RELEASE)
-  set(LAST_RELEASE ${VERSION})
-endif()
 set(TARBALL "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${LAST_RELEASE}.tar")
 
 add_custom_target(tarball-create
@@ -123,4 +122,3 @@ foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
   set_target_properties(${_gittargets_TARGET} PROPERTIES FOLDER "git")
 endforeach()
-set(GITTARGETS_FOUND 1)
