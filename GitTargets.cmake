@@ -8,14 +8,13 @@
 #
 # Targets:
 # * branch: Create a new branch for developing the current version and
-#   push it to origin. The branch is name MAJOR.MINOR, where the minor
-#   version * is rounded up to the next even version. Odd minor
-#   numbers are * considered development versions, and might still be
-#   used when * releasing a pre-release version (e.g., 1.3.9 used for
-#   1.4-beta).
+#   push it to origin. The branch name is MAJOR.MINOR, where the minor
+#   version is rounded up to the next even version. Odd minor numbers
+#   are considered development versions, and might still be used when
+#   releasing a pre-release version (e.g., 1.3.9 used for 1.4-beta).
 # * cut: Delete the current version branch locally and remote.
 # * tag: Create the version branch if needed, and create a tag
-#   release-VERSION on the version branch HEAD. Pushes tag to the
+#   release-VERSION on the version branch HEAD. Pushes the tag to the
 #   origin repository.
 # * erase: Delete the current tag locally and remote
 # * retag: Move an existing tag to HEAD
