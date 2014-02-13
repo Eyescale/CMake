@@ -5,6 +5,23 @@
 #  GITTARGETS_RELEASE_BRANCH current | even_minor | minor
 #      create tags on the current, the next even minor version (e.g. 1.6) or for
 #      each minor version
+#
+# Targets:
+# * branch: Create a new branch for developing the current version and
+#   push it to origin. The branch is name MAJOR.MINOR, where the minor
+#   version * is rounded up to the next even version. Odd minor
+#   numbers are * considered development versions, and might still be
+#   used when * releasing a pre-release version (e.g., 1.3.9 used for
+#   1.4-beta).
+# * cut: Delete the current version branch locally and remote.
+# * tag: Create the version branch if needed, and create a tag
+#   release-VERSION on the version branch HEAD. Pushes tag to the
+#   origin repository.
+# * erase: Delete the current tag locally and remote
+# * retag: Move an existing tag to HEAD
+# * tarball: Create an archive of LAST_RELEASE
+
+Removes the release-VERSION locally and remotely.
 
 if(GITTARGETS_FOUND)
   return()
