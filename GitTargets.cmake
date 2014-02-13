@@ -20,8 +20,6 @@
 # * retag: Move an existing tag to HEAD
 # * tarball: Create an archive of LAST_RELEASE
 
-Removes the release-VERSION locally and remotely.
-
 if(GITTARGETS_FOUND)
   return()
 endif()
