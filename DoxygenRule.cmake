@@ -61,5 +61,5 @@ if(GIT_DOCUMENTATION_REPO)
     DEPENDS doxycopy)
 else()
   add_custom_target(doxygit
-    COMMENT "doxygit target not available, missiing GIT_DOCUMENTATION_REPO")
+    COMMENT "doxygit target not available, missing GIT_DOCUMENTATION_REPO")
 endif()
