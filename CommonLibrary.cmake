@@ -15,6 +15,7 @@
 # Generates a PROJECT_INCLUDE_NAME/PROJECT_INCLUDE_NAME.h including all public
 # headers.
 
+include(InstallFiles)
 include(UpdateFile)
 
 function(COMMON_LIBRARY Name)
@@ -30,7 +31,9 @@ function(COMMON_LIBRARY Name)
     "#ifndef ${NAME}_H\n"
     "#define ${NAME}_H\n")
   foreach(PUBLIC_HEADER ${PUBLIC_HEADERS})
-    get_filename_component(PUBLIC_HEADER ${PUBLIC_HEADER} NAME)
+    if(IS_ABSOLUTE ${PUBLIC_HEADER})
+      get_filename_component(PUBLIC_HEADER ${PUBLIC_HEADER} NAME)
+    endif()
     if(NOT PUBLIC_HEADER MATCHES "defines.+\\.h")
       file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${name}.in.h
         "#include <${name}/${PUBLIC_HEADER}>\n")
@@ -43,6 +46,14 @@ function(COMMON_LIBRARY Name)
     ${PROJECT_INCLUDE_HEADER})
   list(APPEND PUBLIC_HEADERS ${PROJECT_INCLUDE_HEADER})
 
+  if(SOURCES)
+    list(SORT SOURCES)
+  endif()
+  if(HEADERS)
+    list(SORT HEADERS)
+  endif()
+  list(SORT PUBLIC_HEADERS)
+
   source_group(${name} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   add_library(${Name} SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
@@ -51,8 +62,10 @@ function(COMMON_LIBRARY Name)
     PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
   install(TARGETS ${Name}
-    PUBLIC_HEADER DESTINATION include/${name} COMPONENT dev
     ARCHIVE DESTINATION lib COMPONENT dev
     RUNTIME DESTINATION bin COMPONENT lib
     LIBRARY DESTINATION lib COMPONENT lib)
+
+  # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
+  install_files(include/${name} FILES ${PUBLIC_HEADERS} COMPONENT dev)
 endfunction()

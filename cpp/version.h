@@ -3,6 +3,7 @@
 #ifndef @UPPER_PROJECT_NAME@_VERSION_H_
 #define @UPPER_PROJECT_NAME@_VERSION_H_
 
+#include <@PROJECT_INCLUDE_NAME@/api.h>
 #include <string>
 
 namespace @PROJECT_INCLUDE_NAME@
@@ -44,7 +45,7 @@ namespace @PROJECT_INCLUDE_NAME@
         (@UPPER_PROJECT_NAME@_VERSION_MINOR==MINOR && @UPPER_PROJECT_NAME@_VERSION_PATCH<=PATCH))))
 
 /** Information about the current @CMAKE_PROJECT_NAME@ version. */
-class Version
+class @UPPER_PROJECT_NAME@_API Version
 {
 public:
     /** @return the current major version of @CMAKE_PROJECT_NAME@. */

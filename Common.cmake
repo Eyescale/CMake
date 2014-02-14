@@ -3,8 +3,8 @@
 # Input Variables
 #
 # Output Variables
-# * COMMON_INCLUDES: generated include files (version, defines) are appended
-# * COMMON_SOURCES: generated cpp files (version) are appended
+# * COMMON_INCLUDES: generated include files (version, defines, api)
+# * COMMON_SOURCES: generated cpp files (version)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
