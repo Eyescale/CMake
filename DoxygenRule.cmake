@@ -5,7 +5,8 @@
 #
 # * doxygen runs doxygen after compiling and installing the project
 # * doxygit runs doxygen and installs the documentation in
-#   GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org
+#   CMAKE_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
+#   CMAKE_SOURCE_DIR/../GIT_ORIGIN_org
 
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
