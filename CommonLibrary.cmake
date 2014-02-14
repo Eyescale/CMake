@@ -34,7 +34,9 @@ function(COMMON_LIBRARY Name)
     if(IS_ABSOLUTE ${PUBLIC_HEADER})
       get_filename_component(PUBLIC_HEADER ${PUBLIC_HEADER} NAME)
     endif()
-    if(NOT PUBLIC_HEADER MATCHES "defines.+\\.h")
+    if(NOT PUBLIC_HEADER MATCHES "defines.+\\.h" AND
+        PUBLIC_HEADER MATCHES ".*\\.h$" )
+
       file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${name}.in.h
         "#include <${name}/${PUBLIC_HEADER}>\n")
     endif()
