@@ -67,6 +67,12 @@ function(COMMON_LIBRARY Name)
     ARCHIVE DESTINATION lib COMPONENT dev
     RUNTIME DESTINATION bin COMPONENT lib
     LIBRARY DESTINATION lib COMPONENT lib)
+  if(MSVC)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${Name}.pdb
+      DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
+      DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+  endif()
 
   # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
   install_files(include/${name} FILES ${PUBLIC_HEADERS} COMPONENT dev)

@@ -1,7 +1,7 @@
 /* Copyright (c) 2014 Stefan.Eilemann@epfl.ch */
 
-#ifndef @UPPER_PROJECT_NAME@_VERSION_H_
-#define @UPPER_PROJECT_NAME@_VERSION_H_
+#ifndef @UPPER_PROJECT_NAME@_VERSION_H
+#define @UPPER_PROJECT_NAME@_VERSION_H
 
 #include <@PROJECT_INCLUDE_NAME@/api.h>
 #include <string>
