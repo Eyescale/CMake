@@ -5,7 +5,8 @@
 #
 # * doxygen runs doxygen after compiling and installing the project
 # * doxygit runs doxygen and installs the documentation in
-#   GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org
+#   CMAKE_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
+#   CMAKE_SOURCE_DIR/../GIT_ORIGIN_org
 
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
@@ -53,10 +54,13 @@ if(GIT_DOCUMENTATION_REPO)
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
     DEPENDS doxygen VERBATIM)
-endif()
 
-add_custom_target(doxygit
-  COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}" -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}" -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
-  COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
-  DEPENDS doxycopy)
+  add_custom_target(doxygit
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}" -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}" -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
+    COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
+    DEPENDS doxycopy)
+else()
+  add_custom_target(doxygit
+    COMMENT "doxygit target not available, missing GIT_DOCUMENTATION_REPO")
+endif()

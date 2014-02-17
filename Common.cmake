@@ -1,4 +1,10 @@
 # Common settings
+#
+# Input Variables
+#
+# Output Variables
+# * COMMON_INCLUDES: generated include files (version, defines, api)
+# * COMMON_SOURCES: generated cpp files (version)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
@@ -53,9 +59,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
-file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
-include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
@@ -114,6 +117,7 @@ if(APPLE)
 endif(APPLE)
 
 include(CommonApplication)
+include(CommonCode)
 include(CommonLibrary)
 include(Compiler)
 include(Coverage)

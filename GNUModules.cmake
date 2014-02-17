@@ -1,8 +1,12 @@
 
 # Copyright (c) 2012-2013 Daniel Nachbaur <daniel.nachbaur@epfl.ch>
 
-# Offers a target named 'module' to create a GNU module
-# (http://modules.sourceforge.net/) of your software.
+# Offers 'module' and 'snapshot' targets to create a GNU module
+# (http://modules.sourceforge.net/) of your software. A regular module
+# requires dependencies to be available as their own modules, whereas
+# a snapshot module contains all dependencies. The first one is meant
+# for full toolchain releases, the second one for intermediate feature
+# snapshots.
 #
 # The GNUModules.cmake is supposed to be included after Common.cmake,
 # CPackConfig.cmake and all targets to gather required variables from
