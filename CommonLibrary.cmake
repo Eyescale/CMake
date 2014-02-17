@@ -60,8 +60,7 @@ function(COMMON_LIBRARY Name)
   add_library(${Name} SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   set_target_properties(${Name}
-    PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI}
-    PUBLIC_HEADER "${PUBLIC_HEADERS}")
+    PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
   install(TARGETS ${Name}
     ARCHIVE DESTINATION lib COMPONENT dev
