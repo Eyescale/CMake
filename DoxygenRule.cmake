@@ -5,6 +5,7 @@
 #
 # Input Variables
 # * DOXYGEN_EXTRA_INPUT appended to INPUT in Doxyfile
+# * DOXYGEN_EXTRA_EXCLUDE appended to EXCLUDE in Doxyfile
 #
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
