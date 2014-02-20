@@ -16,6 +16,7 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
+include(CommonProcess)
 
 function(GIT_EXTERNAL DIR REPO TAG)
   cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
@@ -24,42 +25,36 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   if(NOT EXISTS "${DIR}")
     message(STATUS "git clone ${REPO} ${DIR}")
-    execute_process(
+    common_process("git clone ${DIR}" FATAL_ERROR
       COMMAND "${GIT_EXECUTABLE}" clone "${REPO}" "${DIR}"
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
-    if(nok)
-      message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
-    endif()
   endif()
 
   if(IS_DIRECTORY "${DIR}/.git")
     foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
-      execute_process(
+      common_process("git reset ${GIT_EXTERNAL_RESET_FILE" STATUS
         COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
-      execute_process(
+      common_process("git checkout -- ${GIT_EXTERNAL_RESET_FILE" STATUS
         COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
     endforeach()
 
-    execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
+    common_process("Update {$DIR}" STATUS
+      COMMAND "${GIT_EXECUTABLE}" fetch --all -q
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${DIR}")
-    if(nok)
-      message(STATUS "Update of ${DIR} failed:\n   ${error}")
-    endif()
 
-    execute_process(
+    common_process("${DIR} git checkout ${TAG}" STATUS
       COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${DIR}"
       )
-    if(nok)
-      message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
-    endif()
+  else()
+    message(STATUS "Can't update git external ${DIR}: Not a git repository")
   endif()
 endfunction()
 
