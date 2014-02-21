@@ -60,13 +60,18 @@ function(COMMON_LIBRARY Name)
   add_library(${Name} SHARED ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   set_target_properties(${Name}
-    PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI}
-    PUBLIC_HEADER "${PUBLIC_HEADERS}")
+    PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
   install(TARGETS ${Name}
     ARCHIVE DESTINATION lib COMPONENT dev
     RUNTIME DESTINATION bin COMPONENT lib
     LIBRARY DESTINATION lib COMPONENT lib)
+  if(MSVC)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${Name}.pdb
+      DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
+      DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+  endif()
 
   # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
   install_files(include/${name} FILES ${PUBLIC_HEADERS} COMPONENT dev)
