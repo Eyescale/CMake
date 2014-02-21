@@ -33,11 +33,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   if(IS_DIRECTORY "${DIR}/.git")
     foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
-      common_process("git reset ${GIT_EXTERNAL_RESET_FILE" STATUS
+      common_process("git reset ${GIT_EXTERNAL_RESET_FILE}" STATUS
         COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
-      common_process("git checkout -- ${GIT_EXTERNAL_RESET_FILE" STATUS
+      common_process("git checkout -- ${GIT_EXTERNAL_RESET_FILE}" STATUS
         COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
