@@ -31,8 +31,6 @@ origin/master version.
       create [GNU modules](http://modules.sourceforge.net/).
     * [GitTargets](GitTargets.cmake) *branch*, *cut*, *tag*, *erase*,
       *retag*, *tarball* targets.
-    * [UpdateFile]: *update_file* function using configure_file
-      but leaves an unchanged target untouched. Uses @ONLY.
     * [Compiler](Compiler.cmake): Default compiler flags, useful default
       warnings and 'safe' C++11 features.
     * [GitInfo](GitInfo.cmake) sets variables with information about the
