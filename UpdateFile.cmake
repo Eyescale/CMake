@@ -1,8 +1,11 @@
 
-# Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2012-2014 Stefan Eilemann <eile@eyescale.ch>
 
-# similar to configure_file, but overwrites target only if content differs
+# Similar to configure_file, but overwrites target only if content differs.
+# Deprecated since configure_file in fact does the same.
+
 function(UPDATE_FILE IN OUT)
+  message(WARNING "Update_file is deprecated, use configure_file(... @ONLY)")
   if(NOT EXISTS ${OUT})
     configure_file(${IN} ${OUT} @ONLY)
     return()

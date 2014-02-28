@@ -30,15 +30,15 @@ endif()
 
 message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
 include(GitExternal)
-include(UpdateFile)
 
 git_external("${CMAKE_BINARY_DIR}/Buildyard"
   https://github.com/Eyescale/Buildyard.git master)
 
-update_file("${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake"
-  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/${CMAKE_PROJECT_NAME}.cmake")
-update_file("${CMAKE_SOURCE_DIR}/CMake/depends.txt"
-  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/depends.txt")
+configure_file("${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake"
+  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/${CMAKE_PROJECT_NAME}.cmake"
+  COPYONLY)
+configure_file("${CMAKE_SOURCE_DIR}/CMake/depends.txt"
+  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/depends.txt" COPYONLY)
 
 set(BUILDYARD_TARGETS ${CMAKE_PROJECT_NAME})
 add_subdirectory("${CMAKE_BINARY_DIR}/Buildyard" # source
