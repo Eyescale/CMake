@@ -1,3 +1,4 @@
+# Copyright (c) 2014 Stefan.Eilemann@epfl.ch
 
 find_path(_openMesh_INCLUDE_DIR OpenMesh/Core/Geometry/Config.hh
   HINTS ${OPENMESH_ROOT}/include
