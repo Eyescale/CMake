@@ -7,7 +7,6 @@ find_package(Git)
 if(NOT GIT_EXECUTABLE)
   return()
 endif()
-include(UpdateFile)
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd\">\n"
@@ -105,8 +104,8 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "</html>\n"
 )
 
-update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
-  "${CMAKE_SOURCE_DIR}/index.html")
+configure_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
+  "${CMAKE_SOURCE_DIR}/index.html" COPYONLY)
 
 execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${ENTRIES}
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

@@ -16,7 +16,6 @@
 # headers.
 
 include(InstallFiles)
-include(UpdateFile)
 
 function(COMMON_LIBRARY Name)
   string(TOUPPER ${Name} NAME)
@@ -44,8 +43,8 @@ function(COMMON_LIBRARY Name)
   file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${name}.in.h "#endif\n")
   set(PROJECT_INCLUDE_HEADER ${CMAKE_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/${PROJECT_INCLUDE_NAME}.h)
 
-  update_file(${CMAKE_CURRENT_BINARY_DIR}/${name}.in.h
-    ${PROJECT_INCLUDE_HEADER})
+  configure_file(${CMAKE_CURRENT_BINARY_DIR}/${name}.in.h
+    ${PROJECT_INCLUDE_HEADER} COPYONLY)
   list(APPEND PUBLIC_HEADERS ${PROJECT_INCLUDE_HEADER})
 
   if(SOURCES)
