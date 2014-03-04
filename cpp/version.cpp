@@ -1,24 +1,29 @@
 /* Copyright (c) 2014 Stefan.Eilemann@epfl.ch */
 
-#include <@LOWER_PROJECT_NAME@/version.h>
+#include <@PROJECT_INCLUDE_NAME@/version.h>
 #include <sstream>
 
-namespace @LOWER_PROJECT_NAME@
+namespace @PROJECT_namespace@
 {
 
 int Version::getMajor()
 {
-    return @UPPER_PROJECT_NAME@_VERSION_MAJOR;
+    return @PROJECT_NAMESPACE@_VERSION_MAJOR;
 }
 
 int Version::getMinor()
 {
-    return @UPPER_PROJECT_NAME@_VERSION_MINOR;
+    return @PROJECT_NAMESPACE@_VERSION_MINOR;
 }
 
 int Version::getPatch()
 {
-    return @UPPER_PROJECT_NAME@_VERSION_PATCH;
+    return @PROJECT_NAMESPACE@_VERSION_PATCH;
+}
+
+int Version::getABI()
+{
+    return @PROJECT_NAMESPACE@_VERSION_ABI;
 }
 
 std::string Version::getString()
@@ -30,7 +35,7 @@ std::string Version::getString()
 
 int Version::getRevision()
 {
-    return @UPPER_PROJECT_NAME@_VERSION_REVISION;
+    return @PROJECT_NAMESPACE@_VERSION_REVISION;
 }
 
 std::string Version::getRevString()

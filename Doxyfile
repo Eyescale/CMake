@@ -733,7 +733,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @CMAKE_INSTALL_PREFIX@/include/@LOWER_PROJECT_NAME@ \
+INPUT                  = @CMAKE_INSTALL_PREFIX@/include/@PROJECT_INCLUDE_NAME@ \
                          @CMAKE_SOURCE_DIR@/doc \
                          @DOXYGEN_EXTRA_INPUT@
 
