@@ -4,7 +4,7 @@ This repository contains common CMake modules. To use it, create a
 .gitexternals in your project:
 
     # -*- mode: cmake -*-
-    # CMake/common https://github.com/Eyescale/CMake.git 1778185
+    # CMake/common https://github.com/Eyescale/CMake.git master
 
 Copy [GitExternal](GitExternal.cmake) from this repository to CMake/,
 and use it in your top-level CMakeLists.txt:
