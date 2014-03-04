@@ -6,46 +6,49 @@
 #include <@PROJECT_INCLUDE_NAME@/api.h>
 #include <string>
 
-namespace @PROJECT_INCLUDE_NAME@
+namespace @PROJECT_namespace@
 {
     /** The current major version. */
-#   define @UPPER_PROJECT_NAME@_VERSION_MAJOR @VERSION_MAJOR@
+#   define @PROJECT_NAMESPACE@_VERSION_MAJOR @VERSION_MAJOR@
 
     /** The current minor version. */
-#   define @UPPER_PROJECT_NAME@_VERSION_MINOR @VERSION_MINOR@
+#   define @PROJECT_NAMESPACE@_VERSION_MINOR @VERSION_MINOR@
 
     /** The current patch level. */
-#   define @UPPER_PROJECT_NAME@_VERSION_PATCH @VERSION_PATCH@
+#   define @PROJECT_NAMESPACE@_VERSION_PATCH @VERSION_PATCH@
 
     /** The current SCM revision. */
-#   define @UPPER_PROJECT_NAME@_VERSION_REVISION 0x@GIT_REVISION@
+#   define @PROJECT_NAMESPACE@_VERSION_REVISION 0x@GIT_REVISION@
+
+    /** The current binary interface. */
+#   define @PROJECT_NAMESPACE@_VERSION_ABI @VERSION_ABI@
 
 /** True if the current version is newer than the given one. */
-#   define @UPPER_PROJECT_NAME@_VERSION_GT( MAJOR, MINOR, PATCH )       \
-    ( (@UPPER_PROJECT_NAME@_VERSION_MAJOR>MAJOR) ||                     \
-      (@UPPER_PROJECT_NAME@_VERSION_MAJOR==MAJOR && (@UPPER_PROJECT_NAME@_VERSION_MINOR>MINOR || \
-          (@UPPER_PROJECT_NAME@_VERSION_MINOR==MINOR && @UPPER_PROJECT_NAME@_VERSION_PATCH>PATCH))))
+#   define @PROJECT_NAMESPACE@_VERSION_GT( MAJOR, MINOR, PATCH )       \
+    ( (@PROJECT_NAMESPACE@_VERSION_MAJOR>MAJOR) ||                     \
+      (@PROJECT_NAMESPACE@_VERSION_MAJOR==MAJOR && (@PROJECT_NAMESPACE@_VERSION_MINOR>MINOR || \
+          (@PROJECT_NAMESPACE@_VERSION_MINOR==MINOR && @PROJECT_NAMESPACE@_VERSION_PATCH>PATCH))))
 
 /** True if the current version is equal or newer to the given. */
-#   define @UPPER_PROJECT_NAME@_VERSION_GE( MAJOR, MINOR, PATCH )       \
-    ( (@UPPER_PROJECT_NAME@_VERSION_MAJOR>MAJOR) ||                     \
-      (@UPPER_PROJECT_NAME@_VERSION_MAJOR==MAJOR && (@UPPER_PROJECT_NAME@_VERSION_MINOR>MINOR || \
-          (@UPPER_PROJECT_NAME@_VERSION_MINOR==MINOR && @UPPER_PROJECT_NAME@_VERSION_PATCH>=PATCH))))
+#   define @PROJECT_NAMESPACE@_VERSION_GE( MAJOR, MINOR, PATCH )       \
+    ( (@PROJECT_NAMESPACE@_VERSION_MAJOR>MAJOR) ||                     \
+      (@PROJECT_NAMESPACE@_VERSION_MAJOR==MAJOR && (@PROJECT_NAMESPACE@_VERSION_MINOR>MINOR || \
+          (@PROJECT_NAMESPACE@_VERSION_MINOR==MINOR && @PROJECT_NAMESPACE@_VERSION_PATCH>=PATCH))))
 
 /** True if the current version is older than the given one. */
-#   define @UPPER_PROJECT_NAME@_VERSION_LT( MAJOR, MINOR, PATCH )       \
-    ( (@UPPER_PROJECT_NAME@_VERSION_MAJOR<MAJOR) ||                     \
-      (@UPPER_PROJECT_NAME@_VERSION_MAJOR==MAJOR && (@UPPER_PROJECT_NAME@_VERSION_MINOR<MINOR || \
-          (@UPPER_PROJECT_NAME@_VERSION_MINOR==MINOR && @UPPER_PROJECT_NAME@_VERSION_PATCH<PATCH))))
+#   define @PROJECT_NAMESPACE@_VERSION_LT( MAJOR, MINOR, PATCH )       \
+    ( (@PROJECT_NAMESPACE@_VERSION_MAJOR<MAJOR) ||                     \
+      (@PROJECT_NAMESPACE@_VERSION_MAJOR==MAJOR && (@PROJECT_NAMESPACE@_VERSION_MINOR<MINOR || \
+          (@PROJECT_NAMESPACE@_VERSION_MINOR==MINOR && @PROJECT_NAMESPACE@_VERSION_PATCH<PATCH))))
 
 /** True if the current version is older or equal to the given. */
-#   define @UPPER_PROJECT_NAME@_VERSION_LE( MAJOR, MINOR, PATCH )       \
-    ( (@UPPER_PROJECT_NAME@_VERSION_MAJOR<MAJOR) ||                     \
-      (@UPPER_PROJECT_NAME@_VERSION_MAJOR==MAJOR && (@UPPER_PROJECT_NAME@_VERSION_MINOR<MINOR || \
-        (@UPPER_PROJECT_NAME@_VERSION_MINOR==MINOR && @UPPER_PROJECT_NAME@_VERSION_PATCH<=PATCH))))
+#   define @PROJECT_NAMESPACE@_VERSION_LE( MAJOR, MINOR, PATCH )       \
+    ( (@PROJECT_NAMESPACE@_VERSION_MAJOR<MAJOR) ||                     \
+      (@PROJECT_NAMESPACE@_VERSION_MAJOR==MAJOR && (@PROJECT_NAMESPACE@_VERSION_MINOR<MINOR || \
+        (@PROJECT_NAMESPACE@_VERSION_MINOR==MINOR && @PROJECT_NAMESPACE@_VERSION_PATCH<=PATCH))))
 
 /** Information about the current @CMAKE_PROJECT_NAME@ version. */
-class @UPPER_PROJECT_NAME@_API Version
+class @PROJECT_NAMESPACE@_API Version
 {
 public:
     /** @return the current major version of @CMAKE_PROJECT_NAME@. */
@@ -63,6 +66,9 @@ public:
     /** @return the SCM revision. */
     static int getRevision();
 
+    /** @return the current binary interface version of @CMAKE_PROJECT_NAME@. */
+    static int getABI();
+
     /** @return the current @CMAKE_PROJECT_NAME@ version plus the git SHA hash (MM.mm.pp.rev). */
     static std::string getRevString();
 
@@ -76,8 +82,8 @@ public:
      */
     static bool check()
     {
-        return getMajor()==@UPPER_PROJECT_NAME@_VERSION_MAJOR &&
-               getMinor()==@UPPER_PROJECT_NAME@_VERSION_MINOR;
+        return getMajor()==@PROJECT_NAMESPACE@_VERSION_MAJOR &&
+               getMinor()==@PROJECT_NAMESPACE@_VERSION_MINOR;
     }
 };
 

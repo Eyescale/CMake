@@ -11,19 +11,19 @@
 #include <@PROJECT_INCLUDE_NAME@/defines.h>
 
 #if defined(_MSC_VER) || defined(__declspec)
-#  define @UPPER_PROJECT_NAME@_DLLEXPORT __declspec(dllexport)
-#  define @UPPER_PROJECT_NAME@_DLLIMPORT __declspec(dllimport)
+#  define @PROJECT_NAMESPACE@_DLLEXPORT __declspec(dllexport)
+#  define @PROJECT_NAMESPACE@_DLLIMPORT __declspec(dllimport)
 #else // _MSC_VER
-#  define @UPPER_PROJECT_NAME@_DLLEXPORT
-#  define @UPPER_PROJECT_NAME@_DLLIMPORT
+#  define @PROJECT_NAMESPACE@_DLLEXPORT
+#  define @PROJECT_NAMESPACE@_DLLIMPORT
 #endif // _MSC_VER
 
 #if defined(@UPPER_PROJECT_NAME@_STATIC)
-#  define @UPPER_PROJECT_NAME@_API
+#  define @PROJECT_NAMESPACE@_API
 #elif defined(@UPPER_PROJECT_NAME@_SHARED)
-#  define @UPPER_PROJECT_NAME@_API @UPPER_PROJECT_NAME@_DLLEXPORT
+#  define @PROJECT_NAMESPACE@_API @PROJECT_NAMESPACE@_DLLEXPORT
 #else
-#  define @UPPER_PROJECT_NAME@_API @UPPER_PROJECT_NAME@_DLLIMPORT
+#  define @PROJECT_NAMESPACE@_API @PROJECT_NAMESPACE@_DLLIMPORT
 #endif
 
 #endif
