@@ -1,9 +1,13 @@
 # used by DoxygenRule.cmake, don't use directly
 
+# The next two lines are deprecated, remove when all doc projects use
+# .gitexternals
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/oss)
-find_package(Git)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common/oss)
 
+find_package(Git)
 if(NOT GIT_EXECUTABLE)
   return()
 endif()
