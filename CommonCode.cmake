@@ -8,6 +8,10 @@ include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 if(NOT PROJECT_INCLUDE_NAME)
   set(PROJECT_INCLUDE_NAME ${LOWER_PROJECT_NAME})
 endif()
+if(NOT PROJECT_namespace)
+  set(PROJECT_namespace ${PROJECT_INCLUDE_NAME})
+endif()
+string(TOUPPER ${PROJECT_namespace} PROJECT_NAMESPACE)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cpp/api.h
   ${CMAKE_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/api.h @ONLY)
