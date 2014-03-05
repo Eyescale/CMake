@@ -10,7 +10,7 @@
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
 # * DOXYGEN_CONFIG_FILE or one is auto-configured
-# * COMMON_ORGANIZATION_NAME (from GithubOrganization)
+# * COMMON_ORGANIZATION_NAME (from GithubInfo)
 #
 # * doxygen runs doxygen after compiling and installing the project
 # * doxygit runs doxygen and installs the documentation in
@@ -28,8 +28,8 @@ if(NOT INSTALL_DEPENDS)
 endif()
 
 if(NOT GIT_DOCUMENTATION_REPO)
-  include(GithubOrganization)
-  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_org})
+  include(GithubInfo)
+  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_ORG})
 endif()
 
 if(NOT PROJECT_PACKAGE_NAME)
@@ -57,7 +57,7 @@ add_custom_target(doxygen
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
-  DEPENDS doxygen_install)
+  DEPENDS doxygen_install project_info)
 if(COVERAGE)
   add_dependencies(doxygen tests) # Generates CoverageReport
 endif()
@@ -68,8 +68,9 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
   COMPONENT doc CONFIGURATIONS Release)
 
 if(GIT_DOCUMENTATION_REPO)
+  string(TOLOWER ${GIT_DOCUMENTATION_REPO} GIT_DOCUMENTATION_repo)
   set(GIT_DOCUMENTATION_DIR
-    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_repo}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
   add_custom_target(doxycopy
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
@@ -78,8 +79,8 @@ if(GIT_DOCUMENTATION_REPO)
 
   add_custom_target(doxygit
     COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}" -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}" -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
-    COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
+    COMMENT "Updating ${GIT_DOCUMENTATION_repo}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_repo}"
     DEPENDS doxycopy)
 else()
   add_custom_target(doxygit
