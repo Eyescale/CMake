@@ -33,8 +33,26 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "    <h2 style=\"text-align: center;\">Projects</h2>")
 
 file(GLOB Entries RELATIVE ${CMAKE_SOURCE_DIR} *-*)
+
+# sort entries forward for names, backwards for versions
 list(SORT Entries)
-list(REVERSE Entries)
+set(LAST_Project)
+foreach(Entry ${Entries})
+  string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
+  if(NOT Project STREQUAL LAST_Project)
+    if(SubEntries)
+      list(REVERSE SubEntries)
+      list(APPEND Entries2 ${SubEntries})
+    endif()
+    set(LAST_Project ${Project})
+    set(SubEntries)
+  endif()
+  list(APPEND SubEntries ${Entry})
+endforeach()
+
+list(REVERSE SubEntries)
+set(Entries ${Entries2} ${SubEntries})
+
 set(LAST_Project)
 set(BODY)
 
