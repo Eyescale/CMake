@@ -1,6 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2014 Stefan Eilemann <eile@eyescale.ch>
 #
 #  sudo apt-get install devscripts
 ##
@@ -24,16 +24,12 @@ if(NOT CPACK_PACKAGE_NAME)
   message(STATUS "CPACK_PACKAGE_NAME not set, no PPA upload")
   return()
 endif()
+if(NOT DPUT_HOST)
+  message(STATUS "DPUT_HOST not set, no PPA upload")
+  return()
+endif()
 
 set(UPLOADPPA_FOUND TRUE)
-
-if(NOT DPUT_HOST)
-  if(RELEASE_VERSION)
-    set(DPUT_HOST "ppa:eilemann/equalizer")
-  else()
-    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
-  endif()
-endif()
 
 # DEBIAN/control
 # debian policy enforce lower case for package name
