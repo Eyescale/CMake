@@ -56,12 +56,12 @@ macro(DOXYGIT_WRITE_ENTRY)
 
   if(${PROJECT}_GIT_ROOT_URL)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-      "<a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Git source repository\"></a>")
-    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Git source repository\"> git repository</a></div>")
+      "<a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Source Repository\"></a>")
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Git source repository\"> Source Repository</a></div>")
   endif()
 
   if(${PROJECT}_ISSUES_URL)
-    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_ISSUES_URL}\"><img src=\"images/search.png\" alt=\"Project Issues\"> Project Issues</a></div>")
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_ISSUES_URL}\"><img src=\"images/issues.png\" alt=\"Project Issues\"> Project Issues</a></div>")
   endif()
 
   if(${PROJECT}_PACKAGE_URL)
