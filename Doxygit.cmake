@@ -132,7 +132,7 @@ foreach(Entry ${Entries})
   list(APPEND GIT_DOCUMENTATION_INSTALL ${Entry})
 endforeach()
 
-file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "
+file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "${DOXYGIT_TOC_POST}
   </div>
   <div class=\"content\">
     <h1>${CMAKE_PROJECT_NAME} Software Directory</h1>
