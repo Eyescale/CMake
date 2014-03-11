@@ -8,7 +8,7 @@ if(NOT CPACK_MACPORTS_CATEGORY)
   return()
 endif()
 
-include(GithubOrganization)
+include(GithubInfo)
 
 # Configurables
 if(NOT CMAKE_MACPORTS_NAME)
