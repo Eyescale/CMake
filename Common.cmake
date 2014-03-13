@@ -87,7 +87,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
-add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+if(NOT Boost_USE_STATIC_LIBS)
+  add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+endif()
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
