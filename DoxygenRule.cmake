@@ -6,6 +6,8 @@
 # Input Variables
 # * DOXYGEN_EXTRA_INPUT appended to INPUT in Doxyfile
 # * DOXYGEN_EXTRA_EXCLUDE appended to EXCLUDE in Doxyfile
+# * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
+#   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 #
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
