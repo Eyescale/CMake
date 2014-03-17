@@ -41,7 +41,7 @@ endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
   set(COMMON_ORGANIZATION_NAME Unknown)
-  message(STATUS "Using ${COMMON_ORGANIZATION_NAME} as origanization")
+  message(STATUS "Using ${COMMON_ORGANIZATION_NAME} as organization")
 endif()
 
 if(NOT DOXYGEN_CONFIG_FILE)
