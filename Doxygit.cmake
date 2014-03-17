@@ -15,6 +15,12 @@ endif()
 include(CommonProcess)
 include(Maturity)
 
+# PROJECT_NAME = CMAKE_PROJECT_NAME with capitalized first letter
+string(SUBSTRING ${CMAKE_PROJECT_NAME} 0 1 FIRST_LETTER)
+string(TOUPPER ${FIRST_LETTER} FIRST_LETTER)
+string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" PROJECT_NAME
+  "${CMAKE_PROJECT_NAME}")
+
 configure_file("${CMAKE_CURRENT_LIST_DIR}/github.css"
   "${CMAKE_SOURCE_DIR}/CMake/github.css" COPYONLY)
 common_process("Copy icons to documentation repository" FATAL_ERROR
@@ -25,7 +31,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd\">\n"
 "<html>\n"
 "  <head>\n"
-"    <title>${CMAKE_PROJECT_NAME} Software Directory</title>\n"
+"    <title>${PROJECT_NAME} Software Directory</title>\n"
 "    <link rel=\"stylesheet\" href=\"CMake/github.css\" type=\"text/css\">"
 "  </head>\n"
 "  <body>\n"
@@ -135,7 +141,7 @@ endforeach()
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "${DOXYGIT_TOC_POST}
   </div>
   <div class=\"content\">
-    <h1>${CMAKE_PROJECT_NAME} Software Directory</h1>
+    <h1>${PROJECT_NAME} Software Directory</h1>
     ${BODY}</div>
 </html>")
 
