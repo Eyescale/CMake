@@ -4,8 +4,12 @@
 # TargetHooks installed by Common and must be included after all targets!
 #
 # Input Variables
-# * DOXYGEN_EXTRA_INPUT appended to INPUT in Doxyfile
-# * DOXYGEN_EXTRA_EXCLUDE appended to EXCLUDE in Doxyfile
+# * DOXYGEN_EXTRA_INPUT additional parsed input files, appended to INPUT in
+#   Doxyfile
+# * DOXYGEN_EXTRA_EXCLUDE additional excluded input files, appended to EXCLUDE
+#   in Doxyfile
+# * DOXYGEN_EXTRA_FILES additional files to be copied to documentation,
+#   appended to HTML_EXTRA_FILES in Doxyfile
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
