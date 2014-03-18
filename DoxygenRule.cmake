@@ -8,6 +8,7 @@
 # * DOXYGEN_EXTRA_EXCLUDE appended to EXCLUDE in Doxyfile
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
+# * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
 #
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
@@ -83,6 +84,7 @@ if(GIT_DOCUMENTATION_REPO)
     -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}"
     -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
     -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
+    -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
     COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
