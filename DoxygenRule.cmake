@@ -10,6 +10,8 @@
 #   in Doxyfile
 # * DOXYGEN_EXTRA_FILES additional files to be copied to documentation,
 #   appended to HTML_EXTRA_FILES in Doxyfile
+# * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
+#   to CMAKE_PROJECT_NAME is not provided.
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
@@ -42,6 +44,10 @@ endif()
 if(NOT PROJECT_PACKAGE_NAME)
   set(PROJECT_PACKAGE_NAME ${COMMON_PROJECT_DOMAIN}.${LOWER_PROJECT_NAME})
   message(STATUS "Using ${PROJECT_PACKAGE_NAME} for documentation")
+endif()
+
+if(NOT DOXYGEN_PROJECT_NAME)
+  set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
