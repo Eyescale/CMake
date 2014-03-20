@@ -4,10 +4,15 @@
 # TargetHooks installed by Common and must be included after all targets!
 #
 # Input Variables
-# * DOXYGEN_EXTRA_INPUT appended to INPUT in Doxyfile
-# * DOXYGEN_EXTRA_EXCLUDE appended to EXCLUDE in Doxyfile
+# * DOXYGEN_EXTRA_INPUT additional parsed input files, appended to INPUT in
+#   Doxyfile
+# * DOXYGEN_EXTRA_EXCLUDE additional excluded input files, appended to EXCLUDE
+#   in Doxyfile
+# * DOXYGEN_EXTRA_FILES additional files to be copied to documentation,
+#   appended to HTML_EXTRA_FILES in Doxyfile
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
+# * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
 #
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
@@ -31,7 +36,7 @@ endif()
 
 if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubInfo)
-  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_ORG})
+  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_org})
 endif()
 
 if(NOT PROJECT_PACKAGE_NAME)
@@ -41,7 +46,7 @@ endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
   set(COMMON_ORGANIZATION_NAME Unknown)
-  message(STATUS "Using ${COMMON_ORGANIZATION_NAME} as origanization")
+  message(STATUS "Using ${COMMON_ORGANIZATION_NAME} as organization")
 endif()
 
 if(NOT DOXYGEN_CONFIG_FILE)
@@ -70,9 +75,8 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
   COMPONENT doc CONFIGURATIONS Release)
 
 if(GIT_DOCUMENTATION_REPO)
-  string(TOLOWER ${GIT_DOCUMENTATION_REPO} GIT_DOCUMENTATION_repo)
   set(GIT_DOCUMENTATION_DIR
-    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_repo}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
   add_custom_target(doxycopy
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
@@ -84,9 +88,10 @@ if(GIT_DOCUMENTATION_REPO)
     -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}"
     -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
     -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
+    -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
-    COMMENT "Updating ${GIT_DOCUMENTATION_repo}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_repo}"
+    COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
     DEPENDS doxycopy)
 else()
   add_custom_target(doxygit
