@@ -1,5 +1,10 @@
 # Copyright (c) 2014 Stefan.Eilemann@epfl.ch
 #  Writes ProjectInfo.cmake for installed html docs
+#
+# Input Variables:
+# * ${UPPER_PROJECT_NAME}_MATURITY EP, RD or RS
+# * ${UPPER_PROJECT_NAME}_PACKAGE_URL pointing to the package repository
+# * ${UPPER_PROJECT_NAME}_ISSUES_URL pointing to the ticket tracker
 
 include(GithubInfo)
 
