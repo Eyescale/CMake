@@ -7,7 +7,7 @@
 # supersedes the Find${CMAKE_PROJECT_NAME}.cmake file.
 #
 # Input variables
-#   ${CPACK_PACKAGE_NAME} - The package name
+#   CPACK_PACKAGE_NAME - The package name
 #   ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link
 #     libraries, format is ${CMAKE_PROJECT_NAME}
 #   ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries
