@@ -5,7 +5,7 @@
 # sets COMMON_ORGANIZATION_NAME to GIT_ORIGIN_ORG if not already set
 # CI_ROOT_URL: The travis-ci.org URL for the root remote
 # CI_ROOT_PNG: The travis-ci.org status png for the root remote
-# ISSUES_ROOT_URL: The URL for tickets on the root remote
+# ${UPPER_PROJECT_NAME}_ISSUES_URL: The URL for tickets on the root remote
 
 include(GitInfo)
 
@@ -38,5 +38,6 @@ if(GIT_ROOT_URL MATCHES ".*github.com.*")
   string(REPLACE "github.com" "travis-ci.org" CI_ROOT_URL ${GIT_ROOT_URL})
   string(REPLACE ".git" "" CI_ROOT_URL ${CI_ROOT_URL})
   set(CI_ROOT_PNG ${CI_ROOT_URL}.png)
-  string(REPLACE ".git" "/issues" ISSUES_ROOT_URL ${GIT_ROOT_URL})
+  string(REPLACE ".git" "/issues"
+         ${UPPER_PROJECT_NAME}_ISSUES_URL ${GIT_ROOT_URL})
 endif()
