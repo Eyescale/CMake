@@ -9,8 +9,7 @@
 # * NAME_PUBLIC_HEADERS for public, installed header files
 # * NAME_LINK_LIBRARIES for dependencies of name
 # * NAME_LIBRARY_TYPE for setting shared or static library
-# * PROJECT_INCLUDE_NAME or lower case input Name for the include directory
-#   and single include header.
+# * PROJECT_INCLUDE_NAME for the include directory and project include header
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
 #
