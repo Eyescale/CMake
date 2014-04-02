@@ -1,7 +1,7 @@
 # Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #
 # Sets compiler optimization, definition and warnings according to
-# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.1
+# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
 # or later) and Visual Studio (2008 or later).
 #
 # Input Variables
@@ -39,9 +39,6 @@ set(COMMON_GCC_FLAGS
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   compiler_dumpversion(GCC_COMPILER_VERSION)
-  if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
-    message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
-  endif()
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -Werror")
   endif()
