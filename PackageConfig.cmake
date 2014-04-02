@@ -16,6 +16,7 @@
 # Output variables
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
 #     components found?
+#   ${CMAKE_PROJECT_NAME}_FOUND - Same as above
 #
 #   ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
 #   ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
@@ -137,6 +138,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
 # finally report about found or not found
   "if(_fail)\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
+  "  set(${CMAKE_PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_VERSION)\n"
   "  set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  set(${UPPER_PROJECT_NAME}_LIBRARIES)\n"
@@ -148,6 +150,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  endif()\n"
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
+  "  set(${CMAKE_PROJECT_NAME}_FOUND TRUE)\n"
   "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
   "  if(_out)\n"
   "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} \${${UPPER_PROJECT_NAME}_COMPONENTS} in \"\n"
