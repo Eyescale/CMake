@@ -6,7 +6,7 @@
 # * EXCLUDE_FROM_TESTS a relative paths to test files to exclude; optional
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${CMAKE_CURRENT_SOURCE_DIR})
