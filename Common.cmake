@@ -1,4 +1,13 @@
 # Common settings
+#
+# Input Variables
+#
+# IO Variables (set if not set as input)
+# * COMMON_PROJECT_DOMAIN a reverse DNS name
+#
+# Output Variables
+# * COMMON_INCLUDES: generated include files (version, defines, api)
+# * COMMON_SOURCES: generated cpp files (version)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
@@ -10,6 +19,9 @@ if(CMAKE_VERSION VERSION_LESS 2.8.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8.8)
 endif()
 
+if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+  include(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+endif()
 include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
 
 enable_testing()
@@ -53,12 +65,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
-file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
-include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
-
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
+endif()
+if(NOT COMMON_PROJECT_DOMAIN)
+  set(COMMON_PROJECT_DOMAIN org.doxygen)
+  message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
+endif()
+
+if(NOT DPUT_HOST)
+  if(RELEASE_VERSION)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
@@ -67,7 +87,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
-add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+if(NOT Boost_USE_STATIC_LIBS)
+  add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+endif()
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
@@ -77,14 +99,9 @@ else()
   add_definitions(-D${UPPER_PROJECT_NAME}_LITTLEENDIAN)
 endif()
 
-include(Compiler) # compiler-specific default options and warnings
-include(TestCPP11)
-include(Coverage)
-include(UpdateGitExternal)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
-
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
   endif()
@@ -117,4 +134,14 @@ if(APPLE)
     "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
-include(${CMAKE_CURRENT_LIST_DIR}/TargetHooks.cmake)
+include(CommonApplication)
+include(CommonCode)
+include(CommonLibrary)
+include(Compiler)
+include(Coverage)
+include(GitTargets)
+include(Maturity)
+include(ProjectInfo)
+include(TargetHooks)
+include(TestCPP11)
+include(UpdateGitExternal)

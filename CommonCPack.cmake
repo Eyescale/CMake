@@ -9,6 +9,9 @@ endif()
 if(NOT CPACK_PACKAGE_NAME)
   set(CPACK_PACKAGE_NAME ${CPACK_PROJECT_NAME})
 endif()
+if(NOT CPACK_PACKAGE_DESCRIPTION_SUMMARY)
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${${UPPER_PROJECT_NAME}_DESCRIPTION})
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec)
@@ -49,6 +52,7 @@ if(NOT CPACK_PACKAGE_CONFIG_REQUIRES)
     "${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES}")
 endif()
 if(NOT CPACK_DEBIAN_BUILD_DEPENDS)
+  # setup'd by Buildyard config, same as for travis CI
   set(CPACK_DEBIAN_BUILD_DEPENDS ${${UPPER_PROJECT_NAME}_BUILD_DEBS})
 endif()
 
@@ -97,7 +101,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 # Auto-package-version magic
-include(Revision)
+include(GitInfo)
 set(CMAKE_PACKAGE_VERSION "" CACHE
   STRING "Additional build version for packages")
 mark_as_advanced(CMAKE_PACKAGE_VERSION)
@@ -173,11 +177,6 @@ else()
       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
     endif()
 
-    # setup'd by Buildyard config, same as for travis CI
-    if(NOT CPACK_DEBIAN_BUILD_DEPENDS AND ${UPPER_PROJECT_NAME}_BUILD_DEBS)
-      set(CPACK_DEBIAN_BUILD_DEPENDS ${${UPPER_PROJECT_NAME}_BUILD_DEBS})
-    endif()
-
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS ${OLD_PACKAGES})
   endif()
 endif()
@@ -188,3 +187,5 @@ include(InstallRequiredSystemLibraries)
 set(CPACK_PACKAGE_FILE_NAME_BACKUP "${CPACK_PACKAGE_FILE_NAME}")
 include(CPack)
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME_BACKUP}")
+
+include(PackageConfig)

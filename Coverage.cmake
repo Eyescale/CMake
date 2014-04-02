@@ -1,4 +1,7 @@
 # Code coverage reporting
+#   ENABLE_COVERAGE has to be set since code coverage compiler flags
+#   may break downstream projects. Use Buildyard 'make coverage'
+#   target.
 
 option(ENABLE_COVERAGE "Enable code coverage testing" OFF)
 if(ENABLE_COVERAGE)

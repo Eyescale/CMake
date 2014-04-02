@@ -1,9 +1,10 @@
 # Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
+#
 # Sets compiler optimization, definition and warnings according to
-# chosen compiler
-# Supported compilers are XL, Intel, Clang and GNU
+# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.1
+# or later) and Visual Studio (2008 or later).
 
-# Compiler settings
+# Compiler name
 if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
   set(CMAKE_COMPILER_IS_XLCXX ON)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -13,6 +14,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
+# use MSVC for Visual Studio
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
 if(ENABLE_WARN_DEPRECATED)
@@ -37,12 +39,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   endif()
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
-      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024")
+      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
   set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
+    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo -Wvla")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 
@@ -96,12 +98,6 @@ if(MSVC)
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
-
-  # By default, do not warn when built on machines using only VS Express
-  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
-  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  endif()
 
   # By default, do not warn when built on machines using only VS Express
   # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
