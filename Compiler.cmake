@@ -3,6 +3,13 @@
 # Sets compiler optimization, definition and warnings according to
 # chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.1
 # or later) and Visual Studio (2008 or later).
+#
+# Input Variables
+# * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
+#
+# Output Variables
+# * GCC_COMPILER_VERSION The compiler version if gcc is used
+
 
 # Compiler name
 if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
@@ -15,6 +22,10 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 # use MSVC for Visual Studio
+
+if(NOT COMMON_MINIMUM_GCC_VERSION)
+  set(COMMON_MINIMUM_GCC_VERSION 4.4)
+endif()
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
 if(ENABLE_WARN_DEPRECATED)
@@ -40,6 +51,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
       "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024")
+  else()
+    if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
+      message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
+    endif()
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
