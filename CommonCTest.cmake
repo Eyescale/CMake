@@ -1,5 +1,9 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010-2014, Stefan Eilemann <eile@eyescale.ch>
+#
+# Input:
+# * TEST_LIBRARIES link each test executables against these libraries
+# * EXCLUDE_FROM_TESTS a relative paths to test files to exclude; optional
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
@@ -8,6 +12,9 @@ endif()
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
+foreach(FILE ${EXCLUDE_FROM_TESTS})
+  list(REMOVE_ITEM TEST_FILES ${FILE})
+endforeach()
 list(SORT TEST_FILES)
 
 set(ALL_TESTS)
@@ -29,7 +36,7 @@ foreach(FILE ${TEST_FILES})
   if(COVERAGE)
     add_dependencies(${NAME} lcov-clean)
   endif()
-endforeach(FILE ${TEST_FILES})
+endforeach()
 
 add_custom_target(runtests
   COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_TESTS}

@@ -1,117 +1,179 @@
-# used by DoxygenRule.cmake, don't use directly
+# Copyright (c) 2012-2014 Stefan.Eilemann@epfl.ch
 
+# Used by Documentation projects, which include it in their CMakeLists
+#
+# Input Variables
+# * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
+#
+# Also used by 'doxygit' target from DoxygenRule.cmake
+
+
+# The next two lines are deprecated, remove when all doc projects use
+# .gitexternals
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/oss)
-find_package(Git)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common/oss)
 
-if(NOT GIT_EXECUTABLE)
-  return()
-endif()
-include(UpdateFile)
+find_package(Git REQUIRED)
+
+include(CommonProcess)
+include(Maturity)
+
+# PROJECT_NAME = CMAKE_PROJECT_NAME with capitalized first letter
+string(SUBSTRING ${CMAKE_PROJECT_NAME} 0 1 FIRST_LETTER)
+string(TOUPPER ${FIRST_LETTER} FIRST_LETTER)
+string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" PROJECT_NAME
+  "${CMAKE_PROJECT_NAME}")
+
+configure_file("${CMAKE_CURRENT_LIST_DIR}/github.css"
+  "${CMAKE_SOURCE_DIR}/CMake/github.css" COPYONLY)
+common_process("Copy icons to documentation repository" FATAL_ERROR
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/icons
+  ${CMAKE_SOURCE_DIR}/images)
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd\">\n"
 "<html>\n"
 "  <head>\n"
-"    <title>${CMAKE_PROJECT_NAME} API Documentation</title>\n"
+"    <title>${PROJECT_NAME} Software Directory</title>\n"
 "    <link rel=\"stylesheet\" href=\"CMake/github.css\" type=\"text/css\">"
 "  </head>\n"
 "  <body>\n"
-"  <h1>API Documentation</h1>"
-"  <table>\n"
-)
+"  <div class=\"toc\">"
+"    <h2 style=\"text-align: center;\">Projects</h2>")
 
-file(GLOB ENTRIES RELATIVE ${CMAKE_SOURCE_DIR} *-*)
-list(SORT ENTRIES)
-set(MAX_VERSIONS 0)
-set(LAST_PROJECT)
+file(GLOB Entries RELATIVE ${CMAKE_SOURCE_DIR} *-*)
+if(NOT DOXYGIT_MAX_VERSIONS)
+  set(DOXYGIT_MAX_VERSIONS 10)
+endif()
 
-# Create project and version lists
-foreach(ENTRY ${ENTRIES})
-  string(REGEX REPLACE "^(.+)-.+$" "\\1" PROJECT ${ENTRY})
-  if(PROJECT STREQUAL LAST_PROJECT)
-    math(EXPR VERSIONS "${VERSIONS} + 1")
-  else()
-    if(VERSIONS GREATER MAX_VERSIONS)
-      set(MAX_VERSIONS ${VERSIONS})
+# sort entries forward for names, backwards for versions
+list(SORT Entries)
+set(LAST_Project)
+foreach(Entry ${Entries})
+  string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
+  if(NOT Project STREQUAL LAST_Project)
+    if(SubEntries)
+      list(REVERSE SubEntries)
     endif()
-    set(VERSIONS 1)
-    set(LAST_PROJECT ${PROJECT})
+
+    foreach(i RANGE ${DOXYGIT_MAX_VERSIONS}) # limit # of entries
+      if(SubEntries)
+        list(GET SubEntries 0 SubEntry)
+        list(APPEND Entries2 ${SubEntry})
+        list(REMOVE_AT SubEntries 0)
+      endif()
+    endforeach()
+
+    foreach(SubEntry ${SubEntries}) # remove old documentation
+      common_process("Remove old ${SubEntry}" FATAL_ERROR
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${SubEntry}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    endforeach()
+
+    set(LAST_Project ${Project})
+    set(SubEntries)
   endif()
+  list(APPEND SubEntries ${Entry})
 endforeach()
+
+list(REVERSE SubEntries)
+set(Entries ${Entries2} ${SubEntries})
+
+set(LAST_Project)
+set(BODY)
 
 # generate version table
 set(GIT_DOCUMENTATION_INSTALL)
-set(LAST_PROJECT)
-set(VERSIONS 0)
+set(LAST_Project)
 
-file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-  "    <tr><th>Project</th><th colspan=\"${MAX_VERSIONS}\">Versions</th>")
-if(DOXYGIT_PROJECT_EXTRA)
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "<th>Status</th></tr>\n")
-endif()
+macro(DOXYGIT_WRITE_ENTRY)
+  # Verbose entry in main body
+  set(BODY "${BODY} <a name=\"${Project}\"></a><h2>${Project} ${VERSION}</h2>
+    <p>${${PROJECT}_DESCRIPTION}</p>")
 
-macro(DOXYGIT_WRITE_ROW)
-  # start row
+  # start entry
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-    "    <tr><th><a href=\"https://github.com/${CMAKE_PROJECT_NAME}/${LAST_PROJECT}\">${LAST_PROJECT}</a></th>${CONTENT}")
+    "<a href=\"#${Project}\">${Project} ${VERSION}</a>
+    <div class=\"badges\">")
+  set(BODY "${BODY}
+    <div class=\"factoid\"><a href=\"${Entry}/index.html\"><img src=\"images/help.png\"> API Documentation</a></div>")
 
-  # fill unused versions
-  math(EXPR FILL_VERSIONS "${MAX_VERSIONS} - ${VERSIONS}")
-  if(FILL_VERSIONS)
+  if(${PROJECT}_GIT_ROOT_URL)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-      "<th colspan=\"${FILL_VERSIONS}\"></th>")
+      "<a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Source Repository\"></a>")
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_GIT_ROOT_URL}\"><img src=\"images/git.png\" alt=\"Git source repository\"> Source Repository</a></div>")
   endif()
 
-  # CI status
-  if(DOXYGIT_PROJECT_EXTRA AND LAST_PROJECT)
-    string(REPLACE "[PROJECT]" "${LAST_PROJECT}" DOXYGIT_PROJECT_EXTRA_
-      ${DOXYGIT_PROJECT_EXTRA})
-    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-      "<th>${DOXYGIT_PROJECT_EXTRA_}</th>")
+  if(${PROJECT}_ISSUES_URL)
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_ISSUES_URL}\"><img src=\"images/issues.png\" alt=\"Project Issues\"> Project Issues</a></div>")
   endif()
 
-  # finish row
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "</tr>\n")
+  if(${PROJECT}_PACKAGE_URL)
+    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+      "<a href=\"${${PROJECT}_PACKAGE_URL}\"><img src=\"images/package.png\" alt=\"Packages\"></a>")
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_PACKAGE_URL}\"><img src=\"images/package.png\" alt=\"Packages\"> Packages</a></div>")
+  endif()
+
+  if(${PROJECT}_CI_URL)
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${${PROJECT}_CI_URL}\"><img src=\"${${PROJECT}_CI_PNG}\" alt=\"Continuous Integration\"> Continuous Integration</a></div>")
+  endif()
+
+  if(EXISTS "${CMAKE_SOURCE_DIR}/${Entry}/CoverageReport/index.html")
+    set(BODY "${BODY}<div class=\"factoid\"><a href=\"${Entry}/CoverageReport/index.html\"><img src=\"images/search.png\" alt=\"Test Coverage Report\"> Test Coverage Report</a></div>")
+  endif()
+
+  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+    "<a href=\"${Entry}/index.html\"><img src=\"images/help.png\"></a>
+      <img src=\"images/${MATURITY}.png\" alt=\"${MATURITY_LONG}\">
+    </div><div class=\"flush\"></div>")
+  set(BODY "${BODY}
+    <div class=\"factoid\"><img src=\"images/${MATURITY}.png\" alt=\"${MATURITY_LONG}\"> ${MATURITY_LONG} Code Quality</div>")
+
 endmacro()
 
-foreach(ENTRY ${ENTRIES})
-  string(REGEX REPLACE "^(.+)-.+$" "\\1" PROJECT ${ENTRY})
-  string(REGEX REPLACE "^.+-(.+)$" "\\1" VERSION ${ENTRY})
+foreach(Entry ${Entries})
+  string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
+  string(REGEX REPLACE "^.+-(.+)$" "\\1" VERSION ${Entry})
+  string(TOUPPER ${Entry} ENTRY)
+  string(TOUPPER ${Project} PROJECT)
+  set(${PROJECT}_MATURITY "EP")
+  if(EXISTS ${CMAKE_SOURCE_DIR}/${Entry}/ProjectInfo.cmake)
+    include(${CMAKE_SOURCE_DIR}/${Entry}/ProjectInfo.cmake)
+  endif()
+  set(MATURITY ${${PROJECT}_MATURITY})
+  set(MATURITY_LONG ${MATURITY_${MATURITY}})
 
-  if(NOT PROJECT STREQUAL LAST_PROJECT) # finish and start new table row
-    if(LAST_PROJECT)
-      doxygit_write_row()
+  if(NOT Project STREQUAL LAST_Project) # start new toc entry
+    if(LAST_Project) # close previous
+      set(BODY "${BODY}</div><div class=\"flush\">")
     endif()
-    # reset
-    set(VERSIONS 0)
-    set(LAST_PROJECT ${PROJECT})
-    set(CONTENT)
+    doxygit_write_entry()
+    set(BODY "${BODY}<div class=\"factoid\"><img src=\"images/help.png\"> Old Versions:")
+
+    set(LAST_Project ${Project})
+  else()
+    set(BODY "${BODY} <a href=\"${Entry}/index.html\">${VERSION}</a>")
   endif()
 
-  math(EXPR VERSIONS "${VERSIONS} + 1")
-  set(CONTENT
-    "<td><a href=\"${ENTRY}/index.html\">${VERSION}</a></td>${CONTENT}")
-  list(APPEND GIT_DOCUMENTATION_INSTALL ${ENTRY})
+  list(APPEND GIT_DOCUMENTATION_INSTALL ${Entry})
 endforeach()
 
-doxygit_write_row()
+file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "${DOXYGIT_TOC_POST}
+  </div>
+  <div class=\"content\">
+    <h1>${PROJECT_NAME} Software Directory</h1>
+    ${BODY}</div>
+</html>")
 
-file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-"  </table>\n"
-"  <h1>Project Dependencies</h1>"
-"  <a href=\"images/all.png\"><img src=\"images/all.png\" width=100%></a>"
-"  </body>\n"
-"</html>\n"
-)
+configure_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
+  "${CMAKE_SOURCE_DIR}/index.html" COPYONLY)
 
-update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
-  "${CMAKE_SOURCE_DIR}/index.html")
+execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${Entries}
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${ENTRIES}
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-
- # hack to detect that not invoked as script and not under CI
+# hack to detect that not invoked as script and not under CI
 if(VERSION_MAJOR)
   if(NOT "$ENV{TRAVIS}")
     foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})

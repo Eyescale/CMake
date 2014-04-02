@@ -8,8 +8,7 @@ if(NOT CPACK_MACPORTS_CATEGORY)
   return()
 endif()
 
-include(UpdateFile)
-include(GithubOrganization)
+include(GithubInfo)
 
 # Configurables
 if(NOT CMAKE_MACPORTS_NAME)
@@ -42,7 +41,7 @@ set(PORTFILE_GH_DIR "${CMAKE_SOURCE_DIR}/../${MACPORTS_DIR}")
 set(PORTFILE "${CMAKE_BINARY_DIR}/${PORTFILE_DIR}/Portfile")
 set(PORTFILE_GH "${PORTFILE_GH_DIR}/${PORTFILE_DIR}/Portfile")
 
-update_file(${CMAKE_SOURCE_DIR}/CMake/Portfile ${PORTFILE})
+configure_file(${CMAKE_SOURCE_DIR}/CMake/Portfile ${PORTFILE} @ONLY)
 install(FILES ${PORTFILE} DESTINATION ${PORTFILE_DIR} COMPONENT lib)
 install(CODE
   "execute_process(COMMAND /opt/local/bin/portindex ${CMAKE_INSTALL_PREFIX}/ports)"
@@ -50,8 +49,7 @@ install(CODE
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
     "list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)\n"
-    "include(UpdateFile)\n"
-    "update_file(${PORTFILE} ${PORTFILE_GH})\n"
+    "configure_file(${PORTFILE} ${PORTFILE_GH} COPYONLY)\n"
     "execute_process(COMMAND /opt/local/bin/portindex ${PORTFILE_GH_DIR}/ports)"
   )
 

@@ -3,10 +3,11 @@
 # Configures the build for a simple application:
 #   common_application(<Name>)
 #
-# Uses:
+# Input:
 # * NAME_SOURCES for all compilation units
 # * NAME_HEADERS for all internal header files
 # * NAME_LINK_LIBRARIES for dependencies of name
+# * ARGN for optional add_executable parameters
 #
 # Builds Name application and installs it.
 
@@ -19,7 +20,7 @@ function(COMMON_APPLICATION Name)
   set(HEADERS ${${NAME}_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
 
-  add_executable(${Name} ${HEADERS} ${SOURCES})
+  add_executable(${Name} ${ARGN} ${HEADERS} ${SOURCES})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
 endfunction()

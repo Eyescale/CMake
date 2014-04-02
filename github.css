@@ -1,34 +1,54 @@
-table
-{
-    font-family: Georgia, Garamond, Palatino, Times, Arial;
-    font-size: small;
-    color: #333333;
-    border-width: 1px;
-    border-color: #666666;
-    border-collapse: collapse;
+a {
+    text-decoration: none;
+    color: black;
 }
-table th
-{
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #666666;
-    background-color: #dedede;
+a:hover {
+    text-decoration: underline;
 }
-table td
-{
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #666666;
-    background-color: #ffffff;
+
+h1 {
     text-align: center;
 }
-A
-{
-    text-decoration: none;
+h2 {
+    padding-top: 1em;
 }
-A:hover
+
+div.toc {
+    position: fixed;
+    left: 0;
+    top: 0;
+    float: left;
+    width: 15em;
+    height: 100%;
+    padding: 5px;
+    border-right: 1px solid black;
+    background-color: #dddddd;
+}
+div.badges {
+    float: right;
+}
+div.factoid {
+    padding: 2px;
+    margin: 2px;
+    border: 1px solid black;
+    background-color: #eeeeee;
+    float: left;
+    vertical-align: top;
+}
+div.factoid a {
+    vertical-align: top;
+}
+div.factoid img {
+    height: 16px;
+}
+div.content {
+    margin-top: 0px;
+    margin-left: 15em;
+    margin-right: 10px;
+    margin-bottom: 4ex;
+    padding-left: 1em;
+}
+div.flush
 {
-    text-decoration: underline;
+    clear: both;
 }
