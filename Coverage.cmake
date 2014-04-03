@@ -49,3 +49,24 @@ if(ENABLE_COVERAGE)
   set(CMAKE_C_FLAGS_DEBUG
     "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 endif()
+
+# Add custom targets to generate an html coverate report produced by running
+# the tests that make part of the given targets
+macro(COVERAGE_REPORT)
+  add_custom_target(lcov-gather
+    COMMAND ${LCOV} -q --directory . --capture --output-file lcov.info
+    COMMENT "Capturing code coverage counters"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ${ARGV})
+  add_custom_target(lcov-remove
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${CMAKE_BINARY_DIR}/*' --output-file lcov2.info
+    COMMENT "Cleaning up code coverage counters"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS lcov-gather)
+  add_custom_target(lcov-html
+    COMMAND ${GENHTML} -q -o CoverageReport ${CMAKE_BINARY_DIR}/lcov2.info
+    COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/doc/html/CoverageReport/index.html "
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
+    DEPENDS lcov-remove)
+  make_directory(${CMAKE_BINARY_DIR}/doc/html)
+endmacro()
