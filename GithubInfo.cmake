@@ -38,6 +38,8 @@ if(GIT_ROOT_URL MATCHES ".*github.com.*")
   string(REPLACE "github.com" "travis-ci.org" CI_ROOT_URL ${GIT_ROOT_URL})
   string(REPLACE ".git" "" CI_ROOT_URL ${CI_ROOT_URL})
   set(CI_ROOT_PNG ${CI_ROOT_URL}.png)
-  string(REPLACE ".git" "/issues"
-         ${UPPER_PROJECT_NAME}_ISSUES_URL ${GIT_ROOT_URL})
+  if(NOT ${UPPER_PROJECT_NAME}_ISSUES_URL)
+    string(REPLACE ".git" "/issues"
+           ${UPPER_PROJECT_NAME}_ISSUES_URL ${GIT_ROOT_URL})
+  endif()
 endif()
