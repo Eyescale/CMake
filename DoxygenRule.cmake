@@ -66,13 +66,16 @@ add_custom_target(doxygen_install
   ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
   DEPENDS ${INSTALL_DEPENDS})
 
-add_custom_target(doxygen
+add_custom_target(doxygen_html
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
   DEPENDS doxygen_install project_info)
 if(COVERAGE)
-  add_dependencies(doxygen tests) # Generates CoverageReport
+  # CoverageReport generated in this case
+  add_custom_target(doxygen DEPENDS doxygen_html tests)
+else()
+  add_custom_target(doxygen DEPENDS doxygen_html)
 endif()
 
 make_directory(${CMAKE_BINARY_DIR}/doc/html)
