@@ -5,16 +5,16 @@
 # Input:
 # * TEST_LIBRARIES link each test executables against these libraries
 # * EXCLUDE_FROM_TESTS a relative paths to test files to exclude; optional
-# * From CMake 2.8.8 on, a custom include path and library linking can be
-#   provided for each test. This customization will go in a separate .cmake
-#   file whose base name matches the .cpp file basename. The variables to set
-#   in that file are ${NAME}_INCLUDE_DIRECTORIES and ${NAME}_LINK_LIBRARIES
-#   (verbatim names, the value of NAME will be set by the code including the
-#    .cmake file). As a fallback a defaults.cmake file can be also provided
+# * For each test ${NAME}_INCLUDE_DIRECTORIES and ${NAME}_LINK_LIBRARIES can
+#   be set to configure target specific includes and link libraries, where
+#   NAME is the test filename without the .cpp extension. Per test include
+#   directories are only supported for for CMake 2.8.8
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
+
+include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 foreach(FILE ${EXCLUDE_FROM_TESTS})
@@ -32,32 +32,15 @@ foreach(FILE ${TEST_FILES})
   add_executable(${NAME} ${FILE})
   set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
 
-  if(CMAKE_VERSION VERSION_GREATER 2.8.7)
-    # If per target INCLUDE_DIRECTORIES are supported this code will load
-    # a per test config file to fine tune its compilation.
-    # This can be to create per-tests mock-ups if needed.
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cmake)
-      include(${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cmake)
-    elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/defaults.cmake)
-      include(${CMAKE_CURRENT_SOURCE_DIR}/defaults.cmake)
-    endif()
+  # Per target INCLUDE_DIRECTORIES if supported
+  if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
+    set_target_properties(${NAME} PROPERTIES
+      INCLUDE_DIRECTORIES "${${NAME}_INCLUDE_DIRECTORIES}")
+  endif()
 
-    # Test includes
-    # Clearing all includes first
-    set_target_properties(${NAME} PROPERTIES INCLUDE_DIRECTORIES "")
-    if (${NAME}_INCLUDE_DIRECTORIES)
-      set_target_properties(${NAME} PROPERTIES
-        INCLUDE_DIRECTORIES "${${NAME}_INCLUDE_DIRECTORIES}")
-    else()
-      # Default includes
-      set(${NAME}_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_LIST_DIR}/cpp ${CMAKE_CURRENT_SOURCE_DIR})
-    endif()
-
-    # Test link libraries
-    if (${NAME}_LINK_LIBRARIES)
-      target_link_libraries(${NAME} ${${NAME}_LINK_LIBRARIES})
-    endif()
+  # Test link libraries
+  if (${NAME}_LINK_LIBRARIES)
+    target_link_libraries(${NAME} ${${NAME}_LINK_LIBRARIES})
   endif()
   target_link_libraries(${NAME} ${TEST_LIBRARIES})
 
