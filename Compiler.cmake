@@ -1,8 +1,15 @@
 # Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #
 # Sets compiler optimization, definition and warnings according to
-# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.1
+# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
 # or later) and Visual Studio (2008 or later).
+#
+# Input Variables
+# * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
+#
+# Output Variables
+# * GCC_COMPILER_VERSION The compiler version if gcc is used
+
 
 # Compiler name
 if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
@@ -16,6 +23,10 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 # use MSVC for Visual Studio
 
+if(NOT COMMON_MINIMUM_GCC_VERSION)
+  set(COMMON_MINIMUM_GCC_VERSION 4.4)
+endif()
+
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
@@ -28,9 +39,6 @@ set(COMMON_GCC_FLAGS
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   compiler_dumpversion(GCC_COMPILER_VERSION)
-  if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
-    message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
-  endif()
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -Werror")
   endif()
@@ -39,12 +47,16 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   endif()
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
-      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024")
+      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
+  else()
+    if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
+      message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
+    endif()
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
   set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
+    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo -Wvla")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 

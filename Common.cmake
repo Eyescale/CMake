@@ -19,6 +19,9 @@ if(CMAKE_VERSION VERSION_LESS 2.8.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8.8)
 endif()
 
+if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+  include(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+endif()
 include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
 
 enable_testing()
@@ -70,13 +73,23 @@ if(NOT COMMON_PROJECT_DOMAIN)
   message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
 endif()
 
+if(NOT DPUT_HOST)
+  if(RELEASE_VERSION)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
+endif()
+
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Boost settings
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
-add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+if(NOT Boost_USE_STATIC_LIBS)
+  add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+endif()
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
@@ -88,7 +101,6 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
-
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
   endif()
@@ -130,8 +142,9 @@ include(CommonCode)
 include(CommonLibrary)
 include(Compiler)
 include(Coverage)
-include(GitInfo)
 include(GitTargets)
+include(Maturity)
+include(ProjectInfo)
 include(TargetHooks)
 include(TestCPP11)
 include(UpdateGitExternal)

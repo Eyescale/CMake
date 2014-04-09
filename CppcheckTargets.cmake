@@ -1,7 +1,8 @@
 # - Run cppcheck on c++ source files as a custom target and a test
 #
 #  include(CppcheckTargets)
-#  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]) -
+#  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
+#                             [FAIL_ON_WARNINGS] [EXCLUDE_QT_MOC_FILES]) -
 #    Create a target to check a target's sources with cppcheck and the indicated options
 #  add_cppcheck_sources(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]) -
 #    Create a target to check standalone sources with cppcheck and the indicated options
@@ -67,8 +68,8 @@ function(add_cppcheck_sources _targetname)
     list(FIND _input FAIL_ON_WARNINGS _fail_on_warn)
     if("${_fail_on_warn}" GREATER "-1")
       list(APPEND
-	CPPCHECK_FAIL_REGULAR_EXPRESSION
-	${CPPCHECK_WARN_REGULAR_EXPRESSION})
+        CPPCHECK_FAIL_REGULAR_EXPRESSION
+        ${CPPCHECK_WARN_REGULAR_EXPRESSION})
       list(REMOVE_AT _input ${_fail_on_warn})
     endif()
 
@@ -76,41 +77,41 @@ function(add_cppcheck_sources _targetname)
     foreach(_source ${_input})
       get_source_file_property(_cppcheck_loc "${_source}" LOCATION)
       if(_cppcheck_loc)
-	# This file has a source file property, carry on.
-	get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
-	if("${_cppcheck_lang}" MATCHES "CXX")
-	  list(APPEND _files "${_cppcheck_loc}")
-	endif()
+        # This file has a source file property, carry on.
+        get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
+        if("${_cppcheck_lang}" MATCHES "CXX")
+          list(APPEND _files "${_cppcheck_loc}")
+        endif()
       else()
-	# This file doesn't have source file properties - figure it out.
-	get_filename_component(_cppcheck_loc "${_source}" ABSOLUTE)
-	if(EXISTS "${_cppcheck_loc}")
-	  list(APPEND _files "${_cppcheck_loc}")
-	else()
-	  message(FATAL_ERROR
-	    "Adding CPPCHECK for file target ${_targetname}: "
-	    "File ${_source} does not exist or needs a corrected path location "
-	    "since we think its absolute path is ${_cppcheck_loc}")
-	endif()
+        # This file doesn't have source file properties - figure it out.
+        get_filename_component(_cppcheck_loc "${_source}" ABSOLUTE)
+        if(EXISTS "${_cppcheck_loc}")
+          list(APPEND _files "${_cppcheck_loc}")
+        else()
+          message(FATAL_ERROR
+            "Adding CPPCHECK for file target ${_targetname}: "
+            "File ${_source} does not exist or needs a corrected path location "
+            "since we think its absolute path is ${_cppcheck_loc}")
+        endif()
       endif()
     endforeach()
 
     if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
       # Older than CMake 2.8.0
       add_test(${_targetname}_cppcheck_test
-	"${CPPCHECK_EXECUTABLE}"
-	${CPPCHECK_TEMPLATE_ARG}
-	${_cppcheck_args}
-	${_files})
+        "${CPPCHECK_EXECUTABLE}"
+        ${CPPCHECK_TEMPLATE_ARG}
+        ${_cppcheck_args}
+        ${_files})
     else()
       # CMake 2.8.0 and newer
       add_test(NAME
-	${_targetname}_cppcheck_test
-	COMMAND
-	"${CPPCHECK_EXECUTABLE}"
-	${CPPCHECK_TEMPLATE_ARG}
-	${_cppcheck_args}
-	${_files})
+        ${_targetname}_cppcheck_test
+        COMMAND
+        "${CPPCHECK_EXECUTABLE}"
+        ${CPPCHECK_TEMPLATE_ARG}
+        ${_cppcheck_args}
+        ${_files})
     endif()
 
     set_tests_properties(${_targetname}_cppcheck_test
@@ -162,9 +163,14 @@ function(add_cppcheck _name)
     list(FIND _input FAIL_ON_WARNINGS _fail_on_warn)
     if("${_fail_on_warn}" GREATER "-1")
       list(APPEND
-	CPPCHECK_FAIL_REGULAR_EXPRESSION
-	${CPPCHECK_WARN_REGULAR_EXPRESSION})
+        CPPCHECK_FAIL_REGULAR_EXPRESSION
+        ${CPPCHECK_WARN_REGULAR_EXPRESSION})
       list(REMOVE_AT _input ${_unused_func})
+    endif()
+
+    list(FIND ARGN EXCLUDE_QT_MOC_FILES _exclude_moc_files)
+    if("${_exclude_moc_files}" GREATER "-1")
+      SET(_exclude_pattern ".*moc_.*\\.cxx$")
     endif()
 
     get_target_property(_cppcheck_sources "${_name}" SOURCES)
@@ -172,8 +178,8 @@ function(add_cppcheck _name)
     foreach(_source ${_cppcheck_sources})
       get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
       get_source_file_property(_cppcheck_loc "${_source}" LOCATION)
-      if("${_cppcheck_lang}" MATCHES "CXX")
-	list(APPEND _files "${_cppcheck_loc}")
+      if("${_cppcheck_lang}" MATCHES "CXX" AND NOT ${_cppcheck_loc} MATCHES ${_exclude_pattern})
+        list(APPEND _files "${_cppcheck_loc}")
       endif()
     endforeach()
 
@@ -184,19 +190,19 @@ function(add_cppcheck _name)
     if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
       # Older than CMake 2.8.0
       add_test(${_name}_cppcheck_test
-	"${CPPCHECK_EXECUTABLE}"
-	${CPPCHECK_TEMPLATE_ARG}
-	${_cppcheck_args}
-	${_files})
+        "${CPPCHECK_EXECUTABLE}"
+        ${CPPCHECK_TEMPLATE_ARG}
+        ${_cppcheck_args}
+        ${_files})
     else()
       # CMake 2.8.0 and newer
       add_test(NAME
-	${_name}_cppcheck_test
-	COMMAND
-	"${CPPCHECK_EXECUTABLE}"
-	${CPPCHECK_TEMPLATE_ARG}
-	${_cppcheck_args}
-	${_files})
+        ${_name}_cppcheck_test
+        COMMAND
+        "${CPPCHECK_EXECUTABLE}"
+        ${CPPCHECK_TEMPLATE_ARG}
+        ${_cppcheck_args}
+        ${_files})
     endif()
 
     set_tests_properties(${_name}_cppcheck_test
