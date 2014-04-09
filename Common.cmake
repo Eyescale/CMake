@@ -62,7 +62,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
 endif()
@@ -86,7 +85,6 @@ if(BIGENDIAN)
 else()
   add_definitions(-D${UPPER_PROJECT_NAME}_LITTLEENDIAN)
 endif()
-
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
@@ -122,6 +120,10 @@ if(APPLE)
   message(STATUS
     "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
+
+if($ENV{TRAVIS})
+  set(TRAVIS ON)
+endif()
 
 include(CommonApplication)
 include(CommonCode)
