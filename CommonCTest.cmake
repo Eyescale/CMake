@@ -2,7 +2,7 @@
 #               2010-2014, Stefan Eilemann <eile@eyescale.ch>
 #               2014, Juan Hernando <jhernando@fi.upm.es>
 
-include(CommonCPPCTest.cmake)
+include(CommonCPPCTest)
 
 if(COVERAGE)
   coverage_report(run_cpp_tests)
