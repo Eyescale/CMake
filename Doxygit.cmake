@@ -175,7 +175,7 @@ execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${Entries}
 
 # hack to detect that not invoked as script and not under CI
 if(VERSION_MAJOR)
-  if(NOT "$ENV{TRAVIS}")
+  if(NOT TRAVIS)
     foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
       install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
         CONFIGURATIONS Release)

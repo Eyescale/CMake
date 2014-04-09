@@ -99,7 +99,6 @@ else()
   add_definitions(-D${UPPER_PROJECT_NAME}_LITTLEENDIAN)
 endif()
 
-
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
@@ -133,6 +132,10 @@ if(APPLE)
   message(STATUS
     "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
+
+if($ENV{TRAVIS})
+  set(TRAVIS ON)
+endif()
 
 include(CommonApplication)
 include(CommonCode)
