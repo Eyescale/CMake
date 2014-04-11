@@ -53,6 +53,11 @@ endif()
 # Add custom targets to generate an html coverate report produced by running
 # the tests that make part of the given targets
 macro(COVERAGE_REPORT)
+  if(NOT COVERAGE_LIMITS)
+    # Use the coverage limits corresponding to the BBP Software Metrics
+    # https://bbpteam.epfl.ch/project/spaces/display/REL/Software+Metrics
+    set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
+  endif()
   add_custom_target(lcov-gather
     COMMAND ${LCOV} -q --directory . --capture --output-file lcov.info
     COMMENT "Capturing code coverage counters"
@@ -64,7 +69,7 @@ macro(COVERAGE_REPORT)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)
   add_custom_target(lcov-html
-    COMMAND ${GENHTML} -q -o CoverageReport ${CMAKE_BINARY_DIR}/lcov2.info
+    COMMAND ${GENHTML} -q ${COVERAGE_LIMITS} -o CoverageReport ${CMAKE_BINARY_DIR}/lcov2.info
     COMMENT "Creating html coverage report, open ${CMAKE_BINARY_DIR}/doc/html/CoverageReport/index.html "
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
     DEPENDS lcov-remove)
