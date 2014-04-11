@@ -54,8 +54,7 @@ endif()
 # the tests that make part of the given targets
 macro(COVERAGE_REPORT)
   if(NOT COVERAGE_LIMITS)
-    # Use the coverage limits corresponding to the BBP Software Metrics
-    # https://bbpteam.epfl.ch/project/spaces/display/REL/Software+Metrics
+    # Tweak coverage limits to yellow 40%/green 80%
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
   add_custom_target(lcov-gather
