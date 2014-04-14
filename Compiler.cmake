@@ -27,7 +27,7 @@ if(NOT COMMON_MINIMUM_GCC_VERSION)
   set(COMMON_MINIMUM_GCC_VERSION 4.4)
 endif()
 
-option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" OFF)
+option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
