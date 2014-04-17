@@ -2,6 +2,8 @@
 #   ENABLE_COVERAGE has to be set since code coverage compiler flags
 #   may break downstream projects. Use Buildyard 'make coverage'
 #   target.
+# Input variables:
+# * LCOV_EXCLUDE Extra files to exclude from the coverage report
 
 option(ENABLE_COVERAGE "Enable code coverage testing" OFF)
 if(ENABLE_COVERAGE)
@@ -63,7 +65,7 @@ macro(COVERAGE_REPORT)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS ${ARGV})
   add_custom_target(lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${CMAKE_BINARY_DIR}/*' --output-file lcov2.info
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${CMAKE_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)

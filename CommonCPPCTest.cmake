@@ -4,7 +4,7 @@
 #
 # Input:
 # * TEST_LIBRARIES link each test executables against these libraries
-# * EXCLUDE_FROM_TESTS a relative paths to test files to exclude; optional
+# * EXCLUDE_FROM_TESTS relative paths to test files to exclude; optional
 # * For each test ${NAME}_INCLUDE_DIRECTORIES and ${NAME}_LINK_LIBRARIES can
 #   be set to configure target specific includes and link libraries, where
 #   NAME is the test filename without the .cpp extension. Per test include
