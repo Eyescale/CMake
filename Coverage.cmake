@@ -58,7 +58,7 @@ macro(COVERAGE_REPORT)
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
   add_custom_target(lcov-gather
-    COMMAND ${LCOV} -q --directory . --capture --output-file lcov.info
+    COMMAND ${LCOV} --directory . --capture --output-file lcov.info
     COMMENT "Capturing code coverage counters"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS ${ARGV})
