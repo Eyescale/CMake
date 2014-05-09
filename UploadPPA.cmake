@@ -30,6 +30,7 @@ if(NOT DPUT_HOST)
 endif()
 
 set(UPLOADPPA_FOUND TRUE)
+include(Ubuntu)
 
 # DEBIAN/control
 # debian policy enforce lower case for package name
@@ -221,8 +222,8 @@ function(UPLOAD_PPA UBUNTU_NAME)
 endfunction()
 
 function(UPLOAD_PPAS)
-  upload_ppa(precise)
-  upload_ppa(saucy)
-  upload_ppa(trusty)
+  foreach(UBUNTU_CODENAME ${UBUNTU_CODENAMES})
+    upload_ppa(${UBUNTU_CODENAME})
+  endif()
   add_custom_target(dput DEPENDS ${DPUT_TARGETS})
 endfunction()
