@@ -1,4 +1,5 @@
-# Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
+# Copyright (c) 2012-2014 Fabien Delalondre <fabien.delalondre@epfl.ch>
+#                         Stefan.Eilemann@epfl.ch
 #
 # Sets compiler optimization, definition and warnings according to
 # chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
@@ -6,6 +7,7 @@
 #
 # Input Variables
 # * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
+# * COMMON_USE_CXX03 When set, do not enable C++11 language features
 #
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
@@ -60,26 +62,30 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 
-  if(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
-    if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    else()
+  if(NOT COMMON_USE_CXX03)
+    if(CMAKE_COMPILER_IS_CLANG)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    elseif(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
+      if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+      else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+      endif()
     endif()
-  endif()
-  if(CMAKE_COMPILER_IS_CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
   endif()
 
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -std=c++11 -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo -Wnon-virtual-dtor")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo -Wnon-virtual-dtor")
 
   # Release: automatically generate instructions for the highest
   # supported compilation host
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -xhost")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -xhost")
+  if(NOT COMMON_USE_CXX03)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  endif()
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
