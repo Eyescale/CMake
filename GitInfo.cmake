@@ -5,6 +5,7 @@
 # GIT_STATE: A description of the working tree, e.g., 1.8.0-48-g6d23f80-dirty
 # GIT_ORIGIN_URL: The origin of the working tree
 # GIT_ROOT_URL: The root remote of the working tree
+# GIT_BRANCH: The name of the current branch
 
 if(GIT_INFO_DONE)
   return()
@@ -17,6 +18,7 @@ set(GIT_REVISION "0")
 set(GIT_STATE)
 set(GIT_ORIGIN_URL)
 set(GIT_ROOT_URL)
+set(GIT_BRANCH)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
   find_package(Git)
@@ -33,6 +35,10 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
     execute_process( COMMAND ${GIT_EXECUTABLE} config --get remote.root.url
       OUTPUT_VARIABLE GIT_ROOT_URL OUTPUT_STRIP_TRAILING_WHITESPACE
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process( COMMAND ${GIT_EXECUTABLE} branch --contains HEAD
+      OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
     if(NOT GIT_REVISION)
       set(GIT_REVISION "0")
     endif()
@@ -42,7 +48,10 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
     if(NOT GIT_STATE)
        set(GIT_STATE "<no-tag>")
     endif()
-    message(STATUS "git revision ${GIT_REVISION} state ${GIT_STATE}")
+    string(REPLACE "* " "" GIT_BRANCH ${GIT_BRANCH})
+
+    message(STATUS
+      "git revision ${GIT_REVISION} state ${GIT_STATE} branch ${GIT_BRANCH}")
   else()
     message(STATUS "No revision version support, git not found")
   endif()
