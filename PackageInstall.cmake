@@ -8,8 +8,8 @@ if(NOT TARGET package-install AND PACKAGE_FILE_NAME)
   elseif(REDHAT)
     set(SYSTEM_INSTALL_CMD rpm -i)
   else()
-    message(STATUS "Unknown system installer, no package-install target")
-    return()
+    set(SYSTEM_INSTALL_CMD
+      ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install)
   endif()
 
   add_custom_target(package-install
