@@ -170,7 +170,7 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "${DOXYGIT_TOC_POST}
 configure_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "${CMAKE_SOURCE_DIR}/index.html" COPYONLY)
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${Entries}
+execute_process(COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries}
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 # hack to detect that not invoked as script and not under CI
