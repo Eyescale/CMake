@@ -58,6 +58,9 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "set(_quiet)\n"
   "set(_fail)\n"
   "set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
+  "if(NOT ${UPPER_PROJECT_NAME}_FOUND)\n"
+  "  set(${UPPER_PROJECT_NAME}_STATUS ON)\n"
+  "endif()\n"
   "\n"
 # add dependent library finding
   "@DEPENDENTS@"
@@ -155,7 +158,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
   "  list(SORT ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
-  "  if(_out)\n"
+  "  if(_out AND ${UPPER_PROJECT_NAME}_STATUS)\n"
   "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} [\${${UPPER_PROJECT_NAME}_COMPONENTS}] in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
