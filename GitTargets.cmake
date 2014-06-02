@@ -45,11 +45,23 @@ else()
   set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 endif()
 
-add_custom_target(branch
-  COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
-  COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
-  COMMENT "Add branch ${BRANCH_VERSION}"
+add_custom_target(make-branch
+  COMMAND ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
+  COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  )
+
+if(TARGET flatten_git_external)
+  set(BRANCH_DEP flatten_git_external)
+else()
+  set(BRANCH_DEP make-branch)
+endif()
+
+add_custom_target(branch
+  COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
+  COMMENT "Add remote branch ${BRANCH_VERSION}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  DEPENDS ${BRANCH_DEP}
   )
 
 # remove branch
