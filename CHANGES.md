@@ -1,4 +1,4 @@
-                           ----- 2014.6 -----
+### 2014.6
 
 * Flatten git externals in release branches
     Needed for some build services which do not allow to pull in git
