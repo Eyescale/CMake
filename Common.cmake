@@ -9,6 +9,10 @@
 # * COMMON_INCLUDES: generated include files (version, defines, api)
 # * COMMON_SOURCES: generated cpp files (version)
 
+if(CMAKE_INSTALL_PREFIX STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "Cannot install into build directory")
+endif()
+
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
   # WAR bug
