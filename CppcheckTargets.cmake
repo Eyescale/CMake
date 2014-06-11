@@ -43,7 +43,7 @@ endif()
 
 function(add_cppcheck_sources _targetname)
   if(CPPCHECK_FOUND)
-    set(_cppcheck_args --force -I ${CMAKE_SOURCE_DIR}
+    set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
       --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
     set(_input ${ARGN})
@@ -141,7 +141,7 @@ function(add_cppcheck _name)
       "add_cppcheck given a target name that does not exist: '${_name}' !")
   endif()
   if(CPPCHECK_FOUND)
-    set(_cppcheck_args --force -I ${CMAKE_SOURCE_DIR}
+    set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
       --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
 
