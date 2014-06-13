@@ -60,6 +60,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
   "if(NOT ${UPPER_PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_STATUS ON)\n"
+  "else()\n"
+  "  set(${UPPER_PROJECT_NAME}_STATUS)\n"
   "endif()\n"
   "\n"
 # add dependent library finding
