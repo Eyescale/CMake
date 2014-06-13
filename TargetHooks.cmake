@@ -3,6 +3,7 @@
 
 include(CMakeParseArguments)
 include(CppcheckTargets)
+include(CpplintTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
@@ -12,11 +13,13 @@ set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})
   add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_QT_MOC_FILES)
+  add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
   set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
 endmacro()
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
   add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_QT_MOC_FILES)
+  add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
 
   # ignore IMPORTED add_library from finders (e.g. Qt)
   cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
