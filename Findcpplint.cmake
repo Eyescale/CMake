@@ -49,16 +49,17 @@ if(CPPLINT_ROOT_DIR)
 	NO_DEFAULT_PATH)
 endif(CPPLINT_ROOT_DIR)
 
-set(CPPLINT_SCRIPT_DEFAULT_LOCATIONS 
-  "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/util" "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_SOURCE_DIR}/util/scripts")
+set(CPPLINT_SCRIPT_DEFAULT_LOCATIONS
+  "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/util" "${CMAKE_SOURCE_DIR}/scripts"
+  "${CMAKE_SOURCE_DIR}/util/scripts" "${CMAKE_CURRENT_LIST_DIR}/util")
 
-find_file(CPPLINT_SCRIPT 
+find_file(CPPLINT_SCRIPT
   NAMES cpplint.py
   PATHS ${CPPLINT_SCRIPT_DEFAULT_LOCATIONS})
 
 include(FindPackageHandleStandardArgs)
 
-if(_python_found) 
+if(_python_found)
   set(CPPLINT_NOT_FOUND_MSG "Could NOT find cpplint.py. Please copy e.g. http://google-styleguide.googlecode.com/svn/trunk/cpplint/cpplint.py into one of the following directories:\n")
 
   foreach(location ${CPPLINT_SCRIPT_DEFAULT_LOCATIONS})

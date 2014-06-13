@@ -41,7 +41,7 @@ set(_oldappbundlesetting ${CMAKE_FIND_APPBUNDLE})
 set(CMAKE_FIND_APPBUNDLE NEVER)
 
 if(CPPCHECK_EXECUTABLE AND NOT EXISTS "${CPPCHECK_EXECUTABLE}")
-	set(CPPCHECK_EXECUTABLE "notfound" CACHE PATH FORCE "")
+  set(CPPCHECK_EXECUTABLE "notfound" CACHE PATH "" FORCE)
 endif()
 
 # If we have a custom path, look there first.
