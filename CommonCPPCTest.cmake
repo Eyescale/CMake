@@ -47,7 +47,10 @@ foreach(FILE ${TEST_FILES})
   get_target_property(EXECUTABLE ${NAME} LOCATION)
   string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
          EXECUTABLE "${EXECUTABLE}")
-  add_test(${NAME} ${EXECUTABLE})
+
+  # Per target test command customisation with
+  # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
+  add_test(${NAME} ${${NAME}_TEST_PREFIX} ${EXECUTABLE} ${${NAME}_TEST_ARGS})
 endforeach()
 
 add_custom_target(run_cpp_tests
