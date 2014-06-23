@@ -16,7 +16,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
+file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.cpp)
 foreach(FILE ${EXCLUDE_FROM_TESTS})
   list(REMOVE_ITEM TEST_FILES ${FILE})
 endforeach()
@@ -24,7 +24,7 @@ list(SORT TEST_FILES)
 
 set(ALL_CPP_TESTS)
 foreach(FILE ${TEST_FILES})
-  string(REGEX REPLACE ".cpp" "" NAME ${FILE})
+  string(REGEX REPLACE "\\.(c|cpp)$" "" NAME ${FILE})
   string(REGEX REPLACE "[./]" "_" NAME ${NAME})
   source_group(\\ FILES ${FILE})
 
