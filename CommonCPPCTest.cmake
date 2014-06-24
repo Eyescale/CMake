@@ -9,6 +9,9 @@
 #   be set to configure target specific includes and link libraries, where
 #   NAME is the test filename without the .cpp extension. Per test include
 #   directories are only supported for for CMake 2.8.8
+# * For each test ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS can be
+#   set to customise the actual test command, supplying a prefix command
+#   and additional arguments to follow the test executable.
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
