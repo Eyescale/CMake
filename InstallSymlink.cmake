@@ -1,22 +1,19 @@
 
 # Creates a FROM->TO symlink during installation
-function(INSTALL_SYMLINK FROM TO COMPONENT)
-  if (MSVC)
+function(INSTALL_SYMLINK)
+  cmake_parse_arguments(THIS "" "" "FROM;TO;WORKING_DIRECTORY;COMPONENT" ${ARGN})
+  if(MSVC)
     install(CODE
-      "get_filename_component(FROM_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${FROM}
-         ABSOLUTE)
-       file(TO_NATIVE_PATH \${FROM_ABSOLUTE} FROM_ABSOLUTE)
-       file(TO_NATIVE_PATH \${CMAKE_INSTALL_PREFIX}/${TO} TO)
-       message(\"mklink /j \${TO} \${FROM_ABSOLUTE}\")
-       execute_process(COMMAND mklink /j \${TO} \${FROM_ABSOLUTE})"
-      COMPONENT "${COMPONENT}")
+      "message(\"mklink /j \${THIS_TO} \${THIS_FROM}\")
+       execute_process(COMMAND mklink /j \${THIS_TO} \${THIS_FROM}
+                       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${THIS_WORKING_DIRECTORY})"
+      COMPONENT "${THIS_COMPONENT}")
   else()
     install(CODE
-      "execute_process(COMMAND rm -f ${CMAKE_INSTALL_PREFIX}/${TO})
-       get_filename_component(FROM_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${FROM}
-         ABSOLUTE)
-       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink  
-         \${FROM_ABSOLUTE} ${CMAKE_INSTALL_PREFIX}/${TO})"
-      COMPONENT "${COMPONENT}")
+      "execute_process(COMMAND rm -f ${THIS_TO}
+                       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${THIS_WORKING_DIRECTORY})
+       execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${THIS_FROM} ${THIS_TO}
+                       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${THIS_WORKING_DIRECTORY})"
+      COMPONENT "${THIS_COMPONENT}")
   endif()
 endfunction()

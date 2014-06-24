@@ -1,14 +1,30 @@
-# Copyright (c) 2012 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2012-2014 Stefan.Eilemann@epfl.ch
 # See doc/GitTargets.md for documentation
 
 # Options:
 #  GITTARGETS_RELEASE_BRANCH current | even_minor | minor
 #      create tags on the current, the next even minor version (e.g. 1.6) or for
 #      each minor version
+#
+# Targets:
+# * branch: Create a new branch for developing the current version and
+#   push it to origin. The branch name is MAJOR.MINOR, where the minor
+#   version is rounded up to the next even version. Odd minor numbers
+#   are considered development versions, and might still be used when
+#   releasing a pre-release version (e.g., 1.3.9 used for 1.4-beta).
+# * cut: Delete the current version branch locally and remote.
+# * tag: Create the version branch if needed, and create a tag
+#   release-VERSION on the version branch HEAD. Pushes the tag to the
+#   origin repository.
+# * erase: Delete the current tag locally and remote
+# * retag: Move an existing tag to HEAD
+# * tarball: Create an archive of LAST_RELEASE
 
 if(GITTARGETS_FOUND)
   return()
 endif()
+set(GITTARGETS_FOUND 1)
+
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
   return()
@@ -29,11 +45,23 @@ else()
   set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 endif()
 
-add_custom_target(branch
-  COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
-  COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
-  COMMENT "Add branch ${BRANCH_VERSION}"
+add_custom_target(make-branch
+  COMMAND ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
+  COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  )
+
+if(TARGET flatten_git_external)
+  set(BRANCH_DEP flatten_git_external)
+else()
+  set(BRANCH_DEP make-branch)
+endif()
+
+add_custom_target(branch
+  COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
+  COMMENT "Add remote branch ${BRANCH_VERSION}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  DEPENDS ${BRANCH_DEP}
   )
 
 # remove branch
@@ -92,9 +120,6 @@ add_custom_target(retag
   DEPENDS erase)
 
 # tarball
-if(NOT LAST_RELEASE)
-  set(LAST_RELEASE ${VERSION})
-endif()
 set(TARBALL "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${LAST_RELEASE}.tar")
 
 add_custom_target(tarball-create
@@ -123,4 +148,3 @@ foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
   set_target_properties(${_gittargets_TARGET} PROPERTIES FOLDER "git")
 endforeach()
-set(GITTARGETS_FOUND 1)

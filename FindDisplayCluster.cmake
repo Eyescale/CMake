@@ -9,41 +9,43 @@
 #  DISPLAYCLUSTER_FOUND - system has the DisplayCluster library
 #  DISPLAYCLUSTER_INCLUDE_DIR - the DisplayCluster include directory
 #  DISPLAYCLUSTER_LIBRARIES - The libraries needed to use DisplayCluster
-#  DISPLAYCLUSTER_VERSION - This is set to $major.$minor.$revision (eg. 0.9.8)
+#  DISPLAYCLUSTER_VERSION - This is set to $major.$minor.$patch (eg. 0.9.8)
 
 include(FindPackageHandleStandardArgs)
 
-if(DISPLAYCLUSTER_FIND_REQUIRED)
-  set(_DISPLAYCLUSTER_required REQUIRED)
-  set(_DISPLAYCLUSTER_output 1)
+if(DisplayCluster_FIND_REQUIRED)
   set(_DISPLAYCLUSTER_output_type FATAL_ERROR)
 else()
   set(_DISPLAYCLUSTER_output_type STATUS)
 endif()
-if(DISPLAYCLUSTER_FIND_QUIETLY)
-  set(_DISPLAYCLUSTER_quiet QUIET)
+if(DisplayCluster_FIND_QUIETLY)
+  set(_DISPLAYCLUSTER_output)
 else()
   set(_DISPLAYCLUSTER_output 1)
 endif()
 
-find_path(_DISPLAYCLUSTER_INCLUDE_DIR dcStream.h
+find_path(_DISPLAYCLUSTER_INCLUDE_DIR dc/Stream.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{DISPLAYCLUSTER_ROOT} ${DISPLAYCLUSTER_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt /opt/local)
 
-if(_DISPLAYCLUSTER_INCLUDE_DIR AND EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcStream.h")
-#  set(_DISPLAYCLUSTER_Version_file "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcStream.h")
-#  file(READ ${_DISPLAYCLUSTER_Version_file} _DISPLAYCLUSTER_header_contents)
-#  string(REGEX REPLACE ".*define DISPLAYCLUSTER_VERSION[ \t]+\"([0-9].+)\".*"
-#    "\\1" _DISPLAYCLUSTER_VERSION ${_DISPLAYCLUSTER_header_contents})
-
-  set(DISPLAYCLUSTER_VERSION 0.2.0 #${_DISPLAYCLUSTER_VERSION}
-    CACHE INTERNAL "The version of DisplayCluster which was detected")
+if(_DISPLAYCLUSTER_INCLUDE_DIR AND EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Stream.h")
+  if(EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Version.h")
+   set(_DISPLAYCLUSTER_Version_file "${_DISPLAYCLUSTER_INCLUDE_DIR}/dc/Version.h")
+   file(READ ${_DISPLAYCLUSTER_Version_file} _DISPLAYCLUSTER_header_contents)
+   string(REGEX REPLACE ".*#define DISPLAYCLUSTER_VERSION ([0-9].[0-9].[0-9]).*" "\\1"
+     _DISPLAYCLUSTER_VERSION "${_DISPLAYCLUSTER_header_contents}")
+   set(DISPLAYCLUSTER_VERSION ${_DISPLAYCLUSTER_VERSION}
+      CACHE INTERNAL "The version of DisplayCluster which was detected")
+  else()
+    set(DISPLAYCLUSTER_VERSION 0.1.0
+      CACHE INTERNAL "The version of DisplayCluster which was detected")
+  endif()
 else()
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
   if(_DISPLAYCLUSTER_output)
     message(${_DISPLAYCLUSTER_output_type}
-      "Can't find DisplayCluster header file dcStream.h.")
+      "Can't find DisplayCluster header file dc/Stream.h.")
   endif()
 endif()
 
@@ -62,7 +64,7 @@ if(DISPLAYCLUSTER_FIND_VERSION AND DISPLAYCLUSTER_VERSION)
   endif()
 endif()
 
-find_library(DISPLAYCLUSTER_LIBRARY DisplayCluster
+find_library(DISPLAYCLUSTER_LIBRARY dcstream
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{DISPLAYCLUSTER_ROOT} ${DISPLAYCLUSTER_ROOT}
   PATH_SUFFIXES lib lib64
   PATHS /usr /usr/local /opt /opt/local)
@@ -71,8 +73,6 @@ find_library(DISPLAYCLUSTER_LIBRARY DisplayCluster
 # have vs. what version was required.
 if(NOT DISPLAYCLUSTER_VERSION)
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
-  find_package_handle_standard_args(DISPLAYCLUSTER DEFAULT_MSG
-                                    DISPLAYCLUSTER_LIBRARY _DISPLAYCLUSTER_INCLUDE_DIR)
 elseif(_DISPLAYCLUSTER_version_not_high_enough)
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
   if(_DISPLAYCLUSTER_output)

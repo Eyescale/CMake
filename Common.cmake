@@ -1,4 +1,17 @@
 # Common settings
+#
+# Input Variables
+#
+# IO Variables (set if not set as input)
+# * COMMON_PROJECT_DOMAIN a reverse DNS name
+#
+# Output Variables
+# * COMMON_INCLUDES: generated include files (version, defines, api)
+# * COMMON_SOURCES: generated cpp files (version)
+
+if(CMAKE_INSTALL_PREFIX STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "Cannot install into build directory")
+endif()
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
@@ -10,10 +23,24 @@ if(CMAKE_VERSION VERSION_LESS 2.8.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8.8)
 endif()
 
+if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+  include(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake)
+endif()
 include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+include(GitInfo)
 
 enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+if(GIT_BRANCH)
+  if(GIT_BRANCH MATCHES "^[0-9].*")
+    set(RELEASE_VERSION ON)
+  else()
+    set(RELEASE_VERSION OFF)
+  endif()
+else()
+  set(RELEASE_VERSION ON) # standalone tarball or similar
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
@@ -30,14 +57,10 @@ string(TOUPPER ${CMAKE_PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${CMAKE_PROJECT_NAME} LOWER_PROJECT_NAME)
 add_definitions(-D${UPPER_PROJECT_NAME}_VERSION=${VERSION})
 if(NOT VERSION_ABI)
-  if(RELEASE_VERSION)
-    set(VERSION_ABI ${RELEASE_VERSION})
+  if(VERSION_MAJOR VERSION_GREATER 0)
+    set(VERSION_ABI "${VERSION_MAJOR}${VERSION_MINOR}0")
   else()
-    if(VERSION_MAJOR VERSION_GREATER 0)
-      set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
-    else()
-      set(VERSION_ABI ${VERSION_MINOR}${VERSION_PATCH})
-    endif()
+    set(VERSION_ABI ${VERSION_MINOR}${VERSION_PATCH})
   endif()
 endif()
 if(NOT LAST_RELEASE)
@@ -53,67 +76,42 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
-file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
-include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
-
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
 endif()
-
-if(MSVC)
-  set(CMAKE_MODULE_INSTALL_PATH ${CMAKE_PROJECT_NAME}/CMake)
-else()
-  set(CMAKE_MODULE_INSTALL_PATH share/${CMAKE_PROJECT_NAME}/CMake)
+if(NOT COMMON_PROJECT_DOMAIN)
+  set(COMMON_PROJECT_DOMAIN org.doxygen)
+  message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
 endif()
+
+if(NOT DPUT_HOST)
+  if(RELEASE_VERSION)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Boost settings
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
-add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+if(NOT Boost_USE_STATIC_LIBS)
+  add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+endif()
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
-endif()
-
-include(Compiler) # compiler-specific default options and warnings
-include(TestFinalOverride)
-
-if(MSVC)
-  add_definitions(
-    /D_CRT_SECURE_NO_WARNINGS
-    /D_SCL_SECURE_NO_WARNINGS
-    /wd4068 # disable unknown pragma warnings
-    /wd4244 # conversion from X to Y, possible loss of data
-    /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
-    )
-
-  # By default, do not warn when built on machines using only VS Express
-  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
-  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  endif()
-
-  # By default, do not warn when built on machines using only VS Express
-  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
-  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  endif()
-
-  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
-  if(RELEASE_VERSION)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
-  else()
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
-  endif()
+else()
+  add_definitions(-D${UPPER_PROJECT_NAME}_LITTLEENDIAN)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
-
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
   endif()
@@ -146,48 +144,18 @@ if(APPLE)
     "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
-# hooks to gather all targets (libraries & executables)
-include(CMakeParseArguments)
-set(ALL_DEP_TARGETS "")
-set(ALL_LIB_TARGETS "")
-macro(add_executable _target)
-  _add_executable(${_target} ${ARGN})
-  set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
-endmacro()
-macro(add_library _target)
-  _add_library(${_target} ${ARGN})
+if($ENV{TRAVIS})
+  set(TRAVIS ON)
+endif()
 
-  # ignore IMPORTED add_library from finders (e.g. Qt)
-  cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
-
-  # ignore user-specified targets, e.g. language bindings
-  list(FIND IGNORE_LIB_TARGETS ${_target} _ignore_target)
-
-  if(NOT _arg_IMPORTED AND _ignore_target EQUAL -1)
-    # add defines TARGET_DSO_NAME and TARGET_SHARED for dlopen() usage
-    get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
-    if(NOT THIS_DEFINITIONS)
-      set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
-    endif()
-    string(TOUPPER ${_target} _TARGET)
-
-    if(MSVC OR XCODE_VERSION)
-      set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX})
-    else()
-      if(APPLE)
-        set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
-      else()
-        set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI})
-      endif()
-    endif()
-
-    list(APPEND THIS_DEFINITIONS
-      ${_TARGET}_SHARED ${_TARGET}_DSO_NAME=\"${_libraryname}\")
-
-    set_target_properties(${_target} PROPERTIES
-      COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
-
-    set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
-    set_property(GLOBAL APPEND PROPERTY ALL_LIB_TARGETS ${_target})
-  endif()
-endmacro()
+include(CommonApplication)
+include(CommonCode)
+include(CommonLibrary)
+include(Compiler)
+include(Coverage)
+include(GitTargets)
+include(Maturity)
+include(ProjectInfo)
+include(TargetHooks)
+include(TestCPP11)
+include(UpdateGitExternal)

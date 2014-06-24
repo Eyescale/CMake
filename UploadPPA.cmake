@@ -1,6 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2014 Stefan Eilemann <eile@eyescale.ch>
 #
 #  sudo apt-get install devscripts
 ##
@@ -9,28 +9,28 @@ find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
 
 if(NOT DEBUILD_EXECUTABLE)
-  message(STATUS "debuild not found")
+  message(STATUS "debuild not found, no PPA upload")
   return()
 endif()
 if(NOT DPUT_EXECUTABLE)
-  message(STATUS "dput not found")
+  message(STATUS "dput not found, no PPA upload")
   return()
 endif()
-if(CMAKE_BINARY_DIR MATCHES "${CMAKE_SOURCE_DIR}/")
-  message(STATUS "Build directory ${CMAKE_BINARY_DIR} is a sub-directory of "
-    "source directory ${CMAKE_SOURCE_DIR}, no PPA upload")
+if(NOT GIT_EXECUTABLE)
+  message(STATUS "git not found, no PPA upload")
+  return()
+endif()
+if(NOT CPACK_PACKAGE_NAME)
+  message(STATUS "CPACK_PACKAGE_NAME not set, no PPA upload")
+  return()
+endif()
+if(NOT DPUT_HOST)
+  message(STATUS "DPUT_HOST not set, no PPA upload")
   return()
 endif()
 
 set(UPLOADPPA_FOUND TRUE)
-
-if(NOT DPUT_HOST)
-  if(RELEASE_VERSION)
-    set(DPUT_HOST "ppa:eilemann/equalizer")
-  else()
-    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
-  endif()
-endif()
+include(Ubuntu)
 
 # DEBIAN/control
 # debian policy enforce lower case for package name
@@ -59,9 +59,14 @@ function(UPLOAD_PPA UBUNTU_NAME)
   file(REMOVE_RECURSE ${DEBIAN_BASE_DIR})
   set(DEBIAN_SOURCE_DIR
     ${DEBIAN_BASE_DIR}/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E
-    copy_directory ${CMAKE_SOURCE_DIR} ${DEBIAN_SOURCE_DIR}
-    )
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${DEBIAN_BASE_DIR})
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
+    --prefix ${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source/
+    -o ${DEBIAN_BASE_DIR}.tar HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${DEBIAN_BASE_DIR}.tar
+    WORKING_DIRECTORY ${DEBIAN_BASE_DIR})
 
   file(MAKE_DIRECTORY ${DEBIAN_SOURCE_DIR}/debian)
   file(REMOVE_RECURSE ${DEBIAN_SOURCE_DIR}/.git)
@@ -217,8 +222,8 @@ function(UPLOAD_PPA UBUNTU_NAME)
 endfunction()
 
 function(UPLOAD_PPAS)
-  upload_ppa(precise)
-  upload_ppa(quantal)
-  upload_ppa(raring)
+  foreach(UBUNTU_CODENAME ${UBUNTU_CODENAMES})
+    upload_ppa(${UBUNTU_CODENAME})
+  endforeach()
   add_custom_target(dput DEPENDS ${DPUT_TARGETS})
 endfunction()

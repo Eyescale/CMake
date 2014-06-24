@@ -1,8 +1,12 @@
 
 # Copyright (c) 2012-2013 Daniel Nachbaur <daniel.nachbaur@epfl.ch>
 
-# Offers a target named 'module' to create a GNU module
-# (http://modules.sourceforge.net/) of your software.
+# Offers 'module' and 'snapshot' targets to create a GNU module
+# (http://modules.sourceforge.net/) of your software. A regular module
+# requires dependencies to be available as their own modules, whereas
+# a snapshot module contains all dependencies. The first one is meant
+# for full toolchain releases, the second one for intermediate feature
+# snapshots.
 #
 # The GNUModules.cmake is supposed to be included after Common.cmake,
 # CPackConfig.cmake and all targets to gather required variables from
@@ -26,39 +30,57 @@
 #                       default /usr/share/Modules/modulefiles
 #
 # - MODULE_WHATIS: the whatis description of the module.
-#                  default ${CMAKE_PROJECT_NAME} version ${VERSION}
-#
-# - MODULE_DEPENDENCIES: list of dependend modules with format:
-#                        ${CMAKE_PROJECT_NAME}/${VERSION_MAJOR}.${VERSION_MINOR}
+#                  default ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
 
-if(MSVC)
+if(MSVC OR APPLE)
   return()
 endif()
 
 # Need variables defined by (Common)CPackConfig
-if(NOT CPACK_PACKAGE_VENDOR OR NOT VERSION OR NOT CMAKE_SYSTEM_PROCESSOR OR
-   NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
-  message(FATAL_ERROR "Need CommonCPack before GNUModule")
+if(NOT CPACK_PACKAGE_VENDOR OR NOT CPACK_PACKAGE_DESCRIPTION_SUMMARY OR
+   NOT VERSION)
+  add_custom_target(module
+    COMMENT "No module target, need CPACK_PACKAGE_VENDOR, CPACK_PACKAGE_DESCRIPTION_SUMMARY and VERSION")
+  add_custom_target(snapshot
+    COMMENT "No snapshot target, need CPACK_PACKAGE_VENDOR, CPACK_PACKAGE_DESCRIPTION_SUMMARY, VERSION and GIT_REVISION")
+  return()
 endif()
 
+# Common file setup
+################################################################################
 if(NOT MODULE_ENV)
   string(TOUPPER ${CMAKE_PROJECT_NAME} UPPER_PROJECT_NAME)
   set(MODULE_ENV
-    "setenv ${UPPER_PROJECT_NAME}_INCLUDE_DIR  $root/include\n"
-    "setenv ${UPPER_PROJECT_NAME}_ROOT         $root\n\n"
-    "prepend-path PATH            $root/bin\n"
-    "prepend-path LD_LIBRARY_PATH $root/lib\n")
+    "setenv ${UPPER_PROJECT_NAME}_INCLUDE_DIR  $root/include\\n"
+    "setenv ${UPPER_PROJECT_NAME}_ROOT         $root\\n\\n"
+    "prepend-path PATH            $root/bin\\n"
+    "prepend-path LD_LIBRARY_PATH $root/lib\\n")
   if(PYTHON_LIBRARY_PREFIX)
     list(APPEND MODULE_ENV
-      "prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_PREFIX}\n")
+      "prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_PREFIX}\\n")
   endif()
 endif()
+
+# Load dependend modules if any
+if(NOT MODULE_SNAPSHOT_DIR) # comes from Buildyard
+  if(${UPPER_PROJECT_NAME}_DEPENDS)
+    foreach(MODULE_DEP ${${UPPER_PROJECT_NAME}_DEPENDS})
+      if(${MODULE_DEP}_MODULE_FILENAME) # comes from PackageConfig.cmake
+        list(INSERT MODULE_ENV 0
+          "module load ${${MODULE_DEP}_MODULE_FILENAME}\\n"
+          "prereq      ${${MODULE_DEP}_MODULE_FILENAME}\\n\\n")
+      endif()
+    endforeach()
+  endif()
+endif()
+
+string(REGEX REPLACE ";" "" MODULE_ENV ${MODULE_ENV})
 
 if(NOT MODULE_SW_BASEDIR)
   set(MODULE_SW_BASEDIR $ENV{MODULE_SW_BASEDIR})
 endif()
 if(NOT MODULE_SW_BASEDIR)
-  set(MODULE_SW_BASEDIR "/usr/share/Modules")
+  set(MODULE_SW_BASEDIR "/usr/share/modules")
 endif()
 
 if(NOT MODULE_SW_CLASS)
@@ -69,16 +91,12 @@ if(MODULE_SW_CLASS MATCHES "^http://")
 endif()
 
 if(NOT MODULE_MODULEFILES)
-  set(MODULE_MODULEFILES "/usr/share/Modules/modulefiles")
+  set(MODULE_MODULEFILES "/usr/share/modules/modulefiles")
 endif()
 
 if(NOT MODULE_WHATIS)
-  set(MODULE_WHATIS "${CMAKE_PROJECT_NAME} version ${VERSION}")
+  set(MODULE_WHATIS "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
 endif()
-
-
-###############################################################################
-
 
 # get the used compiler + its version
 get_filename_component(MODULE_COMPILER_NAME ${CMAKE_C_COMPILER} NAME CACHE)
@@ -92,6 +110,8 @@ if(LSB_DISTRIBUTOR_ID MATCHES "RedHatEnterpriseServer")
   set(MODULE_PLATFORM "rhel${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
 elseif(LSB_DISTRIBUTOR_ID MATCHES "Ubuntu")
   set(MODULE_PLATFORM "ubuntu${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
+elseif(LSB_DISTRIBUTOR_ID MATCHES "Scientific")
+  set(MODULE_PLATFORM "scientific${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
 elseif(APPLE)
   set(MODULE_PLATFORM "darwin${CMAKE_SYSTEM_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
 else()
@@ -101,67 +121,63 @@ endif()
 set(MODULE_COMPILER "${MODULE_COMPILER_NAME}${MODULE_COMPILER_VERSION}")
 set(MODULE_ARCHITECTURE "$platform/$compiler")
 set(MODULE_ROOT "$sw_basedir/$sw_class/$package_name/$version/$architecture")
+
+include(WriteModuleFile)
+
+
+# 'Regular' module
+################################################################################
+set(MODULE_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(MODULE_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 set(MODULE_FILENAME "${MODULE_PACKAGE_NAME}/${MODULE_VERSION}-${MODULE_PLATFORM}-${MODULE_COMPILER}")
-
-# Load dependend modules if any
-if(${UPPER_PROJECT_NAME}_DEPENDS)
-  foreach(MODULE_DEP ${${UPPER_PROJECT_NAME}_DEPENDS})
-    if(${MODULE_DEP}_MODULE_FILENAME)
-      list(INSERT MODULE_ENV 0
-        "module load ${${MODULE_DEP}_MODULE_FILENAME}\n"
-        "prereq      ${${MODULE_DEP}_MODULE_FILENAME}\n\n")
-    endif()
-  endforeach()
-endif()
-
-string(REGEX REPLACE ";" "" MODULE_ENV ${MODULE_ENV})
-
-file(WRITE ${CMAKE_BINARY_DIR}/${MODULE_FILENAME}
-  "#%Module1.0\n"
-  "######################################################################\n"
-  "#\n"
-  "# Module:      ${MODULE_FILENAME}\n"
-  "#\n"
-  "#\n"
-  "\n"
-  "# Set internal variables\n"
-  "set sw_basedir   \"${MODULE_SW_BASEDIR}\"\n"
-  "set sw_class     \"${MODULE_SW_CLASS}\"\n"
-  "set package_name \"${MODULE_PACKAGE_NAME}\"\n"
-  "set version      \"${MODULE_VERSION}\"\n"
-  "set platform     \"${MODULE_PLATFORM}\"\n"
-  "set compiler     \"${MODULE_COMPILER}\"\n"
-  "set architecture \"${MODULE_ARCHITECTURE}\"\n"
-  "set root         \"${MODULE_ROOT}\"\n"
-  "\n"
-  "module-whatis \"${MODULE_WHATIS}\"\n"
-  "\n"
-  "proc ModulesHelp { } {\n"
-  "    global package_name version architecture\n"
-  "\n"
-  "    puts stderr \"This module prepares your environment to run $package_name $version "
-  "for the architecture: $architecture\n"
-  "\n"
-  "Type 'module list' to list all the loaded modules.\n"
-  "Type 'module avail' to list all the availables ones.\"\n"
-  "}\n"
-  "\n"
-  "${MODULE_ENV}\n"
-  "\n"
-)
-
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Module.txt "${MODULE_FILENAME}")
+set(MODULE_SRC_INSTALL "${MODULE_SW_BASEDIR}/${MODULE_SW_CLASS}/${MODULE_PACKAGE_NAME}/${MODULE_VERSION}/${MODULE_PLATFORM}/${MODULE_COMPILER}")
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
-set(MODULE_SRC_INSTALL "${MODULE_SW_BASEDIR}/${MODULE_SW_CLASS}/${MODULE_PACKAGE_NAME}/${MODULE_VERSION}/${MODULE_PLATFORM}/${MODULE_COMPILER}")
 add_custom_target(module_install
-  ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MODULE_SRC_INSTALL} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MODULE_SRC_INSTALL} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
   COMMENT "Installing GNU module source at ${MODULE_SRC_INSTALL}" VERBATIM
   DEPENDS ${ALL_DEP_TARGETS})
 
-set(MODULE_FILE_INSTALL ${MODULE_MODULEFILES})
 add_custom_target(module
-  ${CMAKE_COMMAND} -E copy ${MODULE_FILENAME} ${MODULE_FILE_INSTALL}/${MODULE_FILENAME}
+  COMMAND ${CMAKE_COMMAND} -DMODULE_PACKAGE_NAME=${MODULE_PACKAGE_NAME}
+                           -DMODULE_VERSION=${MODULE_VERSION}
+                           -DMODULE_FILENAME=${MODULE_FILENAME}
+                           -P WriteModuleFile.cmake
+  COMMAND ${CMAKE_COMMAND} -E copy ${MODULE_FILENAME} ${MODULE_MODULEFILES}/${MODULE_FILENAME}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  COMMENT "Creating GNU module ${MODULE_FILENAME} at ${MODULE_FILE_INSTALL}" VERBATIM)
-add_dependencies(module module_install)
+  COMMENT "Creating GNU module ${MODULE_FILENAME} at ${MODULE_MODULEFILES}" VERBATIM
+  DEPENDS module_install)
+
+# 'return value' for metamodule
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Module.txt "${MODULE_FILENAME}")
+
+# Snapshot module
+################################################################################
+if(NOT GIT_REVISION OR NOT MODULE_SNAPSHOT_DIR)
+  # MODULE_SNAPSHOT_DIR comes from Buildyard
+  add_custom_target(snapshot
+    COMMENT "No snapshot target, need GIT_REVISION and MODULE_SNAPSHOT_DIR")
+  return()
+endif()
+
+execute_process(COMMAND date "+%Y-%m-%d" OUTPUT_VARIABLE MODULE_DATE
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND date "+%Y-%m-%d" "-d now + 6 months"
+  OUTPUT_VARIABLE MODULE_EXPIRATION_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(MODULE_PACKAGE_NAME ${MODULE_PACKAGE_NAME}-snapshot)
+set(MODULE_VERSION ${MODULE_VERSION}.${GIT_REVISION}-${MODULE_DATE})
+set(MODULE_FILENAME "${MODULE_PACKAGE_NAME}/${MODULE_VERSION}-${MODULE_PLATFORM}-${MODULE_COMPILER}")
+set(MODULE_SRC_INSTALL "${MODULE_SW_BASEDIR}/${MODULE_SW_CLASS}/${MODULE_PACKAGE_NAME}/${MODULE_VERSION}/${MODULE_PLATFORM}/${MODULE_COMPILER}")
+set(MODULE_MESSAGE_AFTER_LOAD "Note: This module will expire on ${MODULE_EXPIRATION_DATE}")
+
+add_custom_target(snapshot_install
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${MODULE_SNAPSHOT_DIR} ${MODULE_SRC_INSTALL}
+  COMMENT "Installing snapshot module source at ${MODULE_SRC_INSTALL}" VERBATIM)
+
+add_custom_target(snapshot
+  COMMAND ${CMAKE_COMMAND} -DMODULE_PACKAGE_NAME=${MODULE_PACKAGE_NAME} -DMODULE_VERSION=${MODULE_VERSION} -DMODULE_FILENAME=${MODULE_FILENAME} -DMODULE_MESSAGE_AFTER_LOAD=${MODULE_MESSAGE_AFTER_LOAD} -P WriteModuleFile.cmake
+  COMMAND ${CMAKE_COMMAND} -E copy ${MODULE_FILENAME} ${MODULE_MODULEFILES}/${MODULE_FILENAME}
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${MODULE_MODULEFILES}/${MODULE_FILENAME} ${MODULE_MODULEFILES}/${MODULE_PACKAGE_NAME}/latest
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMENT "Creating snapshot module ${MODULE_FILENAME} at ${MODULE_MODULEFILES}"
+  VERBATIM DEPENDS snapshot_install)

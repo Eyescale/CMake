@@ -7,29 +7,38 @@
 # supersedes the Find${CMAKE_PROJECT_NAME}.cmake file.
 #
 # Input variables
-#    ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link libraries, format is ${CMAKE_PROJECT_NAME}
+#   CPACK_PACKAGE_NAME - The package name
+#   ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link
+#     libraries, format is ${CMAKE_PROJECT_NAME}
+#   ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries
+#     are produced
 #
 # Output variables
-#    ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified components found?
+#   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
+#     components found?
+#   ${CMAKE_PROJECT_NAME}_FOUND - Same as above
 #
-#    ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
-#
-#    ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
-#
-#    ${UPPER_PROJECT_NAME}_LIBRARIES - The project link libraries
-#
-#    ${UPPER_PROJECT_NAME}_LIBRARY - The produced (core) library
-#
-#    ${UPPER_PROJECT_NAME}_COMPONENTS - A list of components found
-#
-#    ${UPPER_PROJECT_NAME}_${component}_LIBRARY - The path & name of the ${component} library
-#
-#    ${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES - A list of dependencies for the CPack deb generator
-#    ${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY - The runtime dependency for the CPack deb generator
-#    ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for the CPack deb generator
+#   ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
+#   ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
+#   ${UPPER_PROJECT_NAME}_LIBRARIES - The project link libraries
+#   ${UPPER_PROJECT_NAME}_LIBRARY - The produced (core) library
+#   ${UPPER_PROJECT_NAME}_COMPONENTS - A list of components found
+#   ${UPPER_PROJECT_NAME}_${component}_LIBRARY - The path & name of the
+#     ${component} library
+#   ${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES - A list of dependencies for the
+#     CPack deb generator
+#   ${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY - The runtime dependency for the
+#     CPack deb generator
+#   ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for
+#     the CPack deb generator
 
+if(PACKAGECONFIG_DONE)
+  return()
+endif()
+set(PACKAGECONFIG_DONE ON)
 
 include(CMakePackageConfigHelpers)
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Write the ProjectConfig.cmake.in file for configure_package_config_file
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
@@ -48,16 +57,23 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "set(_req)\n"
   "set(_quiet)\n"
   "set(_fail)\n"
+  "set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
+  "if(NOT ${UPPER_PROJECT_NAME}_FOUND)\n"
+  "  set(${UPPER_PROJECT_NAME}_STATUS ON)\n"
+  "else()\n"
+  "  set(${UPPER_PROJECT_NAME}_STATUS)\n"
+  "endif()\n"
   "\n"
 # add dependent library finding
   "@DEPENDENTS@"
+  "set(${UPPER_PROJECT_NAME}_FIND_FILES ${${UPPER_PROJECT_NAME}_FIND_FILES})\n"
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
-  "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
-  "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
-  "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${CPACK_PACKAGE_NAME}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${CPACK_PACKAGE_NAME}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "\n"
 # find components if specified
   "  if(${CMAKE_PROJECT_NAME}_FIND_COMPONENTS)\n"
@@ -68,7 +84,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "      find_library(\${_component}_libraryname ${CMAKE_PROJECT_NAME}_\${_component} NO_DEFAULT_PATH\n"
   "        PATHS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "\n"
-  "      if(\${_component}_libraryname MATCHES "\${_component}_libraryname-NOTFOUND")\n"
+  "      if(\${_component}_libraryname MATCHES \"\${_component}_libraryname-NOTFOUND\")\n"
   "        if(${CMAKE_PROJECT_NAME}_FIND_REQUIRED_\${_component})\n"
   "          set(_fail \"Component library \${_component} not found\")\n"
   "          message(FATAL_ERROR \"   ${CMAKE_PROJECT_NAME}_\${_component} \"\n"
@@ -85,14 +101,25 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "      endif()\n"
   "    endforeach()\n"
+# search for ${UPPER_PROJECT_NAME}_FIND_FILES
+  "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
+  "    find_file(${UPPER_PROJECT_NAME}_FILE NAMES ${${UPPER_PROJECT_NAME}_FIND_FILES} NO_DEFAULT_PATH\n"
+  "              PATHS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES include)\n"
+  "    if(${UPPER_PROJECT_NAME}_FILE MATCHES \"${UPPER_PROJECT_NAME}_FILE-NOTFOUND\")\n"
+  "      set(_fail \"${${UPPER_PROJECT_NAME}_FIND_FILES} not found\")\n"
+  "      if(_out)\n"
+  "        message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
+  "          \"file in \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include.\")\n"
+  "      endif()\n"
+  "    endif()\n"
   "  else()\n"
-# if no component was specified, find all produced libraries
-  "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES "@LIBRARY_NAMES@")\n"
+# if no component or file was specified, find all produced libraries
+  "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
   "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
   "      find_library(\${_LIBRARYNAME}_LIBRARY \${_libraryname} NO_DEFAULT_PATH\n"
   "                   PATHS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
-  "      if(\${_LIBRARYNAME}_LIBRARY MATCHES "\${_LIBRARYNAME}_LIBRARY-NOTFOUND")\n"
+  "      if(\${_LIBRARYNAME}_LIBRARY MATCHES \"\${_LIBRARYNAME}_LIBRARY-NOTFOUND\")\n"
   "        set(_fail \"\${_libraryname} not found\")\n"
   "        if(_out)\n"
   "          message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
@@ -117,6 +144,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
 # finally report about found or not found
   "if(_fail)\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
+  "  set(${CMAKE_PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_VERSION)\n"
   "  set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  set(${UPPER_PROJECT_NAME}_LIBRARIES)\n"
@@ -128,9 +156,12 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  endif()\n"
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
+  "  set(${CMAKE_PROJECT_NAME}_FOUND TRUE)\n"
   "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
-  "  if(_out)\n"
-  "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} \${${UPPER_PROJECT_NAME}_COMPONENTS} in \"\n"
+  "  list(SORT ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
+  "  list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
+  "  if(_out AND ${UPPER_PROJECT_NAME}_STATUS)\n"
+  "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} [\${${UPPER_PROJECT_NAME}_COMPONENTS}] in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
   "endif()\n"
@@ -171,15 +202,17 @@ set(DEPENDENTS
   "endif()\n\n"
 )
 foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
-  if(${_dependent}_FOUND)
-    set(${_dependent}_name ${_dependent})
-  endif()
   string(TOUPPER ${_dependent} _DEPENDENT)
-  if(${_DEPENDENT}_FOUND)
-    set(${_dependent}_name ${_DEPENDENT})
+  if(NOT ${_dependent}_name)
+    if(${_DEPENDENT}_FOUND)
+      set(${_dependent}_name ${_DEPENDENT})
+    elseif(${_dependent}_FOUND)
+      set(${_dependent}_name ${_dependent})
+    endif()
   endif()
   if(NOT ${_dependent}_name)
-    message(FATAL_ERROR "Dependent library ${_dependent} was not properly resolved")
+    message(FATAL_ERROR
+      "Dependent library ${_dependent} was not properly resolved")
   endif()
   if(${${_dependent}_name}_VERSION)
     set(${${_dependent}_name}_findmode EXACT)
@@ -194,11 +227,17 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     set(_FIND_VERSION)
   endif()
   list(APPEND DEPENDENTS
+    "set(_library_backups \${${${_dependent}_name}_LIBRARIES})\n"
     "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n")
+    "if(${${_dependent}_name}_FOUND)\n"
+    "  list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
+    "  if(${${_dependent}_name}_LIBRARIES)\n"
+    "    list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    "  endif()\n"
+    )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
-      "  if(\"${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
+      "  if(\"\${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
       "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
       "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
       "    endif()\n"
@@ -208,7 +247,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
-    "  set(_fail TRUE)\n"
+    "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
@@ -236,6 +275,10 @@ install(
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 # create and install Project.pc
+if(NOT LIBRARY_DIR)
+  set(LIBRARY_DIR lib)
+endif()
+
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
   "prefix=${CMAKE_INSTALL_PREFIX}\n"
   "exec_prefix=\${prefix}\n"
