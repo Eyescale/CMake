@@ -12,6 +12,8 @@
 # * For each test ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS can be
 #   set to customise the actual test command, supplying a prefix command
 #   and additional arguments to follow the test executable.
+# * TEST_LABEL sets the LABEL property on each generated test;
+#   ${NAME}_TEST_LABEL specifies an additional label.
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -54,6 +56,12 @@ foreach(FILE ${TEST_FILES})
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
   add_test(${NAME} ${${NAME}_TEST_PREFIX} ${EXECUTABLE} ${${NAME}_TEST_ARGS})
+
+  # Add test labels
+  set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
+  if (TEST_LABELS)
+    set_tests_properties(${NAME} PROPERTIES LABELS "${TEST_LABELS}")
+  endif()
 endforeach()
 
 add_custom_target(run_cpp_tests
