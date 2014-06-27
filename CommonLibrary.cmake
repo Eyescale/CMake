@@ -13,6 +13,10 @@
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
 #
+# If NAME_LIBRARY_TYPE is a list, libraries are built of each specified
+# (i.e. shared and static) type. Whichever is first becomes the library
+# target associated with <Name>.
+#
 # Builds libName and installs it. Installs the public headers to include/name.
 # Generates a PROJECT_INCLUDE_NAME/PROJECT_INCLUDE_NAME.h including all public
 # headers.
@@ -64,15 +68,21 @@ function(COMMON_LIBRARY Name)
   if (NOT ${NAME}_LIBRARY_TYPE)
     set(${NAME}_LIBRARY_TYPE SHARED)
   endif()
-  add_library(${Name} ${${NAME}_LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
-  target_link_libraries(${Name} ${LINK_LIBRARIES})
-  set_target_properties(${Name}
-    PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+  foreach(LIBRARY_TYPE ${${NAME}_LIBRARY_TYPE})
+    set(LIBNAME ${Name})
+    if (TARGET ${Name})
+	set(LIBNAME "${Name}_${LIBRARY_TYPE}")
+    endif()
+    add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+    set_target_properties(${LIBNAME}
+      PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
+    target_link_libraries(${LIBNAME} ${LINK_LIBRARIES})
+    install(TARGETS ${LIBNAME}
+      ARCHIVE DESTINATION lib COMPONENT dev
+      RUNTIME DESTINATION bin COMPONENT lib
+      LIBRARY DESTINATION lib COMPONENT lib)
+  endforeach()
 
-  install(TARGETS ${Name}
-    ARCHIVE DESTINATION lib COMPONENT dev
-    RUNTIME DESTINATION bin COMPONENT lib
-    LIBRARY DESTINATION lib COMPONENT lib)
   if(MSVC)
     install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
