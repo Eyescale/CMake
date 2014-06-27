@@ -59,7 +59,7 @@ function(find_python_module MODULENAME)
         set(PYTHON${NAME_UPPER}_FOUND 0)
     else()
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
-                          "import ${MODULENAME} as x; print x.__version__ if hasattr(x,'__version__') else ''"
+                            "import ${MODULENAME} as x; print x.__version__ if hasattr(x,'__version__') else ''"
                         ERROR_QUIET
                         RESULT_VARIABLE RV
                         OUTPUT_VARIABLE MODVER
