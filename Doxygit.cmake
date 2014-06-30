@@ -16,6 +16,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common/oss)
 
 find_package(Git REQUIRED)
+option(COMMON_INSTALL_DOCUMENTATION "Install documentation projects" OFF)
 
 include(CommonProcess)
 include(Maturity)
@@ -173,14 +174,13 @@ configure_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
 execute_process(COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries}
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
-# hack to detect that not invoked as script and not under CI
-if(VERSION_MAJOR)
-  if(NOT TRAVIS)
-    foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
-      install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
-        CONFIGURATIONS Release)
-    endforeach()
-  endif()
-  install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME}
-    CONFIGURATIONS Release)
+if(COMMON_INSTALL_DOCUMENTATION)
+  foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
+    install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
+      CONFIGURATIONS Release)
+  endforeach()
 endif()
+
+# need at least one file for 'make install'
+install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME}
+  CONFIGURATIONS Release)
