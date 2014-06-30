@@ -6,12 +6,12 @@
 
 #ifdef __APPLE__
 #  include <@PROJECT_INCLUDE_NAME@/definesDarwin.h>
-#endif
-#ifdef __linux__
+#elif defined (__linux__)
 #  include <@PROJECT_INCLUDE_NAME@/definesLinux.h>
-#endif
-#ifdef _WIN32 //_MSC_VER
+#elif defined (_WIN32)
 #  include <@PROJECT_INCLUDE_NAME@/definesWin32.h>
+#else
+#  error Unknown OS
 #endif
 
 #endif
