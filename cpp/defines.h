@@ -7,7 +7,7 @@
 #ifdef __APPLE__
 #  include <@PROJECT_INCLUDE_NAME@/definesDarwin.h>
 #endif
-#ifdef __linux
+#ifdef __linux__
 #  include <@PROJECT_INCLUDE_NAME@/definesLinux.h>
 #endif
 #ifdef _WIN32 //_MSC_VER
