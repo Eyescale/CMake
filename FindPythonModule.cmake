@@ -1,11 +1,14 @@
 # Find a specific Python module.
 #
 # Will set:
-# PYTHON${MODULENAME}_FOUND if found;
-# PYTHON${MODULENAME}_VERSION if module __version__ is defined;
-# where the module name is capitalized.
+# PYTHON${NAME_UPPER}_FOUND if found;
+# PYTHON${NAME_UPPER}_VERSION if module __version__ is defined;
+# where ${NAME_UPPER} is the capitalized module name.
 #
-# Will respect any supplied QUIET and REQUIRED arguments.
+# find_python_module(${MODULE}) will emulate find_package()'s 'quiet' behaviour
+# if Python${MODULE}_FIND_QUIETLY is set to a true value, and similarly
+# will emulate 'required' behaviour if Python${MODULE}_FIND_REQUIRED
+# is set to a true value. (MODULE is case-sensitive.)
 
 macro(cache_test_and_set KEY MSG FOUND)
     if("${MSG}" STREQUAL "${MESSAGE_CACHE_BY_${KEY}}")
@@ -21,7 +24,7 @@ macro(fail_message key msg)
     if(REQUIRED) 
         message(FATAL_ERROR "${msg}")
     elseif (NOT QUIET)
-        cache_test_and_set(key msg FOUND)
+        cache_test_and_set("${key}" "${msg}" FOUND)
         if(NOT FOUND)
             message(STATUS "${msg}")
         endif()
@@ -30,7 +33,7 @@ endmacro()
 
 macro(success_message key msg)
     if(NOT QUIET)
-        cache_test_and_set(key msg FOUND)
+        cache_test_and_set("${key}" "${msg}" FOUND)
         if(NOT FOUND)
             message(STATUS "${msg}")
         endif()
@@ -39,23 +42,14 @@ endmacro()
 
 function(find_python_module MODULENAME)
     string(TOUPPER ${MODULENAME} NAME_UPPER)
-    list(FIND "${ARGN}" "QUIET" QUIET)
-    if(QUIET EQUAL -1)
-        set(QUIET)
-    else()
-        set(QUIET "QUIET")
-    endif()
-    list(FIND "${ARGN}" "REQUIRED" REQUIRED)
-    if(REQUIRED EQUAL -1)
-        set(REQUIRED)
-    else()
-        set(REQUIRED "REQUIRED")
-    endif()
 
-    find_package(PythonInterp ${ARGN} ${REQUIRED})
+    set(QUIET ${Python${MODULENAME}_FIND_QUIETLY})
+    set(REQUIRED ${Python${MODULENAME}_FIND_REQUIRED})
+
+    find_package(PythonInterp ${QUIET} ${REQUIRED})
 
     if(NOT PYTHON_EXECUTABLE)
-        fail_message(PYTHON_${MODULE} "No python interpreter found")
+        fail_message(PYTHON_${MODULENAME} "No python interpreter found")
         set(PYTHON${NAME_UPPER}_FOUND 0)
     else()
         execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
@@ -67,9 +61,9 @@ function(find_python_module MODULENAME)
         if(NOT RV)
             set(PYTHON${NAME_UPPER}_FOUND 1 CACHE INTERNAL "Python module ${MODULENAME} found")
             set(PYTHON${NAME_UPPER}_VERSION "${MODVER}" CACHE INTERNAL "Python module ${MODULENAME} version")
-            success_message(PYTHON_${MODULE} "Found python module ${MODULENAME}: (found version \"${MODVER}\")")
+            success_message(PYTHON${MODULENAME} "Found python module ${MODULENAME}: (found version \"${MODVER}\")")
         else()
-            fail_message(PYTHON_${MODULE} "Could NOT find python module ${MODULENAME}")
+            fail_message(PYTHON${MODULENAME} "Could NOT find python module ${MODULENAME}")
         endif()
     endif()
 endfunction()
