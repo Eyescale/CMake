@@ -14,9 +14,6 @@ and use it in your top-level CMakeLists.txt:
     include(GitExternal)
     include(Common)
 
-Run 'make update' to change the SHA hash in .gitexternals to the newest
-origin/master version.
-
 ## Documentation
 
 * [Common](Common.cmake) does a common CMake setup, including:
