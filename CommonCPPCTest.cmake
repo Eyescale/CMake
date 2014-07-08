@@ -9,7 +9,8 @@
 #   be set to configure target specific includes and link libraries, where
 #   NAME is the test filename without the .cpp extension. Per test include
 #   directories are only supported for for CMake 2.8.8
-# * For each test ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS can be
+# * For each test ${TEST_PREFIX} and ${TEST_ARGS}, or if present, 
+#   ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS, can be
 #   set to customise the actual test command, supplying a prefix command
 #   and additional arguments to follow the test executable.
 # * TEST_LABEL sets the LABEL property on each generated test;
@@ -55,7 +56,16 @@ foreach(FILE ${TEST_FILES})
 
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
-  add_test(${NAME} ${${NAME}_TEST_PREFIX} ${EXECUTABLE} ${${NAME}_TEST_ARGS})
+  set(RUN_PREFIX ${TEST_PREFIX})
+  if (${NAME}_TEST_PREFIX)
+    set(RUN_PREFIX ${${NAME}_TEST_PREFIX})
+  endif()
+  set(RUN_ARGS ${TEST_ARGS})
+  if (${NAME}_TEST_ARGS)
+    set(RUN_ARGS ${${NAME}_TEST_ARGS})
+  endif()
+    
+  add_test(${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
