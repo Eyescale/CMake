@@ -12,6 +12,8 @@
 #     libraries, format is ${CMAKE_PROJECT_NAME}
 #   ${UPPER_PROJECT_NAME}_FIND_FILES - A list of files to find if no libraries
 #     are produced
+#   ${UPPER_PROJECT_NAME}_EXCLUDE_LIBRARIES - A list of library targets
+#     to remove from the list of exported libraries
 #
 # Output variables
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
@@ -31,6 +33,7 @@
 #     CPack deb generator
 #   ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for
 #     the CPack deb generator
+
 
 if(PACKAGECONFIG_DONE)
   return()
@@ -170,15 +173,18 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
 # location of the includes
 set(INCLUDE_INSTALL_DIR include)
 
-# compile the list of generated libraries
-get_property(LIBRARY_TARGETS GLOBAL PROPERTY ALL_LIB_TARGETS)
+# compile the list of generated libraries excluding those
+# from ${UPPER_PROJECT_NAME}_EXCLUDE_LIBRARY_TARGETS
+get_property(_all_lib_targets GLOBAL PROPERTY ALL_LIB_TARGETS)
 set(LIBRARY_NAMES)
-foreach(_target ${LIBRARY_TARGETS})
-  get_target_property(_libraryname ${_target} OUTPUT_NAME)
-  if(${_libraryname} MATCHES "_libraryname-NOTFOUND")
-    set(_libraryname ${_target})
+foreach(_target ${_all_lib_targets})
+  list(FIND ${UPPER_PROJECT_NAME}_EXCLUDE_LIBRARIES ${_target}
+       _contains_${target})
+  if(${_contains_${target}} STREQUAL -1)
+    get_target_property(_fullpath ${_target} LOCATION)
+    get_filename_component(_libraryname ${_fullpath} NAME)
+    list(APPEND LIBRARY_NAMES ${_libraryname})
   endif()
-  list(APPEND LIBRARY_NAMES ${_libraryname})
 endforeach()
 
 # compile finding of dependent libraries
