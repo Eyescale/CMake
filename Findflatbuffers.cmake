@@ -28,6 +28,7 @@ if(FLATBUFFERS_FOUND)
         COMMAND ${FLATC_EXECUTABLE}
         ARGS -c -o "${CMAKE_CURRENT_BINARY_DIR}/" ${FILE}
         COMMENT "Building C++ header for ${FILE}"
+        DEPENDS ${FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endforeach()
     set(${Name}_OUTPUTS ${FLATC_OUTPUTS} PARENT_SCOPE)
