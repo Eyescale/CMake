@@ -11,6 +11,10 @@
 #
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
+# * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
+# * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
+# * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
+# * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
 
 
 # Compiler name
@@ -74,6 +78,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     endif()
   endif()
 
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
+
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
@@ -86,6 +95,11 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   if(NOT COMMON_USE_CXX03)
     set(COMMON_CXXSTD_FLAGS "-std=c++11")
   endif()
+
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
@@ -105,6 +119,11 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
       "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
+
+  set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
+  set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
+  set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
+  set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
 endif()
 
 # Visual Studio

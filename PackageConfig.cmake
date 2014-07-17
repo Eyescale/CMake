@@ -60,6 +60,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
   "if(NOT ${UPPER_PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_STATUS ON)\n"
+  "else()\n"
+  "  set(${UPPER_PROJECT_NAME}_STATUS)\n"
   "endif()\n"
   "\n"
 # add dependent library finding
@@ -120,8 +122,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "      if(\${_LIBRARYNAME}_LIBRARY MATCHES \"\${_LIBRARYNAME}_LIBRARY-NOTFOUND\")\n"
   "        set(_fail \"\${_libraryname} not found\")\n"
   "        if(_out)\n"
-  "          message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
-  "            \"library in \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/lib.\")\n"
+  "          message(\${_output_type}\n"
+  "            \"   Missing \${_libraryname} in \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/lib\")\n"
   "        endif()\n"
   "      else()\n"
   "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_LIBRARYNAME}_LIBRARY})\n"
@@ -175,10 +177,6 @@ foreach(_target ${LIBRARY_TARGETS})
   get_target_property(_libraryname ${_target} OUTPUT_NAME)
   if(${_libraryname} MATCHES "_libraryname-NOTFOUND")
     set(_libraryname ${_target})
-  else()
-    get_target_property(_fullpath ${_target} LOCATION)
-    get_filename_component(_suffix ${_fullpath} EXT)
-    set(_libraryname "${_libraryname}${_suffix}")
   endif()
   list(APPEND LIBRARY_NAMES ${_libraryname})
 endforeach()

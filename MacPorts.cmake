@@ -41,7 +41,7 @@ set(PORTFILE_GH_DIR "${CMAKE_SOURCE_DIR}/../${MACPORTS_DIR}")
 set(PORTFILE "${CMAKE_BINARY_DIR}/${PORTFILE_DIR}/Portfile")
 set(PORTFILE_GH "${PORTFILE_GH_DIR}/${PORTFILE_DIR}/Portfile")
 
-configure_file(${CMAKE_SOURCE_DIR}/CMake/Portfile ${PORTFILE} @ONLY)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/Portfile ${PORTFILE} @ONLY)
 install(FILES ${PORTFILE} DESTINATION ${PORTFILE_DIR} COMPONENT lib)
 install(CODE
   "execute_process(COMMAND /opt/local/bin/portindex ${CMAKE_INSTALL_PREFIX}/ports)"

@@ -45,7 +45,8 @@ function(add_cppcheck_sources _targetname)
   if(CPPCHECK_FOUND)
     set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
-      --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
+      --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
+      ${CPPCHECK_EXTRA_ARGS})
     set(_input ${ARGN})
     list(FIND _input UNUSED_FUNCTIONS _unused_func)
     if("${_unused_func}" GREATER "-1")
@@ -143,7 +144,8 @@ function(add_cppcheck _name)
   if(CPPCHECK_FOUND)
     set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
-      --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
+      --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
+      ${CPPCHECK_EXTRA_ARGS})
 
     list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
     if("${_unused_func}" GREATER "-1")
@@ -162,10 +164,8 @@ function(add_cppcheck _name)
 
     list(FIND _input FAIL_ON_WARNINGS _fail_on_warn)
     if("${_fail_on_warn}" GREATER "-1")
-      list(APPEND
-        CPPCHECK_FAIL_REGULAR_EXPRESSION
+      list(APPEND CPPCHECK_FAIL_REGULAR_EXPRESSION
         ${CPPCHECK_WARN_REGULAR_EXPRESSION})
-      list(REMOVE_AT _input ${_unused_func})
     endif()
 
     list(FIND ARGN EXCLUDE_QT_MOC_FILES _exclude_moc_files)
@@ -187,23 +187,9 @@ function(add_cppcheck _name)
       return()
     endif()
 
-    if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
-      # Older than CMake 2.8.0
-      add_test(${_name}_cppcheck_test
-        "${CPPCHECK_EXECUTABLE}"
-        ${CPPCHECK_TEMPLATE_ARG}
-        ${_cppcheck_args}
-        ${_files})
-    else()
-      # CMake 2.8.0 and newer
-      add_test(NAME
-        ${_name}_cppcheck_test
-        COMMAND
-        "${CPPCHECK_EXECUTABLE}"
-        ${CPPCHECK_TEMPLATE_ARG}
-        ${_cppcheck_args}
-        ${_files})
-    endif()
+    add_test(NAME ${_name}_cppcheck_test
+      COMMAND "${CPPCHECK_EXECUTABLE}" ${CPPCHECK_TEMPLATE_ARG}
+      ${_cppcheck_args} ${_files})
 
     set_tests_properties(${_name}_cppcheck_test
       PROPERTIES
