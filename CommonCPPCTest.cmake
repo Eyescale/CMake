@@ -50,10 +50,6 @@ foreach(FILE ${TEST_FILES})
   endif()
   target_link_libraries(${NAME} ${TEST_LIBRARIES})
 
-  get_target_property(EXECUTABLE ${NAME} LOCATION)
-  string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-         EXECUTABLE "${EXECUTABLE}")
-
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
   set(RUN_PREFIX ${TEST_PREFIX})
@@ -64,8 +60,15 @@ foreach(FILE ${TEST_FILES})
   if (${NAME}_TEST_ARGS)
     set(RUN_ARGS ${${NAME}_TEST_ARGS})
   endif()
-    
-  add_test(${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
+
+  if(CMAKE_VERSION VERSION_LESS 2.8)
+    get_target_property(EXECUTABLE ${NAME} LOCATION)
+    string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
+           EXECUTABLE "${EXECUTABLE}")
+    add_test(${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
+  else(CMAKE_VERSION VERSION_LESS 2.8)
+    add_test(NAME ${NAME} COMMAND ${RUN_PREFIX} $<TARGET_FILE:${NAME}> ${RUN_ARGS})
+  endif(CMAKE_VERSION VERSION_LESS 2.8)
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
