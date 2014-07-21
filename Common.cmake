@@ -9,6 +9,11 @@
 # * COMMON_INCLUDES: generated include files (version, defines, api)
 # * COMMON_SOURCES: generated cpp files (version)
 
+if(COMMON_INCLUDED)
+  return()
+endif()
+set(COMMON_INCLUDED 1)
+
 if(CMAKE_INSTALL_PREFIX STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "Cannot install into build directory")
 endif()
