@@ -11,6 +11,10 @@
 #
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
+# * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
+# * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
+# * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
+# * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
 
 
 # Compiler name
@@ -64,15 +68,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
 
   if(NOT COMMON_USE_CXX03)
     if(CMAKE_COMPILER_IS_CLANG)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+      set(COMMON_CXXSTD_FLAGS "-std=c++11")
     elseif(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
       if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+        set(COMMON_CXXSTD_FLAGS "-std=c++0x")
       else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        set(COMMON_CXXSTD_FLAGS "-std=c++11")
       endif()
     endif()
   endif()
+
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
@@ -84,8 +93,13 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -xhost")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -xhost")
   if(NOT COMMON_USE_CXX03)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(COMMON_CXXSTD_FLAGS "-std=c++11")
   endif()
+
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
@@ -105,6 +119,11 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
       "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
+
+  set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
+  set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
+  set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
+  set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
 endif()
 
 # Visual Studio
@@ -130,3 +149,5 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
   endif()
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CXXSTD_FLAGS}")
