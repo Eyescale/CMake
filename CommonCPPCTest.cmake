@@ -9,7 +9,8 @@
 #   be set to configure target specific includes and link libraries, where
 #   NAME is the test filename without the .cpp extension. Per test include
 #   directories are only supported for for CMake 2.8.8
-# * For each test ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS can be
+# * For each test ${TEST_PREFIX} and ${TEST_ARGS}, or if present, 
+#   ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS, can be
 #   set to customise the actual test command, supplying a prefix command
 #   and additional arguments to follow the test executable.
 # * TEST_LABEL sets the LABEL property on each generated test;
@@ -49,13 +50,25 @@ foreach(FILE ${TEST_FILES})
   endif()
   target_link_libraries(${NAME} ${TEST_LIBRARIES})
 
-  get_target_property(EXECUTABLE ${NAME} LOCATION)
-  string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-         EXECUTABLE "${EXECUTABLE}")
-
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
-  add_test(${NAME} ${${NAME}_TEST_PREFIX} ${EXECUTABLE} ${${NAME}_TEST_ARGS})
+  set(RUN_PREFIX ${TEST_PREFIX})
+  if (${NAME}_TEST_PREFIX)
+    set(RUN_PREFIX ${${NAME}_TEST_PREFIX})
+  endif()
+  set(RUN_ARGS ${TEST_ARGS})
+  if (${NAME}_TEST_ARGS)
+    set(RUN_ARGS ${${NAME}_TEST_ARGS})
+  endif()
+
+  if(CMAKE_VERSION VERSION_LESS 2.8)
+    get_target_property(EXECUTABLE ${NAME} LOCATION)
+    string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
+           EXECUTABLE "${EXECUTABLE}")
+    add_test(${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
+  else(CMAKE_VERSION VERSION_LESS 2.8)
+    add_test(NAME ${NAME} COMMAND ${RUN_PREFIX} $<TARGET_FILE:${NAME}> ${RUN_ARGS})
+  endif(CMAKE_VERSION VERSION_LESS 2.8)
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
