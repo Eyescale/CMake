@@ -1,3 +1,7 @@
+### master
+
+* Add Qt support to CommonApplication.cmake
+
 ### 2014.6
 
 * Flatten git externals in release branches
