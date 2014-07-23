@@ -1,16 +1,42 @@
 # @author Sam Yates
 
 # Utility functions for manipulating test labels and producing
-# tests from scripts.
+# tests from scripts:
+#
+# 1. add_test_class(label [label2 ...])
+#
+#    Create a target with name test-label (or test-label-label2 etc.)
+#    which runs only those tests possessing all of the supplied labels.
+#
+#
+# 2. add_test_label(name label ...)
+#
+#    Add the given labels to the test 'name'.
+#
+#
+# 3. add_test_script(name script interp)
+#
+#    Add a test 'name' that runs the given script, using the
+#    interpreter 'interp'. If no interpreter is supplied,
+#    the script will be run with /bin/sh.
+#
+#    Uses the following variables to customize the new test:
+#    * TEST_LABEL, ${NAME}_TEST_LABEL
+#          If defined, apply the label(s) in these variable to the
+#          new test.
+#    * TEST_ARGS, ${NAME}_TEST_ARGS
+#          Additional arguments to pass to the script.
+#          ${NAME}_TEST_ARGS takes priority over TEST_ARGS.
+#    * TEST_ENVIRONMENT
+#          Additional environment variables to define for the test;
+#          added to test properties.
+#    * TEST_PREFIX, ${NAME}_TEST_PREFIX
+#          If defined, preface the interpreter with this prefix.
+#          ${NAME}_TEST_PREFIX takes priority over TEST_PREFIX.
 
 function(add_test_label NAME)
   set_property(TEST ${NAME} APPEND PROPERTY LABELS ${ARGN})
 endfunction()
-
-# If TEST_LABEL is defined, set the label(s) in this variable on the new test.
-# If TEST_ENVIRONMENT is defined, add to the test properties.
-# If TEST_PREFIX or ${NAME}_TEST_PREFIX is defined, preface the interpreter
-# with this prefix.
 
 function(add_test_script NAME SCRIPT INTERP)
   set(RUN_PREFIX ${TEST_PREFIX})
@@ -21,26 +47,28 @@ function(add_test_script NAME SCRIPT INTERP)
   if(NOT INTERP)
     set(INTERP "/bin/sh")
   endif()
-  add_test(NAME ${NAME}
-           COMMAND ${RUN_PREFIX} ${INTERP} "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}"
-           WORKING_DIRECTORY "${CMAKE_BINARY_DIR}") 
-  if(TEST_LABEL)
-    add_test_label(${NAME} ${TEST_LABEL})
+
+  set(RUN_ARGS ${TEST_ARGS})
+  if (${NAME}_TEST_ARGS)
+    set(RUN_ARGS ${${NAME}_TEST_ARGS})
   endif()
+
+  add_test(NAME ${NAME}
+           COMMAND ${RUN_PREFIX} ${INTERP} "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}" ${RUN_ARGS}
+           WORKING_DIRECTORY "${CMAKE_BINARY_DIR}") 
+
+  # Add test labels
+  set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
+  if (TEST_LABELS)
+    add_test_label(${NAME} ${TEST_LABELS})
+  endif()
+
   if(TEST_ENVIRONMENT)
     set_property(TEST ${NAME} PROPERTY ENVIRONMENT ${TEST_ENVIRONMENT})
   endif()
 endfunction()
 
-# Generate test targets from a series of test labels. 
-# Example usage: add_test_class_target(foo bar) will create a new test target:
-#
-# test-foo-bar:
-#      ctest -L ^foo$ -L ^bar$
-#
-# which will run all tests which have both the label 'foo' and 'bar'.
-
-function(add_test_class_target)
+function(add_test_class)
   string(REPLACE ";" "-" TEST_SUFFIX "${ARGN}")
   string(REPLACE ";" "$$;-L;^" TEST_LOPTS "${ARGN}")
 
