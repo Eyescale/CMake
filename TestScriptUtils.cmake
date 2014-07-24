@@ -35,46 +35,52 @@
 #          ${NAME}_TEST_PREFIX takes priority over TEST_PREFIX.
 
 function(add_test_label NAME)
-  set_property(TEST ${NAME} APPEND PROPERTY LABELS ${ARGN})
+    set_property(TEST ${NAME} APPEND PROPERTY LABELS ${ARGN})
+    # create test classes for each label
+    foreach(L ${ARGN})
+        add_test_class(${L})
+    endforeach()
 endfunction()
 
 function(add_test_script NAME SCRIPT INTERP)
-  set(RUN_PREFIX ${TEST_PREFIX})
-  if(${NAME}_TEST_PREFIX)
-    set(RUN_PREFIX ${${NAME}_TEST_PREFIX})
-  endif()
+    set(RUN_PREFIX ${TEST_PREFIX})
+    if(${NAME}_TEST_PREFIX)
+        set(RUN_PREFIX ${${NAME}_TEST_PREFIX})
+    endif()
 
-  if(NOT INTERP)
-    set(INTERP "/bin/sh")
-  endif()
+    if(NOT INTERP)
+        set(INTERP "/bin/sh")
+    endif()
 
-  set(RUN_ARGS ${TEST_ARGS})
-  if (${NAME}_TEST_ARGS)
-    set(RUN_ARGS ${${NAME}_TEST_ARGS})
-  endif()
+    set(RUN_ARGS ${TEST_ARGS})
+    if (${NAME}_TEST_ARGS)
+        set(RUN_ARGS ${${NAME}_TEST_ARGS})
+    endif()
 
-  add_test(NAME ${NAME}
-           COMMAND ${RUN_PREFIX} ${INTERP} "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}" ${RUN_ARGS}
-           WORKING_DIRECTORY "${CMAKE_BINARY_DIR}") 
+    add_test(NAME ${NAME}
+        COMMAND ${RUN_PREFIX} ${INTERP} "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}" ${RUN_ARGS}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}") 
 
-  # Add test labels
-  set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
-  if (TEST_LABELS)
-    add_test_label(${NAME} ${TEST_LABELS})
-  endif()
+    # Add test labels
+    set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
+    if (TEST_LABELS)
+        add_test_label(${NAME} ${TEST_LABELS})
+    endif()
 
-  if(TEST_ENVIRONMENT)
-    set_property(TEST ${NAME} PROPERTY ENVIRONMENT ${TEST_ENVIRONMENT})
-  endif()
+    if(TEST_ENVIRONMENT)
+        set_property(TEST ${NAME} PROPERTY ENVIRONMENT ${TEST_ENVIRONMENT})
+    endif()
 endfunction()
 
 function(add_test_class)
-  string(REPLACE ";" "-" TEST_SUFFIX "${ARGN}")
-  string(REPLACE ";" "$$;-L;^" TEST_LOPTS "${ARGN}")
+    string(REPLACE ";" "-" TEST_SUFFIX "${ARGN}")
+    string(REPLACE ";" "$$;-L;^" TEST_LOPTS "${ARGN}")
 
-  add_custom_target("test-${TEST_SUFFIX}"
-    COMMAND ${CMAKE_CTEST_COMMAND} -L ^${TEST_LOPTS}$$
-    WORKING_DIRECTORY ${${CMAKE_PROJECT_NAME}_BINARY_DIR}
-    COMMENT "Running all ${ARGN} tests")
+    if(NOT TARGET test-${TEST_SUFFIX})
+        add_custom_target("test-${TEST_SUFFIX}"
+            COMMAND ${CMAKE_CTEST_COMMAND} -L ^${TEST_LOPTS}$$
+            WORKING_DIRECTORY ${${CMAKE_PROJECT_NAME}_BINARY_DIR}
+            COMMENT "Running all ${ARGN} tests")
+    endif()
 endfunction()
 
