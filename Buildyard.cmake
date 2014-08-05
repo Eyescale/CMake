@@ -29,6 +29,7 @@ if(FOUND_REQUIRED)
 endif()
 
 message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
+set(BUILDYARD_BOOTSTRAP ON)
 include(GitExternal)
 
 git_external("${CMAKE_BINARY_DIR}/Buildyard"
