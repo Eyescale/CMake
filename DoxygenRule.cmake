@@ -11,7 +11,7 @@
 # * DOXYGEN_EXTRA_FILES additional files to be copied to documentation,
 #   appended to HTML_EXTRA_FILES in Doxyfile
 # * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
-#   to CMAKE_PROJECT_NAME is not provided.
+#   to PROJECT_NAME is not provided.
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
@@ -23,8 +23,8 @@
 #
 # * doxygen runs doxygen after compiling and installing the project
 # * doxygit runs doxygen and installs the documentation in
-#   CMAKE_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
-#   CMAKE_SOURCE_DIR/../GIT_ORIGIN_org
+#   CMAKE_CURRENT_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
+#   CMAKE_CURRENT_SOURCE_DIR/../GIT_ORIGIN_org
 
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
@@ -47,7 +47,7 @@ if(NOT PROJECT_PACKAGE_NAME)
 endif()
 
 if(NOT DOXYGEN_PROJECT_NAME)
-  set(DOXYGEN_PROJECT_NAME ${CMAKE_PROJECT_NAME})
+  set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
 endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
@@ -58,17 +58,17 @@ endif()
 if(NOT DOXYGEN_CONFIG_FILE)
   # Assuming there exists a Doxyfile and that needs configuring
   configure_file(${CMAKE_CURRENT_LIST_DIR}/Doxyfile
-    ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
-  set(DOXYGEN_CONFIG_FILE ${CMAKE_BINARY_DIR}/doc/Doxyfile)
+    ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+  set(DOXYGEN_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile)
 endif()
 
 add_custom_target(doxygen_install
-  ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+  ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
   DEPENDS ${INSTALL_DEPENDS})
 
 add_custom_target(doxygen_html
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
   DEPENDS doxygen_install project_info)
 if(COVERAGE)
@@ -78,29 +78,29 @@ else()
   add_custom_target(doxygen DEPENDS doxygen_html)
 endif()
 
-make_directory(${CMAKE_BINARY_DIR}/doc/html)
-install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/doc/html)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/html
   DESTINATION ${DOC_DIR}/API
   COMPONENT doc CONFIGURATIONS Release)
 
 if(GIT_DOCUMENTATION_REPO)
   set(GIT_DOCUMENTATION_DIR
-    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    ${CMAKE_CURRENT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
   add_custom_target(doxycopy
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
     DEPENDS doxygen VERBATIM)
 
   add_custom_target(doxygit
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
     -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}"
-    -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
+    -DPROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
     -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
     -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
     COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
     DEPENDS doxycopy)
 else()
   add_custom_target(doxygit

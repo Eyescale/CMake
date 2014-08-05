@@ -23,4 +23,4 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/ProjectInfo.in.cmake
 
 add_custom_target(project_info
   ${CMAKE_COMMAND} -E copy_if_different
-  ${CMAKE_CURRENT_BINARY_DIR}/ProjectInfo.cmake ${CMAKE_BINARY_DIR}/doc/html)
+  ${CMAKE_CURRENT_BINARY_DIR}/ProjectInfo.cmake ${CMAKE_CURRENT_BINARY_DIR}/doc/html)

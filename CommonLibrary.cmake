@@ -49,7 +49,7 @@ function(COMMON_LIBRARY Name)
     endif()
   endforeach()
   file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_INCLUDE_NAME}.in.h "#endif\n")
-  set(PROJECT_INCLUDE_HEADER ${CMAKE_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/${PROJECT_INCLUDE_NAME}.h)
+  set(PROJECT_INCLUDE_HEADER ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/${PROJECT_INCLUDE_NAME}.h)
 
   configure_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_INCLUDE_NAME}.in.h
     ${PROJECT_INCLUDE_HEADER} COPYONLY)
@@ -84,9 +84,9 @@ function(COMMON_LIBRARY Name)
   endforeach()
 
   if(MSVC)
-    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${Name}.pdb
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/Debug/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-    install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
   endif()
 

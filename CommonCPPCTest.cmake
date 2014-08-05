@@ -82,7 +82,7 @@ if(TARGET run_cpp_tests)
 else()
   add_custom_target(run_cpp_tests
     COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
-    WORKING_DIRECTORY ${${CMAKE_PROJECT_NAME}_BINARY_DIR}
+    WORKING_DIRECTORY ${${PROJECT_NAME}_BINARY_DIR}
     COMMENT "Running all cpp unit tests")
   if(COVERAGE)
     add_dependencies(run_cpp_tests lcov-clean)

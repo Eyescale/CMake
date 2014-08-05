@@ -39,7 +39,7 @@ if(CAPNPROTO_FOUND)
   endfunction()
 
   set(CAPNPROTO_INCLUDE_DIRS ${CAPNPROTO_INCLUDE_DIR})
-  include_directories(${CMAKE_BINARY_DIR})
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
 else()
   set(CAPNPROTO_INCLUDE_DIR)
 endif()
