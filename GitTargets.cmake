@@ -45,7 +45,7 @@ else()
   set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 endif()
 
-add_custom_target(make-branch
+add_custom_target(make-branch_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -54,10 +54,10 @@ add_custom_target(make-branch
 if(TARGET flatten_git_external)
   set(BRANCH_DEP flatten_git_external)
 else()
-  set(BRANCH_DEP make-branch)
+  set(BRANCH_DEP make-branch_${PROJECT_NAME})
 endif()
 
-add_custom_target(branch
+add_custom_target(branch_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
   COMMENT "Add remote branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -65,7 +65,7 @@ add_custom_target(branch
   )
 
 # remove branch
-add_custom_target(cut
+add_custom_target(cut_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} branch -d ${BRANCH_VERSION}
   COMMAND ${GIT_EXECUTABLE} push origin --delete ${BRANCH_VERSION}
   COMMENT "Remove branch ${BRANCH_VERSION}"
@@ -98,14 +98,14 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
         \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
-add_custom_target(tag
+add_custom_target(tag_${PROJECT_NAME}
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   )
 
 # remove tag
-add_custom_target(erase
+add_custom_target(erase_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} tag -d ${VERSION}
   COMMAND ${GIT_EXECUTABLE} push origin :${VERSION}
   COMMENT "Remove tag ${VERSION}"
@@ -113,16 +113,16 @@ add_custom_target(erase
   )
 
 # move tag
-add_custom_target(retag
+add_custom_target(retag_${PROJECT_NAME}
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-  DEPENDS erase)
+  DEPENDS erase_${PROJECT_NAME})
 
 # tarball
 set(TARBALL "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${LAST_RELEASE}.tar")
 
-add_custom_target(tarball-create
+add_custom_target(tarball-create_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
     --prefix ${PROJECT_NAME}-${LAST_RELEASE}/ -o ${TARBALL}
     ${LAST_RELEASE}
@@ -131,19 +131,19 @@ add_custom_target(tarball-create
   )
 
 if(GZIP_EXECUTABLE)
-  add_custom_target(tarball
+  add_custom_target(tarball_${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E remove ${TARBALL}.gz
     COMMAND ${GZIP_EXECUTABLE} ${TARBALL}
-    DEPENDS tarball-create
+    DEPENDS tarball-create_${PROJECT_NAME}
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
     COMMENT "Compressing ${TARBALL}.gz"
   )
   set(TARBALL_GZ "${TARBALL}.gz")
 else()
-  add_custom_target(tarball DEPENDS tarball-create)
+  add_custom_target(tarball_${PROJECT_NAME} DEPENDS tarball-create_${PROJECT_NAME})
 endif()
 
-set(_gittargets_TARGETS branch cut tag erase tarball tarball-create)
+set(_gittargets_TARGETS branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME})
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
   set_target_properties(${_gittargets_TARGET} PROPERTIES FOLDER "git")
