@@ -53,6 +53,6 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
     "execute_process(COMMAND /opt/local/bin/portindex ${PORTFILE_GH_DIR}/ports)"
   )
 
-add_custom_target(portfile
+add_custom_target(portfile_${PROJECT_NAME}
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
   COMMENT "Updating ${MACPORTS_DIR}")

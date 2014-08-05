@@ -32,13 +32,13 @@ if(NOT CPPCHECK_FOUND)
 endif()
 
 if(NOT CPPCHECK_FOUND)
-  add_custom_target(cppcheck
+  add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
-  set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif()
 
-if(NOT TARGET cppcheck)
-  add_custom_target(cppcheck)
+if(NOT TARGET cppcheck_${PROJECT_NAME})
+  add_custom_target(cppcheck_${PROJECT_NAME})
 endif()
 
 function(add_cppcheck_sources _targetname)
@@ -132,7 +132,7 @@ function(add_cppcheck_sources _targetname)
       COMMENT
       "${_targetname}_cppcheck: Running cppcheck on target ${_targetname}..."
       VERBATIM)
-    add_dependencies(cppcheck ${_targetname}_cppcheck)
+    add_dependencies(cppcheck_${PROJECT_NAME} ${_targetname}_cppcheck)
   endif()
 endfunction()
 
