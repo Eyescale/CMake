@@ -18,8 +18,8 @@ if(BUILDYARD)
   return()
 endif()
 
-option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
-if(DISABLE_BUILDYARD)
+option(BUILDYARD_DISABLED "Disable bootstrapping using Buildyard" OFF)
+if(BUILDYARD_DISABLED)
   return()
 endif()
 
@@ -29,6 +29,7 @@ if(FOUND_REQUIRED)
 endif()
 
 message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
+set(BUILDYARD_BOOTSTRAP ON)
 include(GitExternal)
 
 git_external("${CMAKE_BINARY_DIR}/Buildyard"
