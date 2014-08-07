@@ -35,20 +35,20 @@ foreach(FILE ${TEST_FILES})
   source_group(\\ FILES ${FILE})
 
   list(APPEND ALL_CPP_TESTS ${NAME})
-  add_executable(${NAME} ${FILE})
-  set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
+  add_executable(${PROJECT_NAME}_${NAME} ${FILE})
+  set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES FOLDER "Tests")
 
   # Per target INCLUDE_DIRECTORIES if supported
   if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
-    set_target_properties(${NAME} PROPERTIES
+    set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
       INCLUDE_DIRECTORIES "${${NAME}_INCLUDE_DIRECTORIES}")
   endif()
 
   # Test link libraries
   if (${NAME}_LINK_LIBRARIES)
-    target_link_libraries(${NAME} ${${NAME}_LINK_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME}_${NAME} ${${NAME}_LINK_LIBRARIES})
   endif()
-  target_link_libraries(${NAME} ${TEST_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_${NAME} ${TEST_LIBRARIES})
 
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
@@ -62,18 +62,18 @@ foreach(FILE ${TEST_FILES})
   endif()
 
   if(CMAKE_VERSION VERSION_LESS 2.8)
-    get_target_property(EXECUTABLE ${NAME} LOCATION)
+    get_target_property(EXECUTABLE ${PROJECT_NAME}_${NAME} LOCATION)
     string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
            EXECUTABLE "${EXECUTABLE}")
-    add_test(${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
+    add_test(${PROJECT_NAME}_${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
   else(CMAKE_VERSION VERSION_LESS 2.8)
-    add_test(NAME ${NAME} COMMAND ${RUN_PREFIX} $<TARGET_FILE:${NAME}> ${RUN_ARGS})
+    add_test(NAME ${PROJECT_NAME}_${NAME} COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
   endif(CMAKE_VERSION VERSION_LESS 2.8)
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
   if (TEST_LABELS)
-    set_tests_properties(${NAME} PROPERTIES LABELS "${TEST_LABELS}")
+    set_tests_properties(${PROJECT_NAME}_${NAME} PROPERTIES LABELS "${TEST_LABELS}")
   endif()
 endforeach()
 
