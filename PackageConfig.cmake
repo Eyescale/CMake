@@ -195,8 +195,8 @@ set(_config_file_subproject_find
   "  endif()\n"
   "\n"
 # include options.cmake if existing
-  "  if(EXISTS \${${PROJECT_NAME}_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
-  "    include(\${${PROJECT_NAME}_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
+  "  if(EXISTS \${${PROJECT_NAME}_PREFIX_DIR}/options.cmake)\n"
+  "    include(\${${PROJECT_NAME}_PREFIX_DIR}/options.cmake)\n"
   "  endif()\n"
   "endif()\n"
   "\n"
