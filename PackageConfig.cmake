@@ -76,6 +76,9 @@ set(_config_file_body
 # add dependent library finding
   "@DEPENDENTS@"
   "set(${UPPER_PROJECT_NAME}_FIND_FILES ${${UPPER_PROJECT_NAME}_FIND_FILES})\n"
+)
+
+set(_config_file_standard_find
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
@@ -153,6 +156,54 @@ set(_config_file_body
   "  endif()\n"
   "endif()\n"
   "\n"
+)
+
+set(_config_file_subproject_find
+  "if(NOT _fail)\n"
+# setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
+  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
+  "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${CPACK_PACKAGE_NAME}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${CPACK_PACKAGE_NAME}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "\n"
+# find components if specified
+  "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
+  "message(\"HERE 11\") \n"
+  "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${PROJECT_NAME}})\n"
+  "    foreach(_component \${${PROJECT_NAME}_FIND_COMPONENTS})\n"
+  "      string(TOUPPER \${_component} _COMPONENT)\n"
+  "      set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
+  "      set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_LIBRARY \${\${_component}_libraryname})\n"
+  "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
+  "      list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
+  "    endforeach()\n"
+# search for ${UPPER_PROJECT_NAME}_FIND_FILES
+  "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
+  "message(\"HERE 22\") \n"
+  "  else()\n"
+# if no component or file was specified, find all produced libraries
+  "message(\"HERE 33 - the names are \${LIBRARY_NAMES} or maybe \@LIBRARY_NAMES@ \") \n"
+  "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
+  "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
+  "        string(REPLACE \"${PROJECT_NAME}_\" \"\" _component \${_libraryname})\n"
+  "        string(TOUPPER \${_component} _COMPONENT)\n"
+  "        set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
+  "    endforeach()\n"
+  "  endif()\n"
+  "\n"
+# include options.cmake if existing
+  "  if(EXISTS \${${PROJECT_NAME}_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
+  "    include(\${${PROJECT_NAME}_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
+  "  endif()\n"
+  "endif()\n"
+  "\n"
+)
+
+
+set(_config_file_final
 # finally report about found or not found
   "if(_fail)\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
@@ -182,6 +233,8 @@ set(_config_file_body
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   ${_config_file_prefix}
   ${_config_file_body}
+  ${_config_file_standard_find}
+  ${_config_file_final}
 )
 
 # write a project config which will be used to find packages in the build directory
@@ -191,6 +244,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
   "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})\n"
   "\n"
   ${_config_file_body}
+  ${_config_file_subproject_find}
+  ${_config_file_final}
 )
 
 # location of the includes
