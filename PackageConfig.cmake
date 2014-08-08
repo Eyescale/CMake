@@ -53,11 +53,6 @@ set(_config_file_prefix
   "endif()\n"
   "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})\n"
 )
-
-
-message("HERE 3 - the names are ${LIBRARY_NAMES} or maybe @LIBRARY_NAMES@ ")
-
-
  
 set(_config_file_body
 # reset before using them
@@ -89,7 +84,6 @@ set(_config_file_standard_find
   "\n"
 # find components if specified
   "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
-  "message(\"HERE 1\") \n"
   "    find_library(\${UPPER_PROJECT_NAME}_LIBRARY ${PROJECT_NAME} NO_DEFAULT_PATH\n"
   "                 PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
@@ -116,7 +110,6 @@ set(_config_file_standard_find
   "    endforeach()\n"
 # search for ${UPPER_PROJECT_NAME}_FIND_FILES
   "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
-  "message(\"HERE 2\") \n"
   "    find_file(${UPPER_PROJECT_NAME}_FILE NAMES ${${UPPER_PROJECT_NAME}_FIND_FILES} NO_DEFAULT_PATH\n"
   "              PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES include)\n"
   "    if(${UPPER_PROJECT_NAME}_FILE MATCHES \"${UPPER_PROJECT_NAME}_FILE-NOTFOUND\")\n"
@@ -128,7 +121,6 @@ set(_config_file_standard_find
   "    endif()\n"
   "  else()\n"
 # if no component or file was specified, find all produced libraries
-  "message(\"HERE 3 - the names are \${LIBRARY_NAMES} or maybe \@LIBRARY_NAMES@ \") \n"
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
   "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
@@ -169,7 +161,6 @@ set(_config_file_subproject_find
   "\n"
 # find components if specified
   "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
-  "message(\"HERE 11\") \n"
   "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${PROJECT_NAME}})\n"
   "    foreach(_component \${${PROJECT_NAME}_FIND_COMPONENTS})\n"
   "      string(TOUPPER \${_component} _COMPONENT)\n"
@@ -180,10 +171,8 @@ set(_config_file_subproject_find
   "    endforeach()\n"
 # search for ${UPPER_PROJECT_NAME}_FIND_FILES
   "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
-  "message(\"HERE 22\") \n"
   "  else()\n"
 # if no component or file was specified, find all produced libraries
-  "message(\"HERE 33 - the names are \${LIBRARY_NAMES} or maybe \@LIBRARY_NAMES@ \") \n"
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
   "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
