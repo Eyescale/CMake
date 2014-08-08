@@ -27,9 +27,7 @@ endif()
 
 # only ever define this macro once, just in case sub-projects include the same rules
 get_property(ADD_LIBRARY_DEFINED GLOBAL PROPERTY ADD_LIBRARY_MACRO_DEFINED)
-message("Testing ADD_LIBRARY_DEFINED gives result ${ADD_LIBRARY_DEFINED}")
 if(NOT ADD_LIBRARY_DEFINED) 
-  message("Creating an add_library macro")
   set_property(GLOBAL PROPERTY ADD_LIBRARY_MACRO_DEFINED "1") 
   macro(add_library _target)
     _add_library(${_target} ${ARGN})
@@ -69,9 +67,7 @@ if(NOT ADD_LIBRARY_DEFINED)
 
       set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${_target})
       set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS ${_target})
-get_property(XXX_LIBRARY_TARGETS GLOBAL PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS)
 
-message("We have added ${_target} to the ALL_LIB_TARGETS global which is now ${XXX_LIBRARY_TARGETS}")
     endif()
   endmacro()
 endif()
