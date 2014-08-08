@@ -41,7 +41,8 @@ include(CMakePackageConfigHelpers)
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Write the ProjectConfig.cmake.in file for configure_package_config_file
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
+# this will be copied eventually into the install directory
+set(_config_file_prefix
   "\n"
 # add helper stuff from CMakePackageConfigHelpers
   "@PACKAGE_INIT@\n"
@@ -51,6 +52,14 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   "  get_filename_component(CMAKE_CURRENT_LIST_DIR \${CMAKE_CURRENT_LIST_FILE} PATH)\n"
   "endif()\n"
   "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})\n"
+)
+
+
+message("HERE 3 - the names are ${LIBRARY_NAMES} or maybe @LIBRARY_NAMES@ ")
+
+
+ 
+set(_config_file_body
 # reset before using them
   "set(_output_type)\n"
   "set(_out)\n"
@@ -77,6 +86,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   "\n"
 # find components if specified
   "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
+  "message(\"HERE 1\") \n"
   "    find_library(\${UPPER_PROJECT_NAME}_LIBRARY ${PROJECT_NAME} NO_DEFAULT_PATH\n"
   "                 PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
@@ -103,6 +113,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   "    endforeach()\n"
 # search for ${UPPER_PROJECT_NAME}_FIND_FILES
   "  elseif(${UPPER_PROJECT_NAME}_FIND_FILES)\n"
+  "message(\"HERE 2\") \n"
   "    find_file(${UPPER_PROJECT_NAME}_FILE NAMES ${${UPPER_PROJECT_NAME}_FIND_FILES} NO_DEFAULT_PATH\n"
   "              PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES include)\n"
   "    if(${UPPER_PROJECT_NAME}_FILE MATCHES \"${UPPER_PROJECT_NAME}_FILE-NOTFOUND\")\n"
@@ -114,6 +125,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   "    endif()\n"
   "  else()\n"
 # if no component or file was specified, find all produced libraries
+  "message(\"HERE 3 - the names are \${LIBRARY_NAMES} or maybe \@LIBRARY_NAMES@ \") \n"
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
   "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
@@ -167,11 +179,25 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   "endif()\n"
 )
 
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
+  ${_config_file_prefix}
+  ${_config_file_body}
+)
+
+# write a project config which will be used to find packages in the build directory
+# when projects are compiled as subprojects of another larger project
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
+  "set(${PROJECT_NAME}_PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR})\n"
+  "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})\n"
+  "\n"
+  ${_config_file_body}
+)
+
 # location of the includes
 set(INCLUDE_INSTALL_DIR include)
 
 # compile the list of generated libraries
-get_property(LIBRARY_TARGETS GLOBAL PROPERTY ALL_LIB_TARGETS)
+get_property(LIBRARY_TARGETS GLOBAL PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS)
 set(LIBRARY_NAMES)
 foreach(_target ${LIBRARY_TARGETS})
   get_target_property(_libraryname ${_target} OUTPUT_NAME)
@@ -260,6 +286,12 @@ configure_package_config_file(
   PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} DEPENDENTS
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
+configure_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  @ONLY
+)
+
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
@@ -269,6 +301,13 @@ install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
+
+configure_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  COPYONLY
+)
+
 
 # create and install Project.pc
 if(NOT LIBRARY_DIR)

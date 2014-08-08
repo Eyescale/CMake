@@ -31,7 +31,7 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
+get_property(INSTALL_DEPENDS GLOBAL PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS)
 if(NOT INSTALL_DEPENDS)
   message(FATAL_ERROR "No targets in CMake project, Common.cmake not used?")
 endif()
