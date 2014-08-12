@@ -28,7 +28,7 @@ if(SAGE_FIND_QUIETLY)
 endif()
 
 find_path(_SAGE_INCLUDE_DIR sage.h
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
+  HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
   PATH_SUFFIXES include sage/include
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 
@@ -63,12 +63,12 @@ if(SAGE_FIND_VERSION AND SAGE_VERSION)
 endif()
 
 find_library(SAGE_SAIL_LIBRARY sail
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
+  HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
   PATH_SUFFIXES lib lib64 sage/lib sage/lib64
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 
 find_library(SAGE_QUANTA_LIBRARY quanta
-  HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
+  HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
   PATH_SUFFIXES lib lib64 sage/lib sage/lib64
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 

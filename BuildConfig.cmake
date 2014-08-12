@@ -2,7 +2,7 @@
 
 include(GitInfo)
 
-install (PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/CMakeCache.txt" DESTINATION
+install (PROGRAMS "${PROJECT_BINARY_DIR}/CMakeCache.txt" DESTINATION
   share/${PROJECT_NAME}/CMake/BuildParams)
 
 execute_process(COMMAND env OUTPUT_VARIABLE environment)

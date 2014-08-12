@@ -52,7 +52,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   if(IS_DIRECTORY "${DIR}/.git")
     if (${GIT_EXTERNAL_NO_UPDATE})
-      GIT_EXTERNAL_MESSAGE("Update branch disabled by user")
+      GIT_EXTERNAL_MESSAGE("git update disabled by user")
     else()
       GIT_EXTERNAL_MESSAGE("current ref is \"${currentref}\" and tag is \"${TAG}\"")
       if(currentref STREQUAL TAG) # nothing to do

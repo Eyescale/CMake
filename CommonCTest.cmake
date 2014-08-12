@@ -4,6 +4,11 @@
 
 include(CommonCPPCTest)
 
+if(NOT TARGET tests)
+  add_custom_target(tests)
+  set_target_properties(tests PROPERTIES FOLDER "Tests")
+endif()
+
 if(COVERAGE)
   coverage_report(run_cpp_tests)
   # workaround: 'make test' does not build tests beforehand
@@ -13,3 +18,4 @@ else()
 endif()
 
 set_target_properties(${PROJECT_NAME}_tests PROPERTIES FOLDER "Tests")
+add_dependencies(tests ${PROJECT_NAME}_tests)

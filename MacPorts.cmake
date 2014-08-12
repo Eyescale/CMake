@@ -37,8 +37,8 @@ set(CPACK_MACPORTS_DEPENDS "${CPACK_MACPORTS_TEMP}")
 
 # Create and install Portfile
 set(PORTFILE_DIR "ports/${CPACK_MACPORTS_CATEGORY}/${CMAKE_MACPORTS_NAME}")
-set(PORTFILE_GH_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../${MACPORTS_DIR}")
-set(PORTFILE "${CMAKE_CURRENT_BINARY_DIR}/${PORTFILE_DIR}/Portfile")
+set(PORTFILE_GH_DIR "${PROJECT_SOURCE_DIR}/../${MACPORTS_DIR}")
+set(PORTFILE "${PROJECT_BINARY_DIR}/${PORTFILE_DIR}/Portfile")
 set(PORTFILE_GH "${PORTFILE_GH_DIR}/${PORTFILE_DIR}/Portfile")
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/Portfile ${PORTFILE} @ONLY)
@@ -47,12 +47,12 @@ install(CODE
   "execute_process(COMMAND /opt/local/bin/portindex ${CMAKE_INSTALL_PREFIX}/ports)"
   COMPONENT lib)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
-    "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)\n"
+file(WRITE ${PROJECT_BINARY_DIR}/MacPortfile.cmake
+    "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)\n"
     "configure_file(${PORTFILE} ${PORTFILE_GH} COPYONLY)\n"
     "execute_process(COMMAND /opt/local/bin/portindex ${PORTFILE_GH_DIR}/ports)"
   )
 
 add_custom_target(portfile_${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
+  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/MacPortfile.cmake
   COMMENT "Updating ${MACPORTS_DIR}")

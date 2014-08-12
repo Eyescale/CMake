@@ -216,7 +216,7 @@ set(_config_file_final
   "endif()\n"
 )
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
+file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
   ${_config_file_prefix}
   ${_config_file_body}
   ${_config_file_standard_find}
@@ -225,9 +225,9 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
 
 # write a project config which will be used to find packages in the build directory
 # when projects are compiled as subprojects of another larger project
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
-  "set(${PROJECT_NAME}_PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR})\n"
-  "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})\n"
+file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
+  "set(${PROJECT_NAME}_PREFIX_DIR ${PROJECT_BINARY_DIR})\n"
+  "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR})\n"
   "\n"
   ${_config_file_body}
   ${_config_file_subproject_find}
@@ -321,31 +321,31 @@ if(LIBRARY_NAMES)
 endif()
 
 configure_package_config_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
+  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
+  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} DEPENDENTS
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 configure_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
+  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   @ONLY
 )
 
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
   VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
 
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+  FILES ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
+        ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 configure_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   COPYONLY
 )
 
@@ -355,7 +355,7 @@ if(NOT LIBRARY_DIR)
   set(LIBRARY_DIR lib)
 endif()
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
+file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
   "prefix=${CMAKE_INSTALL_PREFIX}\n"
   "exec_prefix=\${prefix}\n"
   "libdir=\${exec_prefix}/${LIBRARY_DIR}\n"
@@ -368,10 +368,10 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
   "Cflags: -I\${includedir}\n"
   "Libs: -L\${libdir}" )
 foreach(_library ${LIBRARY_NAMES})
-  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
+  file(APPEND ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
     " -l${_library}")
 endforeach()
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc "\n")
+file(APPEND ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc "\n")
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
+install(FILES ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc
   DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT dev)

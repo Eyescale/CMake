@@ -10,7 +10,7 @@ MACRO(ADD_SUBPROJECT name path)
     IF(SUBPROJECT_${name})
       # if the project needs to do anything special when configured as a sub project
       # then it should check the variable ${PROJECT_NAME}_EXTERNALLY_CONFIGURED
-      set(${name}_EXTERNALLY_CONFIGURED 1)
+      set(${name}_EXTERNALLY_CONFIGURED ON)
 
       # set ${PROJECT}_DIR to the location of the new build dir for the project
       if (NOT ${name}_DIR)      

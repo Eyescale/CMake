@@ -24,7 +24,7 @@ if(ENABLE_COVERAGE)
     if(LCOV AND GENHTML)
       set(COVERAGE ON)
       add_custom_target(lcov-clean
-        COMMAND ${LCOV} -q --directory ${CMAKE_CURRENT_BINARY_DIR} --zerocounters
+        COMMAND ${LCOV} -q --directory ${PROJECT_BINARY_DIR} --zerocounters
         COMMENT "Resetting code coverage counters")
     else()
       set(COVERAGE_MISSING)
@@ -62,17 +62,17 @@ macro(COVERAGE_REPORT)
   add_custom_target(lcov-gather
     COMMAND ${LCOV} --directory . --capture --output-file lcov.info
     COMMENT "Capturing code coverage counters"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${ARGV})
   add_custom_target(lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${CMAKE_CURRENT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS lcov-gather)
   add_custom_target(lcov-html
-    COMMAND ${GENHTML} -q ${COVERAGE_LIMITS} -o CoverageReport ${CMAKE_CURRENT_BINARY_DIR}/lcov2.info
-    COMMENT "Creating html coverage report, open ${CMAKE_CURRENT_BINARY_DIR}/doc/html/CoverageReport/index.html "
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/html
+    COMMAND ${GENHTML} -q ${COVERAGE_LIMITS} -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
+    COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
     DEPENDS lcov-remove)
-  make_directory(${CMAKE_CURRENT_BINARY_DIR}/doc/html)
+  make_directory(${PROJECT_BINARY_DIR}/doc/html)
 endmacro()

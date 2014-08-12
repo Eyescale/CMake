@@ -48,7 +48,7 @@ endif()
 add_custom_target(make-branch_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 if(TARGET flatten_git_external)
@@ -60,7 +60,7 @@ endif()
 add_custom_target(branch_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
   COMMENT "Add remote branch ${BRANCH_VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS ${BRANCH_DEP}
   )
 
@@ -69,21 +69,21 @@ add_custom_target(cut_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} branch -d ${BRANCH_VERSION}
   COMMAND ${GIT_EXECUTABLE} push origin --delete ${BRANCH_VERSION}
   COMMENT "Remove branch ${BRANCH_VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 # tag on branch
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
+file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
   "# Branch:
    if(\"${GITTARGETS_RELEASE_BRANCH}\" STREQUAL current)
      set(TAG_BRANCH)
    else()
      execute_process(COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
        RESULT_VARIABLE hadbranch ERROR_VARIABLE error
-       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
      if(NOT hadbranch)
        execute_process(COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
      endif()
      set(TAG_BRANCH ${BRANCH_VERSION})
    endif()
@@ -92,16 +92,16 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
    execute_process(
      COMMAND ${GIT_EXECUTABLE} tag -f ${VERSION} ${TAG_BRANCH}
      COMMAND ${GIT_EXECUTABLE} push --tags
-     RESULT_VARIABLE notdone WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+     RESULT_VARIABLE notdone WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
    if(notdone)
      message(FATAL_ERROR
         \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
 add_custom_target(tag_${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
+  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
   COMMENT "Add tag ${VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 # remove tag
@@ -109,24 +109,24 @@ add_custom_target(erase_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} tag -d ${VERSION}
   COMMAND ${GIT_EXECUTABLE} push origin :${VERSION}
   COMMENT "Remove tag ${VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 # move tag
 add_custom_target(retag_${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
+  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
   COMMENT "Add tag ${VERSION}"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS erase_${PROJECT_NAME})
 
 # tarball
-set(TARBALL "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${LAST_RELEASE}.tar")
+set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${LAST_RELEASE}.tar")
 
 add_custom_target(tarball-create_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
     --prefix ${PROJECT_NAME}-${LAST_RELEASE}/ -o ${TARBALL}
     ${LAST_RELEASE}
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   COMMENT "Creating ${TARBALL}"
   )
 
@@ -135,7 +135,7 @@ if(GZIP_EXECUTABLE)
     COMMAND ${CMAKE_COMMAND} -E remove ${TARBALL}.gz
     COMMAND ${GZIP_EXECUTABLE} ${TARBALL}
     DEPENDS tarball-create_${PROJECT_NAME}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
     COMMENT "Compressing ${TARBALL}.gz"
   )
   set(TARBALL_GZ "${TARBALL}.gz")

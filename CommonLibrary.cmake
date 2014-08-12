@@ -32,8 +32,8 @@ function(COMMON_LIBRARY Name)
   set(HEADERS ${${NAME}_HEADERS})
   set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
- 
-  set(PROJECT_GENERATED_HEADER 
+
+  set(PROJECT_GENERATED_HEADER
     ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/${PROJECT_INCLUDE_NAME}.in.h)
 
   file(WRITE ${PROJECT_GENERATED_HEADER}
@@ -52,8 +52,7 @@ function(COMMON_LIBRARY Name)
     endif()
   endforeach()
   file(APPEND ${PROJECT_GENERATED_HEADER} "#endif\n")
-  # note that the use of CMAKE_BINARY_DIR is intentional here
-  set(PROJECT_INCLUDE_HEADER 
+  set(PROJECT_INCLUDE_HEADER
     ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/${PROJECT_INCLUDE_NAME}.h)
 
   configure_file(
@@ -90,9 +89,9 @@ function(COMMON_LIBRARY Name)
   endforeach()
 
   if(MSVC)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/Debug/${Name}.pdb
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
   endif()
 

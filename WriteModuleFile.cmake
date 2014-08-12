@@ -9,14 +9,14 @@
 # - MODULE_MESSAGE_AFTER_LOAD: A message to be displayed after the module was loaded
 
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/WriteModuleFile.cmake
+file(WRITE ${PROJECT_BINARY_DIR}/WriteModuleFile.cmake
   "\n"
   "if(NOT MODULE_FILENAME OR NOT MODULE_PACKAGE_NAME OR NOT MODULE_VERSION)\n"
   "  message(FATAL_ERROR \"Need MODULE_FILENAME, MODULE_PACKAGE_NAME and MODULE_VERSION for module file generation\")\n"
   "endif()\n"
 
   # write file
-  "file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/\${MODULE_FILENAME}\n"
+  "file(WRITE ${PROJECT_BINARY_DIR}/\${MODULE_FILENAME}\n"
   "  \"#%Module1.0\\n\"\n"
   "  \"######################################################################\\n\"\n"
   "  \"#\\n\"\n"
