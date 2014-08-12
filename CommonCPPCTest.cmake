@@ -9,7 +9,7 @@
 #   be set to configure target specific includes and link libraries, where
 #   NAME is the test filename without the .cpp extension. Per test include
 #   directories are only supported for for CMake 2.8.8
-# * For each test ${TEST_PREFIX} and ${TEST_ARGS}, or if present, 
+# * For each test ${TEST_PREFIX} and ${TEST_ARGS}, or if present,
 #   ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS, can be
 #   set to customise the actual test command, supplying a prefix command
 #   and additional arguments to follow the test executable.
@@ -22,7 +22,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${PROJECT_SOURCE_DIR})
 
-file(GLOB_RECURSE TEST_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.c *.cpp)
+file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.cpp)
 foreach(FILE ${EXCLUDE_FROM_TESTS})
   list(REMOVE_ITEM TEST_FILES ${FILE})
 endforeach()

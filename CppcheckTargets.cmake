@@ -132,7 +132,7 @@ function(add_cppcheck_sources _targetname)
       ${_cppcheck_args}
       ${_files}
       WORKING_DIRECTORY
-      "${PROJECT_SOURCE_DIR}"
+      "${CMAKE_CURRENT_SOURCE_DIR}"
       COMMENT
       "${_targetname}_cppcheck: Running cppcheck on target ${_targetname}..."
       VERBATIM)
@@ -201,16 +201,10 @@ function(add_cppcheck _name)
       "${CPPCHECK_FAIL_REGULAR_EXPRESSION}")
 
     add_custom_target(${_name}_cppcheck
-      COMMAND
-      ${CPPCHECK_EXECUTABLE}
-      ${CPPCHECK_QUIET_ARG}
-      ${CPPCHECK_TEMPLATE_ARG}
-      ${_cppcheck_args}
-      ${_files}
-      WORKING_DIRECTORY
-      "${PROJECT_SOURCE_DIR}"
-      COMMENT
-      "${_name}_cppcheck: Running cppcheck on target ${_name}..."
+      COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG}
+      ${CPPCHECK_TEMPLATE_ARG} ${_cppcheck_args} ${_files}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMENT "${_name}_cppcheck: Running cppcheck on target ${_name}..."
       VERBATIM)
     add_dependencies(cppcheck_${PROJECT_NAME} ${_name}_cppcheck)
   endif()
