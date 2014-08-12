@@ -10,11 +10,11 @@ if(NOT TARGET package-install AND PACKAGE_FILE_NAME)
   else()
     message(STATUS "Unknown system installer, using 'make install'")
     set(SYSTEM_INSTALL_CMD
-      ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target install)
+      ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target install)
   endif()
 
   add_custom_target(package-install
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target package
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target package
     COMMAND sudo ${SYSTEM_INSTALL_CMD} ${PACKAGE_FILE_NAME}
     COMMENT "Build and sudo install package"
     VERBATIM)

@@ -32,18 +32,18 @@ if(NOT CPPCHECK_FOUND)
 endif()
 
 if(NOT CPPCHECK_FOUND)
-  add_custom_target(cppcheck
+  add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
-  set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif()
 
-if(NOT TARGET cppcheck)
-  add_custom_target(cppcheck)
+if(NOT TARGET cppcheck_${PROJECT_NAME})
+  add_custom_target(cppcheck_${PROJECT_NAME})
 endif()
 
 function(add_cppcheck_sources _targetname)
   if(CPPCHECK_FOUND)
-    set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
+    set(_cppcheck_args -I ${CMAKE_CURRENT_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
       --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
       ${CPPCHECK_EXTRA_ARGS})
@@ -132,7 +132,7 @@ function(add_cppcheck_sources _targetname)
       COMMENT
       "${_targetname}_cppcheck: Running cppcheck on target ${_targetname}..."
       VERBATIM)
-    add_dependencies(cppcheck ${_targetname}_cppcheck)
+    add_dependencies(cppcheck_${PROJECT_NAME} ${_targetname}_cppcheck)
   endif()
 endfunction()
 
@@ -142,7 +142,7 @@ function(add_cppcheck _name)
       "add_cppcheck given a target name that does not exist: '${_name}' !")
   endif()
   if(CPPCHECK_FOUND)
-    set(_cppcheck_args -I ${CMAKE_SOURCE_DIR}
+    set(_cppcheck_args -I ${CMAKE_CURRENT_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
       --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
       ${CPPCHECK_EXTRA_ARGS})
@@ -208,7 +208,7 @@ function(add_cppcheck _name)
       COMMENT
       "${_name}_cppcheck: Running cppcheck on target ${_name}..."
       VERBATIM)
-    add_dependencies(cppcheck ${_name}_cppcheck)
+    add_dependencies(cppcheck_${PROJECT_NAME} ${_name}_cppcheck)
   endif()
 
 endfunction()

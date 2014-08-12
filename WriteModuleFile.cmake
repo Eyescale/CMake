@@ -16,7 +16,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/WriteModuleFile.cmake
   "endif()\n"
 
   # write file
-  "file(WRITE ${CMAKE_BINARY_DIR}/\${MODULE_FILENAME}\n"
+  "file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/\${MODULE_FILENAME}\n"
   "  \"#%Module1.0\\n\"\n"
   "  \"######################################################################\\n\"\n"
   "  \"#\\n\"\n"
