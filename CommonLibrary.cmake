@@ -83,7 +83,7 @@ function(COMMON_LIBRARY Name)
       LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib)
   endforeach()
 
-  if(MSVC)
+  if(MSVC AND ${${NAME}_LIBRARY_TYPE} STREQUAL "SHARED")
     install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
     install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${Name}.pdb
