@@ -4,6 +4,8 @@
 #  name = the Project name as declared in project(xxx) of the sub-project
 #  path = location of sub-project CMakeLists relative to this source dir
 #--------------------------------------------------
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/include")
+
 MACRO(ADD_SUBPROJECT name path)
   IF(EXISTS "${PROJECT_SOURCE_DIR}/${path}/")
     OPTION("SUBPROJECT_${name}" "Build ${name} " ON)
