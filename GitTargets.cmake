@@ -64,6 +64,11 @@ add_custom_target(branch_${PROJECT_NAME}
   DEPENDS ${BRANCH_DEP}
   )
 
+if(NOT TARGET branch)
+  add_custom_target(branch)
+endif()
+add_dependencies(branch branch_${PROJECT_NAME})
+
 # remove branch
 add_custom_target(cut_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} branch -d ${BRANCH_VERSION}
@@ -71,6 +76,11 @@ add_custom_target(cut_${PROJECT_NAME}
   COMMENT "Remove branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
+
+if(NOT TARGET cut)
+  add_custom_target(cut)
+endif()
+add_dependencies(cut cut_${PROJECT_NAME})
 
 # tag on branch
 file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
@@ -112,12 +122,22 @@ add_custom_target(erase_${PROJECT_NAME}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
+if(NOT TARGET erase)
+  add_custom_target(erase)
+endif()
+add_dependencies(erase erase_${PROJECT_NAME})
+
 # move tag
 add_custom_target(retag_${PROJECT_NAME}
   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS erase_${PROJECT_NAME})
+
+if(NOT TARGET retag)
+  add_custom_target(retag)
+endif()
+add_dependencies(retag retag_${PROJECT_NAME})
 
 # tarball
 set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${LAST_RELEASE}.tar")
@@ -129,6 +149,11 @@ add_custom_target(tarball-create_${PROJECT_NAME}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   COMMENT "Creating ${TARBALL}"
   )
+
+if(NOT TARGET tarball-create)
+  add_custom_target(tarball-create)
+endif()
+add_dependencies(tarball-create tarball-create_${PROJECT_NAME})
 
 if(GZIP_EXECUTABLE)
   add_custom_target(tarball_${PROJECT_NAME}
@@ -142,6 +167,11 @@ if(GZIP_EXECUTABLE)
 else()
   add_custom_target(tarball_${PROJECT_NAME} DEPENDS tarball-create_${PROJECT_NAME})
 endif()
+
+if(NOT TARGET tarball)
+  add_custom_target(tarball)
+endif()
+add_dependencies(tarball tarball_${PROJECT_NAME})
 
 set(_gittargets_TARGETS branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME})
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
