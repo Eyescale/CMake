@@ -212,18 +212,28 @@ function(UPLOAD_PPA UBUNTU_NAME)
 
   ##############################################################################
   # dput ppa:your-lp-id/ppa <source.changes>
-  add_custom_target(dput_${UBUNTU_NAME}
+  add_custom_target(${PROJECT_NAME}_dput_${UBUNTU_NAME}
     ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES}
     DEPENDS ${DEBIAN_BASE_DIR}/${DEB_SOURCE_CHANGES}
     WORKING_DIRECTORY ${DEBIAN_BASE_DIR}
     COMMENT "Upload ${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION} to ${DPUT_HOST}"
     )
-  set(DPUT_TARGETS ${DPUT_TARGETS} dput_${UBUNTU_NAME} PARENT_SCOPE)
+
+  if(NOT TARGET dput_${UBUNTU_NAME})
+    add_custom_target( dput_${UBUNTU_NAME})
+  endif()
+  add_dependencies(dput_${UBUNTU_NAME} ${PROJECT_NAME}_dput_${UBUNTU_NAME})
+
+  set(DPUT_TARGETS ${DPUT_TARGETS} ${PROJECT_NAME}_dput_${UBUNTU_NAME} PARENT_SCOPE)
 endfunction()
 
 function(UPLOAD_PPAS)
   foreach(UBUNTU_CODENAME ${UBUNTU_CODENAMES})
     upload_ppa(${UBUNTU_CODENAME})
   endforeach()
-  add_custom_target(dput DEPENDS ${DPUT_TARGETS})
+  add_custom_target(${PROJECT_NAME}_dput DEPENDS ${DPUT_TARGETS})
+  if(NOT TARGET dput)
+    add_custom_target(dput)
+  endif()
+  add_dependencies(dput ${PROJECT_NAME}_dput)
 endfunction()
