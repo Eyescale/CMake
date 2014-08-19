@@ -62,21 +62,37 @@ if(NOT DOXYGEN_CONFIG_FILE)
   set(DOXYGEN_CONFIG_FILE ${PROJECT_BINARY_DIR}/doc/Doxyfile)
 endif()
 
-add_custom_target(doxygen_install
+add_custom_target(${PROJECT_NAME}_doxygen_install
   ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/cmake_install.cmake
   DEPENDS ${INSTALL_DEPENDS})
 
-add_custom_target(doxygen_html
+if(NOT TARGET doxygen_install)
+  add_custom_target(doxygen_install)
+endif()
+add_dependencies(doxygen_install ${PROJECT_NAME}_doxygen_install)
+
+add_custom_target(${PROJECT_NAME}_doxygen_html
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
-  DEPENDS doxygen_install project_info)
+  DEPENDS ${PROJECT_NAME}_doxygen_install project_info)
+
+if(NOT TARGET doxygen_html)
+  add_custom_target(doxygen_html)
+endif()
+add_dependencies(doxygen_html DEPENDS ${PROJECT_NAME}_doxygen_html)
+
 if(COVERAGE)
   # CoverageReport generated in this case
-  add_custom_target(doxygen DEPENDS doxygen_html tests)
+  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html tests)
 else()
-  add_custom_target(doxygen DEPENDS doxygen_html)
+  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html)
 endif()
+
+if(NOT TARGET doxygen)
+  add_custom_target(doxygen)
+endif()
+add_dependencies(doxygen DEPENDS ${PROJECT_NAME}_doxygen)
 
 make_directory(${PROJECT_BINARY_DIR}/doc/html)
 install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
@@ -86,13 +102,19 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
 if(GIT_DOCUMENTATION_REPO)
   set(GIT_DOCUMENTATION_DIR
     ${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
-  add_custom_target(doxycopy
+
+  add_custom_target(${PROJECT_NAME}_doxycopy
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
-    DEPENDS doxygen VERBATIM)
+    DEPENDS ${PROJECT_NAME}_doxygen VERBATIM)
 
-  add_custom_target(doxygit
+  if(NOT TARGET doxycopy)
+    add_custom_target(doxycopy)
+  endif()
+  add_dependencies(doxycopy ${PROJECT_NAME}_doxycopy)
+
+  add_custom_target(${PROJECT_NAME}_doxygit
     COMMAND ${CMAKE_COMMAND} -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
     -DPROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}"
     -DPROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
@@ -101,8 +123,14 @@ if(GIT_DOCUMENTATION_REPO)
     -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
     COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
-    DEPENDS doxycopy)
+    DEPENDS ${PROJECT_NAME}_doxycopy)
 else()
-  add_custom_target(doxygit
+  add_custom_target(${PROJECT_NAME}_doxygit
     COMMENT "doxygit target not available, missing GIT_DOCUMENTATION_REPO")
 endif()
+
+if(NOT TARGET doxygit)
+  add_custom_target(doxygit)
+endif()
+add_dependencies(doxygit ${PROJECT_NAME}_doxygit)
+
