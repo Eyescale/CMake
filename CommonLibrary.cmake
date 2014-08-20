@@ -74,8 +74,8 @@ function(COMMON_LIBRARY Name)
 	set(LIBNAME "${Name}_${LIBRARY_TYPE}")
     endif()
     add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
-    set_target_properties(${LIBNAME} PROPERTIES
-      VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
+    set_target_properties(${LIBNAME}
+      PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
     target_link_libraries(${LIBNAME} ${LINK_LIBRARIES})
     install(TARGETS ${LIBNAME}
       ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
