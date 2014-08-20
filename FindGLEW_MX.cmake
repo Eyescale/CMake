@@ -11,7 +11,7 @@ find_path(_glew_mx_INCLUDE_DIR GL/glew.h
   /usr/include /usr/local/include /opt/local/include)
 
 find_library(_glew_mx_LIBRARY
-  NAMES GLEWmx GLEW glew glew32
+  NAMES GLEWmx glew32mx GLEW glew glew32
   PATHS /usr/lib /usr/local/lib)
 
 if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
