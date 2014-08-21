@@ -105,6 +105,9 @@ add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
 if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
+  if(MSVC)
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+  endif()
 endif()
 
 include(TestBigEndian)
