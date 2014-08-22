@@ -3,9 +3,8 @@
 #  include(CppcheckTargets)
 #  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
 #                             [FAIL_ON_WARNINGS] [EXCLUDE_QT_MOC_FILES]) -
-#    Create a target to check a target's sources with cppcheck and the indicated options
-#  add_cppcheck_sources(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]) -
-#    Create a target to check standalone sources with cppcheck and the indicated options
+#    Create a target to check a target's sources with cppcheck and the
+#    indicated options
 #
 # Requires these CMake modules:
 #  Findcppcheck
