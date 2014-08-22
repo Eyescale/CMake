@@ -24,6 +24,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <stdexcept>
 
 #define OUTPUT lunchbox::Log::instance( __FILE__, __LINE__ )
 
@@ -87,9 +88,17 @@ int main( int argc, char **argv )
     watchdog.start();
 #endif
 
-    const int result = testMain( argc, argv );
-    if( result != EXIT_SUCCESS )
-        return result;
+    try
+    {
+        const int result = testMain( argc, argv );
+        if( result != EXIT_SUCCESS )
+            return result;
+    }
+    catch( const std::runtime_error& e )
+    {
+        LBINFO << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
 #ifndef TEST_NO_WATCHDOG
     watchdog.cancel();
