@@ -40,6 +40,9 @@ and use it in your top-level CMakeLists.txt:
       downstream projects.
     * [CppcheckTargets](CppcheckTargets.cmake): *cppcheck* target for
       static code analysis. Also adds all cppcheck targets to tests.
+    * [clangcheckTargets](clangcheckTargets.cmake): *clangcheck* target for
+      clang-check code analysis. Adds all cppcheck targets to tests if
+      ENABLE_CLANGCHECK_TESTS is set.
 * [DoxygenRule](DoxygenRule.cmake): *doxygen* target to build
   documentation into CMAKE_BINARY_DIR/doc. Optional *doxygit* target to
   copy result to ../GITHUB_ORGANIZATION/Project-M.m/. Must be included
