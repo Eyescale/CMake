@@ -36,6 +36,7 @@ foreach(FILE ${TEST_FILES})
 
   list(APPEND ALL_CPP_TESTS ${NAME})
   add_executable(${PROJECT_NAME}_${NAME} ${FILE})
+  add_custom_target(${NAME} DEPENDS ${PROJECT_NAME}_${NAME})
   set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES FOLDER "Tests")
 
   # Per target INCLUDE_DIRECTORIES if supported
