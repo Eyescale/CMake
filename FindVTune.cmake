@@ -19,7 +19,7 @@ find_program(VTUNE_EXECUTABLE amplxe-cl)
 if(NOT VTUNE_EXECUTABLE)
   set(VTUNE_FOUND)
   configure_file(${CMAKE_CURRENT_LIST_DIR}/ittnotify.h
-    ${CMAKE_BINARY_DIR}/include/ittnotify.h COPYONLY)
+    ${PROJECT_BINARY_DIR}/include/ittnotify.h COPYONLY)
   add_definitions(-DINTEL_NO_ITTNOTIFY_API)
   return()
 endif()

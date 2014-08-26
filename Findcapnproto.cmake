@@ -25,21 +25,21 @@ if(CAPNPROTO_FOUND)
     foreach(FILE ${ARGN})
       get_filename_component(CAPNP_OUTPUT ${FILE} NAME_WE)
       set(CAPNP_OUTPUT
-        "${CMAKE_CURRENT_BINARY_DIR}/${CAPNP_OUTPUT}_generated.h")
+        "${PROJECT_BINARY_DIR}/${CAPNP_OUTPUT}_generated.h")
       list(APPEND CAPNP_OUTPUTS ${CAPNP_OUTPUT})
 
       add_custom_command(OUTPUT ${CAPNP_OUTPUT}
         COMMAND PATH=${CAPNP_DIR} ${CAPNP_EXECUTABLE}
-        ARGS compile -oc++:"${CMAKE_CURRENT_BINARY_DIR}/" ${FILE}
+        ARGS compile -oc++:"${PROJECT_BINARY_DIR}/" ${FILE}
         COMMENT "Building C++ header for ${FILE}"
         DEPENDS ${FILE}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
     endforeach()
     set(${Name}_OUTPUTS ${CAPNP_OUTPUTS} PARENT_SCOPE)
   endfunction()
 
   set(CAPNPROTO_INCLUDE_DIRS ${CAPNPROTO_INCLUDE_DIR})
-  include_directories(${CMAKE_BINARY_DIR})
+  include_directories(${PROJECT_BINARY_DIR})
 else()
   set(CAPNPROTO_INCLUDE_DIR)
 endif()
