@@ -9,8 +9,8 @@ This repository contains common CMake modules. To use it, create a
 Copy [GitExternal](GitExternal.cmake) from this repository to CMake/,
 and use it in your top-level CMakeLists.txt:
 
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
-      ${CMAKE_SOURCE_DIR}/CMake/common)
+    list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
+                                  ${PROJECT_SOURCE_DIR}/CMake/common)
     include(GitExternal)
     include(Common)
 
@@ -40,8 +40,20 @@ and use it in your top-level CMakeLists.txt:
       downstream projects.
     * [CppcheckTargets](CppcheckTargets.cmake): *cppcheck* target for
       static code analysis. Also adds all cppcheck targets to tests.
+    * [clangcheckTargets](clangcheckTargets.cmake): *clangcheck* target for
+      clang-check code analysis. Adds all cppcheck targets to tests if
+      ENABLE_CLANGCHECK_TESTS is set.
 * [DoxygenRule](DoxygenRule.cmake): *doxygen* target to build
-  documentation into CMAKE_BINARY_DIR/doc. Optional *doxygit* target to
+  documentation into PROJECT_BINARY_DIR/doc. Optional *doxygit* target to
   copy result to ../GITHUB_ORGANIZATION/Project-M.m/. Must be included
   after all targets.
+* [SubProject](SubProject.cmake): Using a top level simple CMake 
+  superproject, several CMake subprojects (which may depend on each other) 
+  can be build. Each subproject can be added to the superproject 
+  with an add_subdirectory( *subproject* ) directive. To use the SubProject
+  feature, the sub projects should modify their CMake scripts.
+  In the scripts CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR 
+  and CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR. A
+  sample project can be found at https://github.com/bilgili/SubProjects.git
+
 * Find scripts for non-CMake projects.

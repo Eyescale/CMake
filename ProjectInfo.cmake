@@ -19,8 +19,8 @@ if(DPUT_HOST AND NOT ${UPPER_PROJECT_NAME}_PACKAGE_URL)
 endif()
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/ProjectInfo.in.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/ProjectInfo.cmake)
+  ${PROJECT_BINARY_DIR}/ProjectInfo.cmake)
 
-add_custom_target(project_info
+add_custom_target(project_info_${PROJECT_NAME}
   ${CMAKE_COMMAND} -E copy_if_different
-  ${CMAKE_CURRENT_BINARY_DIR}/ProjectInfo.cmake ${CMAKE_BINARY_DIR}/doc/html)
+  ${PROJECT_BINARY_DIR}/ProjectInfo.cmake ${PROJECT_BINARY_DIR}/doc/html)

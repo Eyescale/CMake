@@ -5,7 +5,7 @@
 # Buildyard. git add them to your project and then add to the top-level
 # CMakeLists.txt:
 #   project(Foo)
-#   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+#   list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
 #   include(Buildyard)
 #   if(BUILDYARD_STOP)
 #     return()
@@ -32,18 +32,18 @@ message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
 set(BUILDYARD_BOOTSTRAP ON)
 include(GitExternal)
 
-git_external("${CMAKE_BINARY_DIR}/Buildyard"
+git_external("${PROJECT_BINARY_DIR}/Buildyard"
   https://github.com/Eyescale/Buildyard.git master)
 
-configure_file("${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.cmake"
-  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/${CMAKE_PROJECT_NAME}.cmake"
+configure_file("${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.cmake"
+  "${PROJECT_BINARY_DIR}/Buildyard/config.Buildyard/${PROJECT_NAME}.cmake"
   COPYONLY)
-configure_file("${CMAKE_SOURCE_DIR}/CMake/depends.txt"
-  "${CMAKE_BINARY_DIR}/Buildyard/config.Buildyard/depends.txt" COPYONLY)
+configure_file("${PROJECT_SOURCE_DIR}/CMake/depends.txt"
+  "${PROJECT_BINARY_DIR}/Buildyard/config.Buildyard/depends.txt" COPYONLY)
 
-set(BUILDYARD_TARGETS ${CMAKE_PROJECT_NAME})
-add_subdirectory("${CMAKE_BINARY_DIR}/Buildyard" # source
-  "${CMAKE_BINARY_DIR}/Buildyard.bin" )          # binary
+set(BUILDYARD_TARGETS ${PROJECT_NAME})
+add_subdirectory("${PROJECT_BINARY_DIR}/Buildyard" # source
+  "${PROJECT_BINARY_DIR}/Buildyard.bin" )          # binary
 if(MSVC)
   message(STATUS "Build 00_Main->AllProjects to bootstrap and 00_Main->AllBuild after bootstrap\n")
 else()

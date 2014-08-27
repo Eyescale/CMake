@@ -79,7 +79,7 @@ function(add_test_class)
     if(NOT TARGET test-${TEST_SUFFIX})
         add_custom_target("test-${TEST_SUFFIX}"
             COMMAND ${CMAKE_CTEST_COMMAND} -L ^${TEST_LOPTS}$$
-            WORKING_DIRECTORY ${${CMAKE_PROJECT_NAME}_BINARY_DIR}
+            WORKING_DIRECTORY ${${PROJECT_NAME}_BINARY_DIR}
             COMMENT "Running all ${ARGN} tests")
     endif()
 endfunction()

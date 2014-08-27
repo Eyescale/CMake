@@ -103,7 +103,7 @@ function(add_cpplint _name)
 
     add_custom_target(${_name}_cpplint
       COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       COMMENT "Running cpplint on ${_name}"
       VERBATIM)
     add_dependencies(cpplint ${_name}_cpplint)
