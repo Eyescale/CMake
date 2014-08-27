@@ -29,7 +29,7 @@ if(FLATBUFFERS_FOUND)
         ARGS -c -o "${PROJECT_BINARY_DIR}/" ${FILE}
         COMMENT "Building C++ header for ${FILE}"
         DEPENDS ${FILE}
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endforeach()
     set(${Name}_OUTPUTS ${FLATC_OUTPUTS} PARENT_SCOPE)
   endfunction()
@@ -39,4 +39,3 @@ if(FLATBUFFERS_FOUND)
 else()
   set(FLATBUFFERS_INCLUDE_DIR)
 endif()
-
