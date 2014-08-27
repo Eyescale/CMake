@@ -17,7 +17,7 @@
 #   ${NAME}_TEST_LABEL specifies an additional label.
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${PROJECT_SOURCE_DIR})
@@ -86,7 +86,7 @@ if(TARGET run_cpp_tests)
 else()
   add_custom_target(run_cpp_tests
     COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all cpp unit tests")
   if(COVERAGE)
     add_dependencies(run_cpp_tests lcov-clean)
