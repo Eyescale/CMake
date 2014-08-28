@@ -40,7 +40,8 @@ foreach(FILE ${TEST_FILES})
     add_custom_target(${NAME})
   endif()
   add_dependencies(${NAME} ${PROJECT_NAME}_${NAME})
-  set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES FOLDER "Tests")
+  set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
+    FOLDER "Tests" OUTPUT_NAME ${NAME})
 
   # Per target INCLUDE_DIRECTORIES if supported
   if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
@@ -71,7 +72,8 @@ foreach(FILE ${TEST_FILES})
            EXECUTABLE "${EXECUTABLE}")
     add_test(${PROJECT_NAME}_${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
   else(CMAKE_VERSION VERSION_LESS 2.8)
-    add_test(NAME ${PROJECT_NAME}_${NAME} COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
+    add_test(NAME ${PROJECT_NAME}_${NAME}
+      COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
   endif(CMAKE_VERSION VERSION_LESS 2.8)
 
   # Add test labels
