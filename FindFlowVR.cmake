@@ -28,7 +28,7 @@ set(FLOWVR_INCLUDE_DIRS)
 
 find_path(FLOWVRVR_BASE_INCLUDE_DIR flowvr/buffer.h
   PATH_SUFFIXES include
-  PATHS ${CMAKE_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/include /usr /opt )
+  PATHS ${PROJECT_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/include /usr /opt )
 
 if(FLOWVRVR_BASE_INCLUDE_DIR)
    list(APPEND FLOWVR_INCLUDE_DIRS ${FLOWVRVR_BASE_INCLUDE_DIR})
@@ -36,7 +36,7 @@ endif()
 
 find_path(FLOWVRVR_MODULE_INCLUDE_DIR flowvr/module.h
   PATH_SUFFIXES include
-  PATHS ${CMAKE_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/include /usr /opt )
+  PATHS ${PROJECT_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/include /usr /opt )
 
 if(FLOWVRVR_MODULE_INCLUDE_DIR)
    list(APPEND FLOWVR_INCLUDE_DIRS ${FLOWVRVR_MODULE_INCLUDE_DIR})
@@ -63,7 +63,7 @@ set(FLOWVR_LIBRARIES)
 foreach(FLOWVR_LIBRARY ${_FLOWVR_LIBRARIES})
    find_library(${FLOWVR_LIBRARY}_LIBRARY ${FLOWVR_LIBRARY}
       PATH_SUFFIXES lib lib64
-      PATHS ${CMAKE_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/local /usr /usr/local /opt /opt/local )
+      PATHS ${PROJECT_SOURCE_DIR}/../../.. $ENV{FLOWVR_PREFIX} /usr/local /usr /usr/local /opt /opt/local )
    if(${FLOWVR_LIBRARY}_LIBRARY)
       list(APPEND FLOWVR_LIBRARIES ${${FLOWVR_LIBRARY}_LIBRARY})
       if(NOT _FlowVR_quiet)

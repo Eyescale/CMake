@@ -34,6 +34,7 @@ if(NOT COMMON_MINIMUM_GCC_VERSION)
 endif()
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
+option(ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
@@ -59,6 +60,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
     endif()
     set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -fmax-errors=5")
+    set(CXX11_STDLIB "-stdlib=libc++")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
@@ -153,3 +155,10 @@ if(MSVC)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CXXSTD_FLAGS}")
+if(ENABLE_CXX11_STDLIB)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_STDLIB}")
+else()
+  # Fix boost again to not include std::move and friends
+  add_definitions(-DBOOST_NO_CXX11_RVALUE_REFERENCES
+    -DBOOST_NO_CXX11_REF_QUALIFIERS)
+endif()
