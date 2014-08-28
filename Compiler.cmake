@@ -158,7 +158,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CXXSTD_FLAGS}")
 if(ENABLE_CXX11_STDLIB)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_STDLIB}")
 else()
-  # Fix boost again to not include std::move and friends
-  add_definitions(-DBOOST_NO_CXX11_RVALUE_REFERENCES
-    -DBOOST_NO_CXX11_REF_QUALIFIERS)
+  if(CMAKE_COMPILER_IS_CLANG)
+    # Fix boost again to not include std::move and friends
+    add_definitions(-DBOOST_NO_CXX11_RVALUE_REFERENCES
+      -DBOOST_NO_CXX11_REF_QUALIFIERS)
+  endif()
 endif()
