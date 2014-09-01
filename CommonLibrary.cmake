@@ -8,7 +8,7 @@
 # * NAME_HEADERS for all internal header files
 # * NAME_PUBLIC_HEADERS for public, installed header files
 # * NAME_LINK_LIBRARIES for dependencies of name
-# * NAME_LIBRARY_TYPE for setting shared or static library
+# * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library
 # * PROJECT_INCLUDE_NAME for the include directory and project include header
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
@@ -71,7 +71,10 @@ function(COMMON_LIBRARY Name)
   source_group(
     ${PROJECT_INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   if (NOT ${NAME}_LIBRARY_TYPE)
-    set(${NAME}_LIBRARY_TYPE SHARED)
+    set(${NAME}_LIBRARY_TYPE ${COMMON_LIBRARY_TYPE})
+    if (NOT ${NAME}_LIBRARY_TYPE)
+      set(${NAME}_LIBRARY_TYPE SHARED)
+    endif()
   endif()
   foreach(LIBRARY_TYPE ${${NAME}_LIBRARY_TYPE})
     set(LIBNAME ${Name})
