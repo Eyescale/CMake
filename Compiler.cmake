@@ -29,12 +29,15 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 # use MSVC for Visual Studio
 
+include(System)
+
 if(NOT COMMON_MINIMUM_GCC_VERSION)
   set(COMMON_MINIMUM_GCC_VERSION 4.4)
 endif()
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
 option(ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
+
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
@@ -55,6 +58,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
       "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
+    set(CXX11_STDLIB "-stdlib=libc++")
   else()
     if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
@@ -62,7 +66,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     if(GCC_COMPILER_VERSION VERSION_GREATER 4.5)
       set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -fmax-errors=5")
     endif()
-    set(CXX11_STDLIB "-stdlib=libc++")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
@@ -71,7 +74,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 
-  if(NOT COMMON_USE_CXX03)
+  if(APPLE AND OSX_VERSION VERSION_LESS 10.9)
+    # use C++03 std and stdlib, which is the default used by all
+    # software, including all MacPorts.
+  elseif(NOT COMMON_USE_CXX03)
     if(CMAKE_COMPILER_IS_CLANG)
       set(COMMON_CXXSTD_FLAGS "-std=c++11")
     elseif(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
@@ -159,10 +165,4 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CXXSTD_FLAGS}")
 if(ENABLE_CXX11_STDLIB)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_STDLIB}")
-else()
-  if(CMAKE_COMPILER_IS_CLANG)
-    # Fix boost again to not include std::move and friends
-    add_definitions(-DBOOST_NO_CXX11_RVALUE_REFERENCES
-      -DBOOST_NO_CXX11_REF_QUALIFIERS)
-  endif()
 endif()
