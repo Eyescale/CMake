@@ -209,13 +209,13 @@ set(_config_file_final
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
   "  set(${PROJECT_NAME}_FOUND TRUE)\n"
   "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
-  "  set(${UPPER_PROJECT_NAME}_LIBRARY \${${UPPER_PROJECT_NAME}_LIBRARIES})\n"
   "  list(SORT ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  if(_out AND ${UPPER_PROJECT_NAME}_STATUS)\n"
   "    message(STATUS \"Found ${PROJECT_NAME} ${VERSION} [\${${UPPER_PROJECT_NAME}_COMPONENTS}] in \"\n"
-  "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}:\${${UPPER_PROJECT_NAME}_LIBRARIES}\")\n"
+  "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
+  "  set(${UPPER_PROJECT_NAME}_LIBRARY \${${UPPER_PROJECT_NAME}_LIBRARIES})\n"
   "endif()\n"
 )
 
@@ -297,15 +297,18 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     set(${${_dependent}_name}_findmode REQUIRED)
     set(_FIND_VERSION)
   endif()
+  
+  # Use the components specified by FindPackages.cmake
+  set(${_dependent}_components "${${UPPER_PROJECT_NAME}_${_DEPENDENT}_COMPONENTS}")
+  if(${_dependent}_components)
+     set(_components "COMPONENTS ${${_dependent}_components}" )
+  endif()
   list(APPEND DEPENDENTS
     "set(_library_backups \${${${_dependent}_name}_LIBRARIES})\n"
-    "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n"
-    "  list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
-    "  if(${${_dependent}_name}_LIBRARIES)\n"
-    "    list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
-    "  endif()\n"
-    )
+    # Reset previously found dependent libraries
+    "set(${${_dependent}_name}_LIBRARIES)\n"
+    "find_package(${_dependent} ${_FIND_VERSION} QUIET \${_req} ${_components})\n"
+    "if(${${_dependent}_name}_FOUND)\n" )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
       "  if(\"\${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
@@ -319,7 +322,9 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
     "  set(_fail \"${_dependent} not found\")\n"
-    "endif()\n\n")
+    "endif()\n"
+    # Restore the situation of the dependent library without accumulating the dependent libraries
+    "set(${${_dependent}_name}_LIBRARIES \${_library_backups})\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
 
