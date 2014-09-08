@@ -75,7 +75,7 @@ add_custom_target(${PROJECT_NAME}_doxygen_html
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM
-  DEPENDS ${PROJECT_NAME}_doxygen_install project_info)
+  DEPENDS ${PROJECT_NAME}_doxygen_install project_info_${PROJECT_NAME})
 
 if(NOT TARGET doxygen_html)
   add_custom_target(doxygen_html)
