@@ -51,6 +51,19 @@
         }                                                               \
     }
 
+#define TESTRESULT( x, type )                                           \
+    {                                                                   \
+        LBVERB << "Test " << #x << std::endl;                           \
+        const type& testRes = (x);                                      \
+        if( !testRes )                                                  \
+        {                                                               \
+            OUTPUT << #x << " failed with " << testRes << " (l."        \
+                   << __LINE__ << ")" << std::endl;                     \
+            lunchbox::abort();                                          \
+            ::exit( EXIT_FAILURE );                                     \
+        }                                                               \
+    }
+
 int testMain( int argc, char **argv );
 
 namespace
