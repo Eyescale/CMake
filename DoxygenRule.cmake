@@ -19,7 +19,8 @@
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
 # * DOXYGEN_CONFIG_FILE or one is auto-configured
-# * COMMON_ORGANIZATION_NAME (from GithubInfo)
+# * COMMON_ORGANIZATION_NAME (from GithubInfo. Defaults to: Unknown)
+# * COMMON_PROJECT_DOMAIN a reverse DNS name. (Defaults to: org.doxygen)
 #
 # * doxygen runs doxygen after compiling and installing the project
 # * doxygit runs doxygen and installs the documentation in
@@ -42,6 +43,10 @@ if(NOT GIT_DOCUMENTATION_REPO)
 endif()
 
 if(NOT PROJECT_PACKAGE_NAME)
+  if(NOT COMMON_PROJECT_DOMAIN)
+    set(COMMON_PROJECT_DOMAIN org.doxygen)
+    message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
+  endif()
   set(PROJECT_PACKAGE_NAME ${COMMON_PROJECT_DOMAIN}.${LOWER_PROJECT_NAME})
   message(STATUS "Using ${PROJECT_PACKAGE_NAME} for documentation")
 endif()
