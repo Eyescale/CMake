@@ -31,7 +31,7 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 if(NOT GITTARGETS_RELEASE_BRANCH)
-  set(GITTARGETS_RELEASE_BRANCH "even_minor")
+  set(GITTARGETS_RELEASE_BRANCH "minor")
 endif()
 
 find_program(GZIP_EXECUTABLE gzip)
