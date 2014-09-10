@@ -16,8 +16,10 @@ if(NOT CLANGCHECK)
 endif()
 
 if(NOT CLANGCHECK)
-  add_custom_target(clangcheck COMMENT "clang-check executable not found")
-  set_target_properties(clangcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  if(NOT TARGET clangcheck)
+    add_custom_target(clangcheck COMMENT "clang-check executable not found")
+    set_target_properties(clangcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  endif()
 endif()
 
 if(NOT TARGET clangcheck)
