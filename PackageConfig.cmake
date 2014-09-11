@@ -304,6 +304,8 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   set(${_dependent}_components "${${UPPER_PROJECT_NAME}_${_DEPENDENT}_COMPONENTS}")
   if(${_dependent}_components)
      set(_components "COMPONENTS ${${_dependent}_components}" )
+  else()
+     set(_components)
   endif()
   list(APPEND DEPENDENTS
     "set(_${${_dependent}_name}_libraries_backup \${${${_dependent}_name}_LIBRARIES})\n"
