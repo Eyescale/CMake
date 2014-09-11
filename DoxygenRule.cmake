@@ -119,23 +119,6 @@ if(GIT_DOCUMENTATION_REPO)
   endif()
   add_dependencies(doxycopy ${PROJECT_NAME}_doxycopy)
 
-  add_custom_target(${PROJECT_NAME}_doxygit
-    COMMAND ${CMAKE_COMMAND} -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-    -DPROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}"
-    -DPROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
-    -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
-    -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
-    -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
-    COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
-    DEPENDS ${PROJECT_NAME}_doxycopy)
-else()
-  add_custom_target(${PROJECT_NAME}_doxygit
-    COMMENT "doxygit target not available, missing GIT_DOCUMENTATION_REPO")
+  add_doxygit_target(${GIT_DOCUMENTATION_REPO} "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
+  add_dependencies(${PROJECT_NAME}_doxygit ${PROJECT_NAME}_doxycopy)
 endif()
-
-if(NOT TARGET doxygit)
-  add_custom_target(doxygit)
-endif()
-add_dependencies(doxygit ${PROJECT_NAME}_doxygit)
-

@@ -151,6 +151,7 @@ endif()
 
 include(CommonApplication)
 include(CommonCode)
+include(CommonDocumentation)
 include(CommonLibrary)
 include(Compiler)
 include(Coverage)
