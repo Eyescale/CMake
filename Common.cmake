@@ -3,7 +3,6 @@
 # Input Variables
 #
 # IO Variables (set if not set as input)
-# * COMMON_PROJECT_DOMAIN a reverse DNS name
 #
 # Output Variables
 # * COMMON_INCLUDES: generated include files (version, defines, api)
@@ -85,10 +84,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
 endif()
-if(NOT COMMON_PROJECT_DOMAIN)
-  set(COMMON_PROJECT_DOMAIN org.doxygen)
-  message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
-endif()
 
 if(NOT DPUT_HOST)
   if(RELEASE_VERSION)
@@ -156,6 +151,7 @@ endif()
 
 include(CommonApplication)
 include(CommonCode)
+include(CommonDocumentation)
 include(CommonLibrary)
 include(Compiler)
 include(Coverage)
