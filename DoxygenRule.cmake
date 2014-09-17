@@ -105,37 +105,21 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
   COMPONENT doc CONFIGURATIONS Release)
 
 if(GIT_DOCUMENTATION_REPO)
+  set(_GIT_DOC_SRC_DIR "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
   set(GIT_DOCUMENTATION_DIR
-    ${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    ${_GIT_DOC_SRC_DIR}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
 
   add_custom_target(${PROJECT_NAME}_doxycopy
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
     DEPENDS ${PROJECT_NAME}_doxygen VERBATIM)
-
-  if(NOT TARGET doxycopy)
-    add_custom_target(doxycopy)
-  endif()
-  add_dependencies(doxycopy ${PROJECT_NAME}_doxycopy)
-
-  add_custom_target(${PROJECT_NAME}_doxygit
-    COMMAND ${CMAKE_COMMAND} -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-    -DPROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}"
-    -DPROJECT_NAME="${GIT_DOCUMENTATION_REPO}"
-    -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
-    -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
-    -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
-    COMMENT "Updating ${GIT_DOCUMENTATION_REPO}"
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
-    DEPENDS ${PROJECT_NAME}_doxycopy)
 else()
-  add_custom_target(${PROJECT_NAME}_doxygit
-    COMMENT "doxygit target not available, missing GIT_DOCUMENTATION_REPO")
+  add_custom_target(${PROJECT_NAME}_doxycopy
+    COMMENT "doxycopy target not available, missing GIT_DOCUMENTATION_REPO")
 endif()
 
-if(NOT TARGET doxygit)
-  add_custom_target(doxygit)
+if(NOT TARGET doxycopy)
+  add_custom_target(doxycopy)
 endif()
-add_dependencies(doxygit ${PROJECT_NAME}_doxygit)
-
+add_dependencies(doxycopy ${PROJECT_NAME}_doxycopy)
