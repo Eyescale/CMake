@@ -46,6 +46,9 @@ function(COMMON_DOCUMENTATION)
     # need at least one file for 'make install'
     install(FILES index.html DESTINATION share/${PROJECT_NAME}
       CONFIGURATIONS Release)
+  else()
+    # Buildyard expects an install target for all projects
+    install(CODE "MESSAGE(\"Nothing to install, done.\")")
   endif()
 
 endfunction()
