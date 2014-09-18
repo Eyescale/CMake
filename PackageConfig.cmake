@@ -309,8 +309,10 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   endif()
   list(APPEND DEPENDENTS
     "set(_${${_dependent}_name}_libraries_backup \${${${_dependent}_name}_LIBRARIES})\n"
+    "set(_${${_dependent}_name}_found_backup \${${${_dependent}_name}_FOUND})\n"
     # Reset previously found dependent libraries
     "set(${${_dependent}_name}_LIBRARIES)\n"
+    "set(${${_dependent}_name}_FOUND)\n"
     "find_package(${_dependent} ${_FIND_VERSION} QUIET \${_req} ${_components})\n"
     "if(${${_dependent}_name}_FOUND)\n" )
   if(_FIND_VERSION)
@@ -328,7 +330,8 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n"
     # Restore the situation of the dependent library without accumulating the dependent libraries
-    "set(${${_dependent}_name}_LIBRARIES \${_${${_dependent}_name}_libraries_backup})\n\n")
+    "set(${${_dependent}_name}_LIBRARIES \${_${${_dependent}_name}_libraries_backup})\n"
+    "set(${${_dependent}_name}_FOUND \${_${${_dependent}_name}_found_backup})\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
 
