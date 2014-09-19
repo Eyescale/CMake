@@ -54,7 +54,7 @@ set(_config_file_prefix
   "if(CMAKE_VERSION VERSION_LESS 2.8.3) # WAR bug\n"
   "  get_filename_component(CMAKE_CURRENT_LIST_DIR \${CMAKE_CURRENT_LIST_FILE} PATH)\n"
   "endif()\n"
-  "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})\n"
+  "list(APPEND CMAKE_MODULE_PATH \${CMAKE_CURRENT_LIST_DIR})\n"
 )
 
 set(_config_file_body
@@ -299,7 +299,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     set(${${_dependent}_name}_findmode REQUIRED)
     set(_FIND_VERSION)
   endif()
-  
+
   # Use the components specified by FindPackages.cmake
   set(${_dependent}_components "${${UPPER_PROJECT_NAME}_${_DEPENDENT}_COMPONENTS}")
   if(${_dependent}_components)
