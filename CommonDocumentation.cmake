@@ -7,7 +7,7 @@
 # * doxygit target
 # * install target (optional)
 #
-# The doxygit target executes Doxygit.cmake as a script in the source 
+# The doxygit target executes Doxygit.cmake as a script in the source
 # directory of the project. It updates the index page, removes outdated
 # documentation folders and 'git add' the changes.
 #
@@ -17,14 +17,14 @@
 #
 # * COMMON_INSTALL_DOCUMENTATION if set to ON, generate a 'make install' target
 #   which installs all the documentation under share/${PROJECT_NAME}/.
-#   Default: OFF because it is called by each dependant project when doing a 
+#   Default: OFF because it is called by each dependant project when doing a
 #   regular release build using Buildyard, which can be very time consuming.
 
 function(COMMON_DOCUMENTATION)
   add_custom_target(${PROJECT_NAME}_doxygit
     COMMAND ${CMAKE_COMMAND}
     -DPROJECT_NAME="${PROJECT_NAME}"
-    -DDOXYGIT_TOC_POST="${DOXYGIT_TOC_POST}"
+    -DDOXYGIT_TOC_POST:STRING="${DOXYGIT_TOC_POST}"
     -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P "${PROJECT_SOURCE_DIR}/CMake/common/Doxygit.cmake"
     COMMENT "Updating documentation in ${PROJECT_SOURCE_DIR}"
