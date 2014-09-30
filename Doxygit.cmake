@@ -18,7 +18,9 @@
 # * DOXYGIT_TOC_POST html content to insert in 'index.html' (default: '')
 
 # CMake escapes the whitespaces when passing a string to a script
-string(REPLACE "\\ " " " DOXYGIT_TOC_POST ${DOXYGIT_TOC_POST})
+if(DOXYGIT_TOC_POST)
+  string(REPLACE "\\ " " " DOXYGIT_TOC_POST ${DOXYGIT_TOC_POST})
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
