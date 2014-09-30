@@ -18,7 +18,7 @@
 #   origin repository.
 # * erase: Delete the current tag locally and remote
 # * retag: Move an existing tag to HEAD
-# * tarball: Create an archive of LAST_RELEASE
+# * tarball: Create an archive of VERSION
 
 if(GITTARGETS_FOUND)
   return()
@@ -140,12 +140,12 @@ endif()
 add_dependencies(retag retag_${PROJECT_NAME})
 
 # tarball
-set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${LAST_RELEASE}.tar")
+set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${VERSION}.tar")
 
 add_custom_target(tarball-create_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
-    --prefix ${PROJECT_NAME}-${LAST_RELEASE}/ -o ${TARBALL}
-    ${LAST_RELEASE}
+    --prefix ${PROJECT_NAME}-${VERSION}/ -o ${TARBALL}
+    ${VERSION}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   COMMENT "Creating ${TARBALL}"
   )
