@@ -82,14 +82,6 @@ if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
 endif()
 
-if(NOT DPUT_HOST)
-  if(RELEASE_VERSION)
-    set(DPUT_HOST "ppa:eilemann/equalizer")
-  else()
-    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
-  endif()
-endif()
-
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Boost settings

@@ -16,6 +16,9 @@
 # Optional Input Variables:
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory (default: 10)
 # * DOXYGIT_TOC_POST html content to insert in 'index.html' (default: '')
+#
+# Input files:
+# ${CMAKE_CURRENT_SOURCE_DIR}/${Entry}/ProjectInfo.cmake additional project info
 
 # CMake escapes the whitespaces when passing a string to a script
 if(DOXYGIT_TOC_POST)
