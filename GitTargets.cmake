@@ -114,6 +114,11 @@ add_custom_target(tag_${PROJECT_NAME}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
+if(NOT TARGET tag)
+  add_custom_target(tag)
+endif()
+add_dependencies(tag tag_${PROJECT_NAME})
+
 # remove tag
 add_custom_target(erase_${PROJECT_NAME}
   COMMAND ${GIT_EXECUTABLE} tag -d ${VERSION}
