@@ -66,6 +66,7 @@ endif()
 # sort entries forward for names, backwards for versions
 list(SORT Entries)
 set(LAST_Project)
+set(RemovedEntries)
 foreach(Entry ${Entries})
   string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
   if(NOT Project STREQUAL LAST_Project)
@@ -100,6 +101,7 @@ foreach(Entry ${Entries})
     endforeach()
 
     foreach(SubEntry ${SubEntries}) # remove old documentation
+      list(APPEND RemovedEntries ${SubEntry})
       common_process("Remove old ${SubEntry}" FATAL_ERROR
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${SubEntry}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -198,5 +200,6 @@ file(APPEND ${_index_html_file} "${DOXYGIT_TOC_POST}
     ${BODY}</div>
 </html>")
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries}
+execute_process(
+  COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries} ${RemovedEntries}
   css/github.css index.html WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
