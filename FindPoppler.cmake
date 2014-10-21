@@ -75,7 +75,8 @@ else()
 endif()
 
 # Find libpoppler (Required)
-find_library(POPPLER_LIBRARY NAMES poppler ${POPPLER_CPP_PKG_LIBRARIES})
+find_library( POPPLER_LIBRARY NAMES poppler ${POPPLER_CPP_PKG_LIBRARIES}
+              HINTS ${POPPLER_PKG_LIBDIR} ${POPPLER_CPP_PKG_LIBDIR} )
 if( NOT(POPPLER_LIBRARY) )
   if( NOT Poppler_FIND_QUIETLY )
     message(STATUS "Could not find libpoppler." )
@@ -97,6 +98,7 @@ else( NOT(POPPLER_LIBRARY) )
   if( FIND_CPP )
     list(APPEND POPPLER_REQUIRED POPPLER_CPP_INCLUDE_DIR POPPLER_CPP_LIBRARY)
     find_path( POPPLER_CPP_INCLUDE_DIR NAMES poppler-version.h
+               HINTS ${POPPLER_PKG_INCLUDEDIR} ${POPPLER_CPP_PKG_INCLUDEDIR}
                PATH_SUFFIXES cpp poppler/cpp )
     if( NOT(POPPLER_CPP_INCLUDE_DIR) )
       if( NOT Poppler_FIND_QUIETLY )
@@ -105,7 +107,9 @@ else( NOT(POPPLER_LIBRARY) )
     else()
       list(APPEND POPPLER_INCLUDE_DIRS ${POPPLER_CPP_INCLUDE_DIR})
     endif()
-    find_library( POPPLER_CPP_LIBRARY NAMES poppler-cpp ${POPPLER_CPP_PKG_LIBRARIES} )
+    find_library(
+      POPPLER_CPP_LIBRARY NAMES poppler-cpp ${POPPLER_CPP_PKG_LIBRARIES}
+      HINTS ${POPPLER_PKG_LIBDIR} ${POPPLER_CPP_PKG_LIBDIR} )
     if( NOT(POPPLER_CPP_LIBRARY) )
       if( NOT Poppler_FIND_QUIETLY )
         message(STATUS "Could not find libpoppler-cpp." )
@@ -119,7 +123,8 @@ else( NOT(POPPLER_LIBRARY) )
   if( FIND_QT4 )
     list(APPEND POPPLER_REQUIRED POPPLER_QT4_INCLUDE_DIR POPPLER_QT4_LIBRARY)
     find_path(POPPLER_QT4_INCLUDE_DIR NAMES poppler-qt4.h poppler-link.h
-              PATH_SUFFIXES qt4 poppler/qt4)
+              HINTS ${POPPLER_PKG_INCLUDEDIR} ${POPPLER_CPP_QT4_INCLUDEDIR}
+              PATH_SUFFIXES qt4 poppler/qt4 )
     if( NOT(POPPLER_QT4_INCLUDE_DIR) )
       if( NOT Poppler_FIND_QUIETLY )
         message(STATUS "Could not find Poppler-Qt4 headers." )
@@ -127,7 +132,9 @@ else( NOT(POPPLER_LIBRARY) )
     else()
       list(APPEND POPPLER_INCLUDE_DIRS ${POPPLER_QT4_INCLUDE_DIR})
     endif()
-    find_library(POPPLER_QT4_LIBRARY NAMES poppler-qt4 ${POPPLER_QT4_PKG_LIBRARIES})
+    find_library(
+      POPPLER_QT4_LIBRARY NAMES poppler-qt4 ${POPPLER_QT4_PKG_LIBRARIES}
+      HINTS ${POPPLER_PKG_LIBDIR} ${POPPLER_QT4_PKG_LIBDIR} )
     if( NOT(POPPLER_QT4_LIBRARY) )
       if( NOT Poppler_FIND_QUIETLY )
         message(STATUS "Could not find libpoppler-qt4." )
@@ -141,7 +148,8 @@ else( NOT(POPPLER_LIBRARY) )
   if( FIND_QT5 )
     list(APPEND POPPLER_REQUIRED POPPLER_QT5_INCLUDE_DIR POPPLER_QT5_LIBRARY)
     find_path(POPPLER_QT5_INCLUDE_DIR NAMES poppler-qt5.h poppler-link.h
-              PATH_SUFFIXES qt5 poppler/qt5)
+              HINTS ${POPPLER_QT5_INCLUDEDIR} ${POPPLER_QT5_PKG_INCLUDEDIR}
+              PATH_SUFFIXES qt5 poppler/qt5 )
     if( NOT(POPPLER_QT5_INCLUDE_DIR) )
       if( NOT Poppler_FIND_QUIETLY )
         message( STATUS "Could not find Poppler-Qt5 headers." )
@@ -149,7 +157,9 @@ else( NOT(POPPLER_LIBRARY) )
     else()
       list(APPEND POPPLER_INCLUDE_DIRS ${POPPLER_QT5_INCLUDE_DIR})
     endif()
-    find_library(POPPLER_QT5_LIBRARY NAMES poppler-qt5 ${POPPLER_QT5_PKG_LIBRARIES})
+    find_library(
+      POPPLER_QT5_LIBRARY NAMES poppler-qt5 ${POPPLER_QT5_PKG_LIBRARIES}
+      HINTS ${POPPLER_PKG_LIBDIR} ${POPPLER_QT5_PKG_LIBDIR} )
     if( NOT(POPPLER_QT5_LIBRARY) )
       if( NOT Poppler_FIND_QUIETLY )
         message(STATUS "Could not find libpoppler-qt5." )
