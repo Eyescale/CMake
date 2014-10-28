@@ -6,9 +6,9 @@
 cmake_minimum_required(VERSION 2.6)
 
 if(NUMPY_FIND_QUIETLY)
-  find_package(PythonInterp)
-else()
   find_package(PythonInterp QUIET)
+else()
+  find_package(PythonInterp)
   set(_numpy_out 1)
 endif()
 

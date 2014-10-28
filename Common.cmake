@@ -61,15 +61,14 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${PROJECT_NAME} LOWER_PROJECT_NAME)
 add_definitions(-D${UPPER_PROJECT_NAME}_VERSION=${VERSION})
+# Linux libraries must have an SONAME to expose their ABI version to users.
+# If VERSION_ABI has not been declared, use the following common conventions:
+# - ABI version matches MAJOR version (ABI only changes with MAJOR releases)
+# - MINOR and PATCH releases preserve backward ABI compatibility
+# - PATCH releases preseve forward+backward API compatibility (no new features)
 if(NOT VERSION_ABI)
-  if(VERSION_MAJOR VERSION_GREATER 0)
-    set(VERSION_ABI "${VERSION_MAJOR}${VERSION_MINOR}0")
-  else()
-    set(VERSION_ABI ${VERSION_MINOR}${VERSION_PATCH})
-  endif()
-endif()
-if(NOT LAST_RELEASE)
-  set(LAST_RELEASE ${VERSION})
+  set(VERSION_ABI ${VERSION_MAJOR})
+  message(STATUS "VERSION_ABI not set for ${PROJECT_NAME}. Using VERSION_MAJOR=${VERSION_MAJOR} as the ABI version.")
 endif()
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT MSVC)
@@ -83,14 +82,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 if(NOT DOC_DIR)
   set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
-endif()
-
-if(NOT DPUT_HOST)
-  if(RELEASE_VERSION)
-    set(DPUT_HOST "ppa:eilemann/equalizer")
-  else()
-    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
-  endif()
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)

@@ -15,13 +15,13 @@ libfind_pkg_check_modules(LibJpegTurbo_PKGCONF LibJpegTurbo)
 # Include dir
 find_path(LibJpegTurbo_INCLUDE_DIR
   NAMES turbojpeg.h
-  PATHS ${LibJpegTurbo_PKGCONF_INCLUDE_DIRS} /opt/libjpeg-turbo/include
+  PATHS ${LibJpegTurbo_PKGCONF_INCLUDE_DIRS} /opt/libjpeg-turbo/include $ENV{LIBJPEGTURBO_ROOT}/include
 )
 
 # Finally the library itself
 find_library(LibJpegTurbo_LIBRARY
-  NAMES libturbojpeg.so libturbojpeg.so.0 turbojpeg.dll libturbojpeg.dylib
-  PATHS ${LibJpegTurbo_PKGCONF_LIBRARY_DIRS} /opt/libjpeg-turbo/lib
+  NAMES libturbojpeg.so libturbojpeg.so.0 turbojpeg.lib libturbojpeg.dylib
+  PATHS ${LibJpegTurbo_PKGCONF_LIBRARY_DIRS} /opt/libjpeg-turbo/lib $ENV{LIBJPEGTURBO_ROOT}/lib
 )
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.

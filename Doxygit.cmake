@@ -16,9 +16,14 @@
 # Optional Input Variables:
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory (default: 10)
 # * DOXYGIT_TOC_POST html content to insert in 'index.html' (default: '')
+#
+# Input files:
+# ${CMAKE_CURRENT_SOURCE_DIR}/${Entry}/ProjectInfo.cmake additional project info
 
 # CMake escapes the whitespaces when passing a string to a script
-string(REPLACE "\\ " " " DOXYGIT_TOC_POST ${DOXYGIT_TOC_POST})
+if(DOXYGIT_TOC_POST)
+  string(REPLACE "\\ " " " DOXYGIT_TOC_POST ${DOXYGIT_TOC_POST})
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
@@ -26,6 +31,7 @@ find_package(Git REQUIRED)
 
 include(CommonProcess)
 include(Maturity)
+include(VersionUtils)
 
 # Project_NAME = PROJECT_NAME with capitalized first letter
 string(SUBSTRING ${PROJECT_NAME} 0 1 FIRST_LETTER)
@@ -60,11 +66,30 @@ endif()
 # sort entries forward for names, backwards for versions
 list(SORT Entries)
 set(LAST_Project)
+set(RemovedEntries)
 foreach(Entry ${Entries})
   string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
   if(NOT Project STREQUAL LAST_Project)
     if(SubEntries)
       list(REVERSE SubEntries)
+      # We have added the sorting of SubEntries according to version numbers
+      # because list(SORT ... ) sorts entries by alpha numeric order.
+      # old behavior: 1.4, 1,3, 1.10 is sorted as 1.10, 1.3, 1.4
+      # new behavior: 1.4, 1,3, 1.10 is sorted as 1.3, 1.4, 1.10
+      set(VersionList)
+      set(ProjectName)
+      foreach(SubEntry ${SubEntries})
+        if(SubEntry MATCHES "^([A-Za-z0-9_]+)-([0-9]+\\.[0-9]+)")
+            set(ProjectName ${CMAKE_MATCH_1})
+            list(APPEND VersionList ${CMAKE_MATCH_2})
+        endif()
+      endforeach()
+      _version_sort("${VersionList}" SortedVersionList )
+      list(REVERSE SortedVersionList) #versions are descending order
+      set(SubEntries)
+      foreach(version ${SortedVersionList})
+        list(APPEND SubEntries "${ProjectName}-${version}")
+      endforeach()
     endif()
 
     foreach(i RANGE ${DOXYGIT_MAX_VERSIONS}) # limit # of entries
@@ -76,6 +101,7 @@ foreach(Entry ${Entries})
     endforeach()
 
     foreach(SubEntry ${SubEntries}) # remove old documentation
+      list(APPEND RemovedEntries ${SubEntry})
       common_process("Remove old ${SubEntry}" FATAL_ERROR
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${SubEntry}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -174,5 +200,6 @@ file(APPEND ${_index_html_file} "${DOXYGIT_TOC_POST}
     ${BODY}</div>
 </html>")
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries}
+execute_process(
+  COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries} ${RemovedEntries}
   css/github.css index.html WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

@@ -21,6 +21,7 @@
 #   ${PROJECT_NAME}_FOUND - Same as above
 #
 #   ${UPPER_PROJECT_NAME}_VERSION - The version of the project which was found
+#   ${UPPER_PROJECT_NAME}_VERSION_ABI - The ABI version of the project which was found
 #   ${UPPER_PROJECT_NAME}_INCLUDE_DIRS - Where to find the headers
 #   ${UPPER_PROJECT_NAME}_LIBRARIES - The project link libraries
 #   ${UPPER_PROJECT_NAME}_LIBRARY - The produced (core) library
@@ -54,7 +55,7 @@ set(_config_file_prefix
   "if(CMAKE_VERSION VERSION_LESS 2.8.3) # WAR bug\n"
   "  get_filename_component(CMAKE_CURRENT_LIST_DIR \${CMAKE_CURRENT_LIST_FILE} PATH)\n"
   "endif()\n"
-  "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})\n"
+  "list(APPEND CMAKE_MODULE_PATH \${CMAKE_CURRENT_LIST_DIR})\n"
 )
 
 set(_config_file_body
@@ -78,8 +79,7 @@ set(_config_file_body
 
 set(_config_file_standard_find
   "if(NOT _fail)\n"
-# setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
-  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
+# setup INCLUDE_DIRS and DEB_DEPENDENCIES
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${CPACK_PACKAGE_NAME}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -155,8 +155,7 @@ set(_config_file_standard_find
 
 set(_config_file_subproject_find
   "if(NOT _fail)\n"
-# setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
-  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
+# setup INCLUDE_DIRS and DEB_DEPENDENCIES
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${CPACK_PACKAGE_NAME}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -197,6 +196,7 @@ set(_config_file_final
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
   "  set(${PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_VERSION)\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION_ABI)\n"
   "  set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  set(${UPPER_PROJECT_NAME}_LIBRARIES)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES)\n"
@@ -208,6 +208,8 @@ set(_config_file_final
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
   "  set(${PROJECT_NAME}_FOUND TRUE)\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION_ABI ${VERSION_ABI})\n"
   "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
   "  list(SORT ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
@@ -215,7 +217,7 @@ set(_config_file_final
   "    list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_LIBRARIES)\n"
   "  endif()\n"
   "  if(_out AND ${UPPER_PROJECT_NAME}_STATUS)\n"
-  "    message(STATUS \"Found ${PROJECT_NAME} ${VERSION} [\${${UPPER_PROJECT_NAME}_COMPONENTS}] in \"\n"
+  "    message(STATUS \"Found ${PROJECT_NAME} ${VERSION}-${VERSION_ABI} [\${${UPPER_PROJECT_NAME}_COMPONENTS}] in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
   "endif()\n"
@@ -258,7 +260,8 @@ foreach(_target ${_all_lib_targets})
   endif()
 endforeach()
 
-# compile finding of dependent libraries
+# compile finding of dependent libraries (ProjectConfig.cmake)
+# 1. set the search mode for the dependent projects [ required | optional ]
 set(DEPENDENTS
   "if(${PROJECT_NAME}_FIND_REQUIRED)\n"
   "  set(_output_type FATAL_ERROR)\n"
@@ -274,32 +277,34 @@ set(DEPENDENTS
   "  set(_quiet QUIET)\n"
   "endif()\n\n"
 )
+
+# 2. add code to find each individual dependency
 foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   string(TOUPPER ${_dependent} _DEPENDENT)
+  # Check if the dependant project uses mixed case or upper case for its name
+  # (e.g. Boost_FOUND or BOOST_FOUND) and set ${_dependent}_name accordingly.
+  # This is generally already done by FindPackages.cmake
   if(NOT ${_dependent}_name)
     if(${_DEPENDENT}_FOUND)
       set(${_dependent}_name ${_DEPENDENT})
     elseif(${_dependent}_FOUND)
       set(${_dependent}_name ${_dependent})
+    else()
+      message(FATAL_ERROR
+        "Dependent library ${_dependent} was not properly resolved")
     endif()
   endif()
-  if(NOT ${_dependent}_name)
-    message(FATAL_ERROR
-      "Dependent library ${_dependent} was not properly resolved")
-  endif()
-  if(${${_dependent}_name}_VERSION)
-    set(${${_dependent}_name}_findmode EXACT)
-    set(_FIND_VERSION "${${${_dependent}_name}_VERSION}")
-    set(_FIND_MAX_VERSION "${${${_dependent}_name}_VERSION}")
 
+  # determine the appropriate version of the dependency
+  if(${${_dependent}_name}_VERSION)
+    set(_FIND_VERSION "${${${_dependent}_name}_VERSION}")
     if("${_FIND_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)")
       set(_FIND_VERSION "${CMAKE_MATCH_1}")
     endif()
   else()
-    set(${${_dependent}_name}_findmode REQUIRED)
     set(_FIND_VERSION)
   endif()
-  
+
   # Use the components specified by FindPackages.cmake
   set(${_dependent}_components "${${UPPER_PROJECT_NAME}_${_DEPENDENT}_COMPONENTS}")
   if(${_dependent}_components)
@@ -309,15 +314,28 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   endif()
   list(APPEND DEPENDENTS
     "set(_${${_dependent}_name}_libraries_backup \${${${_dependent}_name}_LIBRARIES})\n"
+    "set(_${${_dependent}_name}_found_backup \${${${_dependent}_name}_FOUND})\n"
     # Reset previously found dependent libraries
     "set(${${_dependent}_name}_LIBRARIES)\n"
+    "set(${${_dependent}_name}_FOUND)\n"
     "find_package(${_dependent} ${_FIND_VERSION} QUIET \${_req} ${_components})\n"
     "if(${${_dependent}_name}_FOUND)\n" )
-  if(_FIND_VERSION)
+
+  # if possible, look for the exact ABI version of the dependency that was used to build this project.
+  # PackageConfig.cmake files generated by Buildyard have this value, but external projects do not have it
+  if(${${_dependent}_name}_VERSION_ABI)
+    set(_find_abi_version ${${${_dependent}_name}_VERSION_ABI})
+    list(APPEND DEPENDENTS
+      "  if(NOT \${${${_dependent}_name}_VERSION_ABI} VERSION_EQUAL ${_find_abi_version})\n"
+      "    message(FATAL_ERROR \"${${_dependent}_name} ABI version '\${${${_dependent}_name}_VERSION_ABI}' not compatible with expected version '${_find_abi_version}'\")\n"
+      "  endif()\n")
+  # if it is not possible to match the ABI version, work around by looking for a close version match,
+  # i.e. VERSION_MAJOR + VERSION_MINOR. For example, Boost 1.54.x.
+  elseif(_FIND_VERSION)
     list(APPEND DEPENDENTS
       "  if(\"\${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
-      "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
-      "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
+      "    if(NOT CMAKE_MATCH_1 VERSION_EQUAL ${_FIND_VERSION})\n"
+      "      message(FATAL_ERROR \"${${_dependent}_name} \${CMAKE_MATCH_1} does not match expected version ${_FIND_VERSION}\")\n"
       "    endif()\n"
       "  endif()\n")
   endif()
@@ -328,11 +346,12 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n"
     # Restore the situation of the dependent library without accumulating the dependent libraries
-    "set(${${_dependent}_name}_LIBRARIES \${_${${_dependent}_name}_libraries_backup})\n\n")
+    "set(${${_dependent}_name}_LIBRARIES \${_${${_dependent}_name}_libraries_backup})\n"
+    "set(${${_dependent}_name}_FOUND \${_${${_dependent}_name}_found_backup})\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
 
-# create ProjectConfig.cmake
+# 3. create ProjectConfig.cmake by adding DEPENDENTS to ProjectConfig.cmake.in
 if(LIBRARY_NAMES)
   set(HAS_LIBRARY_NAMES LIBRARY_NAMES)
 endif()
