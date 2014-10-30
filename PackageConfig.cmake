@@ -73,7 +73,6 @@ set(_config_file_body
   "endif()\n"
   "\n"
   "@DEPENDENTS@" # add dependent library finding
-
   "set(${UPPER_PROJECT_NAME}_FIND_FILES ${${UPPER_PROJECT_NAME}_FIND_FILES})\n"
 )
 
@@ -89,7 +88,7 @@ set(_config_file_standard_find
   "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
   "    find_library(\${UPPER_PROJECT_NAME}_LIBRARY ${PROJECT_NAME} NO_DEFAULT_PATH\n"
   "                 PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
-  "    list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
+  "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
   "    foreach(_component \${${PROJECT_NAME}_FIND_COMPONENTS})\n"
   "      find_library(\${_component}_libraryname ${PROJECT_NAME}_\${_component} NO_DEFAULT_PATH\n"
   "        PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
@@ -107,7 +106,7 @@ set(_config_file_standard_find
   "        string(TOUPPER \${_component} _COMPONENT)\n"
   "        set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
   "        set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_LIBRARY \${\${_component}_libraryname})\n"
-  "        list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
   "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "      endif()\n"
   "    endforeach()\n"
@@ -136,7 +135,7 @@ set(_config_file_standard_find
   "            \"   Missing \${_libraryname} in \${${PROJECT_NAME}_PREFIX_DIR}/lib\")\n"
   "        endif()\n"
   "      else()\n"
-  "        list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_LIBRARYNAME}_LIBRARY})\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_LIBRARYNAME}_LIBRARY})\n"
   "        string(REPLACE \"${PROJECT_NAME}_\" \"\" _component \${_libraryname})\n"
   "        string(TOUPPER \${_component} _COMPONENT)\n"
   "        set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
@@ -163,12 +162,12 @@ set(_config_file_subproject_find
   "\n"
 # find components if specified
   "  if(${PROJECT_NAME}_FIND_COMPONENTS)\n"
-  "    list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${${PROJECT_NAME}})\n"
+  "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${PROJECT_NAME}})\n"
   "    foreach(_component \${${PROJECT_NAME}_FIND_COMPONENTS})\n"
   "      string(TOUPPER \${_component} _COMPONENT)\n"
   "      set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
   "      set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_LIBRARY \${\${_component}_libraryname})\n"
-  "      list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
+  "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
   "      list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "    endforeach()\n"
 # search for ${UPPER_PROJECT_NAME}_FIND_FILES
@@ -177,7 +176,7 @@ set(_config_file_subproject_find
 # if no component or file was specified, find all produced libraries
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
-  "      list(INSERT 0 ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
+  "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
   "    endforeach()\n"
   "  endif()\n"
   "\n"
@@ -191,6 +190,8 @@ set(_config_file_subproject_find
 
 
 set(_config_file_final
+  "list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_DEP_LIBRARIES})\n"
+  "set(${UPPER_PROJECT_NAME}_DEP_LIBRARIES)\n"
 # finally report about found or not found
   "if(_fail)\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
@@ -340,7 +341,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
       "  endif()\n")
   endif()
   list(APPEND DEPENDENTS
-    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_DEP_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
     "  set(_fail \"${_dependent} not found\")\n"
