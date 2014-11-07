@@ -63,8 +63,6 @@ set(_config_file_prefix
 
 set(_config_file_body
 # reset before using them
-  "set(_output_type)\n"
-  "set(_out)\n"
   "set(_req)\n"
   "set(_quiet)\n"
   "set(_fail)\n"
@@ -77,6 +75,18 @@ set(_config_file_body
   "\n"
   "@DEPENDENTS@" # add dependent library finding
   "set(${UPPER_PROJECT_NAME}_FIND_FILES ${${UPPER_PROJECT_NAME}_FIND_FILES})\n"
+# (re)set output type after running dependents (which have different settings)
+  "set(_output_type)\n"
+  "set(_out)\n"
+  "if(${PROJECT_NAME}_FIND_REQUIRED)\n"
+  "  set(_output_type FATAL_ERROR)\n"
+  "  set(_out 1)\n"
+  "else()\n"
+  "  set(_output_type STATUS)\n"
+  "  if(NOT ${PROJECT_NAME}_FIND_QUIETLY)\n"
+  "    set(_out 1)\n"
+  "  endif()\n"
+  "endif()\n"
 )
 
 set(_config_file_standard_find
@@ -268,14 +278,7 @@ endforeach()
 # 1. set the search mode for the dependent projects [ required | optional ]
 set(DEPENDENTS
   "if(${PROJECT_NAME}_FIND_REQUIRED)\n"
-  "  set(_output_type FATAL_ERROR)\n"
-  "  set(_out 1)\n"
   "  set(_req REQUIRED)\n"
-  "else()\n"
-  "  set(_output_type STATUS)\n"
-  "  if(NOT ${PROJECT_NAME}_FIND_QUIETLY)\n"
-  "    set(_out 1)\n"
-  "  endif()\n"
   "endif()\n"
   "if(${PROJECT_NAME}_FIND_QUIETLY)\n"
   "  set(_quiet QUIET)\n"
