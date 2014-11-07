@@ -102,7 +102,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
         WORKING_DIRECTORY "${DIR}"
         )
       if(nok)
-        message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
+        message(STATUS "git checkout ${TAG} in ${DIR} failed: ${error}\n")
       endif()
     else()
       message(STATUS "Can't update git external ${DIR}: Not a git repository")
