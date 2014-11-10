@@ -8,7 +8,8 @@
 # * NAME_HEADERS for all internal header files
 # * NAME_PUBLIC_HEADERS for public, installed header files
 # * NAME_LINK_LIBRARIES for dependencies of name
-# * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library
+# * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library, with
+#   COMMON_LIBRARY_TYPE being an option stored in the CMakeCache.
 # * PROJECT_INCLUDE_NAME for the include directory and project include header
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
@@ -22,6 +23,10 @@
 # headers.
 
 include(InstallFiles)
+
+set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
+  "Library type {any combination of SHARED, STATIC}")
+set_property(CACHE COMMON_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
 function(COMMON_LIBRARY Name)
   string(TOUPPER ${Name} NAME)
