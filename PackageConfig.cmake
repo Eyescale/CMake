@@ -65,7 +65,7 @@ set(_config_file_body
 # reset before using them
   "set(_req)\n"
   "set(_quiet)\n"
-  "set(_fail)\n"
+  "set(${PROJECT_NAME}_fail)\n"
   "set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
   "if(NOT ${UPPER_PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_STATUS ON)\n"
@@ -90,7 +90,7 @@ set(_config_file_body
 )
 
 set(_config_file_standard_find
-  "if(NOT _fail)\n"
+  "if(NOT ${PROJECT_NAME}_fail)\n"
 # setup INCLUDE_DIRS and DEB_DEPENDENCIES
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -108,7 +108,7 @@ set(_config_file_standard_find
   "\n"
   "      if(\${_component}_libraryname MATCHES \"\${_component}_libraryname-NOTFOUND\")\n"
   "        if(${PROJECT_NAME}_FIND_REQUIRED_\${_component})\n"
-  "          set(_fail \"Component library \${_component} not found\")\n"
+  "          set(${PROJECT_NAME}_fail \"Component \${_component} ${${PROJECT_NAME}_fail}\")\n"
   "          message(FATAL_ERROR \"   ${PROJECT_NAME}_\${_component} \"\n"
   "            \"not found in \${${PROJECT_NAME}_PREFIX_DIR}/lib\")\n"
   "        elseif(NOT _quiet)\n"
@@ -128,7 +128,7 @@ set(_config_file_standard_find
   "    find_file(${UPPER_PROJECT_NAME}_FILE NAMES ${${UPPER_PROJECT_NAME}_FIND_FILES} NO_DEFAULT_PATH\n"
   "              PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES include)\n"
   "    if(${UPPER_PROJECT_NAME}_FILE MATCHES \"${UPPER_PROJECT_NAME}_FILE-NOTFOUND\")\n"
-  "      set(_fail \"${${UPPER_PROJECT_NAME}_FIND_FILES} not found\")\n"
+  "      set(${PROJECT_NAME}_fail \"${${UPPER_PROJECT_NAME}_FIND_FILES} ${${PROJECT_NAME}_fail}\")\n"
   "      if(_out)\n"
   "        message(\${_output_type} \"   Missing the ${PROJECT_NAME} \"\n"
   "          \"file in \${${PROJECT_NAME}_PREFIX_DIR}/include.\")\n"
@@ -142,7 +142,7 @@ set(_config_file_standard_find
   "      find_library(\${_LIBRARYNAME}_LIBRARY \${_libraryname} NO_DEFAULT_PATH\n"
   "                   PATHS \${${PROJECT_NAME}_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "      if(\${_LIBRARYNAME}_LIBRARY MATCHES \"\${_LIBRARYNAME}_LIBRARY-NOTFOUND\")\n"
-  "        set(_fail \"\${_libraryname} not found\")\n"
+  "        set(${PROJECT_NAME}_fail \"\${_libraryname} ${${PROJECT_NAME}_fail}\")\n"
   "        if(_out)\n"
   "          message(\${_output_type}\n"
   "            \"   Missing \${_libraryname} in \${${PROJECT_NAME}_PREFIX_DIR}/lib\")\n"
@@ -166,7 +166,7 @@ set(_config_file_standard_find
 )
 
 set(_config_file_subproject_find
-  "if(NOT _fail)\n"
+  "if(NOT ${PROJECT_NAME}_fail)\n"
 # setup INCLUDE_DIRS and DEB_DEPENDENCIES
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -206,7 +206,7 @@ set(_config_file_final
   "list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_DEP_LIBRARIES})\n"
   "set(${UPPER_PROJECT_NAME}_DEP_LIBRARIES)\n"
 # finally report about found or not found
-  "if(_fail)\n"
+  "if(${PROJECT_NAME}_fail)\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
   "  set(${PROJECT_NAME}_FOUND)\n"
   "  set(${UPPER_PROJECT_NAME}_VERSION)\n"
@@ -217,7 +217,7 @@ set(_config_file_final
   "  set(${UPPER_PROJECT_NAME}_LIBRARY)\n"
   "  set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
   "  if(_out)\n"
-  "    message(STATUS \"Could not find ${PROJECT_NAME}: \${_fail}\")\n"
+  "    message(STATUS \"Could not find ${PROJECT_NAME}: \${${PROJECT_NAME}_fail} not found\")\n"
   "  endif()\n"
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
@@ -355,7 +355,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_DEP_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
-    "  set(_fail \"${_dependent} not found\")\n"
+    "  set(${PROJECT_NAME}_fail \"${_dependent} ${${PROJECT_NAME}_fail}\")\n"
     "endif()\n"
     # Restore the situation of the dependent library without accumulating the dependent libraries
     "set(${${_dependent}_name}_LIBRARIES \${_${${_dependent}_name}_libraries_backup})\n"
