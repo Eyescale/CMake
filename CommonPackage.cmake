@@ -1,9 +1,10 @@
 # Copyright (c) 2014 Stefan.Eilemann@epfl.ch
 
-# Provides common_package(Name args) which improves find_package
-# First invokes find_package with all the given arguments, and then falls back
-# to using pkg_config if available. The pkg_config path does only implement
-# the REQUIRED and VERSION find_package arguments (e.g. no COMPONENTS)
+# Provides common_package(Name args) which improves find_package First
+# invokes find_package with all the given arguments, and then falls
+# back to using pkg_config if available. The pkg_config path does only
+# implement the version, REQUIRED and QUIET find_package arguments
+# (e.g. no COMPONENTS)
 
 find_package(PkgConfig)
 set(ENV{PKG_CONFIG_PATH}
@@ -11,29 +12,37 @@ set(ENV{PKG_CONFIG_PATH}
 
 macro(COMMON_PACKAGE Name)
   string(TOUPPER ${Name} COMMON_PACKAGE_NAME)
+  set(COMMON_PACKAGE_ARGS ${ARGN}) # ARGN is not a list. make one.
 
-  list(FIND ARGN "VERSION" COMMON_PACKAGE_VERSION_POS)
-  if(COMMON_PACKAGE_VERSION_POS EQUAL -1) # No version specified
-    set(COMMON_PACKAGE_VERSION)
-  else()
-    math(EXPR COMMON_PACKAGE_VERSION_POS "${COMMON_PACKAGE_VERSION_POS} + 1")
-    list(GET ARGN ${COMMON_PACKAGE_VERSION_POS} COMMON_PACKAGE_VERSION)
-    set(COMMON_PACKAGE_VERSION ">=${COMMON_PACKAGE_VERSION}")
+  if(COMMON_PACKAGE_ARGS)
+    list(GET COMMON_PACKAGE_ARGS 0 COMMON_PACKAGE_VERSION)
+    if(COMMON_PACKAGE_VERSION MATCHES "^[0-9.]+$") # is a version
+      set(COMMON_PACKAGE_VERSION ">=${COMMON_PACKAGE_VERSION}")
+    else()
+      set(COMMON_PACKAGE_VERSION)
+    endif()
   endif()
 
-  list(FIND ARGN "REQUIRED" COMMON_PACKAGE_REQUIRED_POS)
+  list(FIND COMMON_PACKAGE_ARGS "QUIET" COMMON_PACKAGE_QUIET_POS)
+  if(COMMON_PACKAGE_QUIET_POS EQUAL -1)
+    set(COMMON_PACKAGE_QUIET)
+  else()
+     set(COMMON_PACKAGE_QUIET "QUIET")
+  endif()
+
+  list(FIND COMMON_PACKAGE_ARGS "REQUIRED" COMMON_PACKAGE_REQUIRED_POS)
   if(COMMON_PACKAGE_REQUIRED_POS EQUAL -1) # Optional find
-    find_package(${Name} ${ARGN}) # try standard cmake way
+    find_package(${Name} ${COMMON_PACKAGE_ARGS}) # try standard cmake way
     if((NOT ${Name}_FOUND) AND (NOT ${COMMON_PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-      pkg_check_modules(${Name} ${Name}
-        ${COMMON_PACKAGE_VERSION}) # try pkg_config way
+      pkg_check_modules(${Name} ${Name}${COMMON_PACKAGE_VERSION}
+        ${COMMON_PACKAGE_QUIET}) # try pkg_config way
     endif()
   else() # required find
-    list(REMOVE_AT ARGN ${COMMON_PACKAGE_REQUIRED_POS})
-    find_package(${Name} ${ARGN}) # try standard cmake way
+    list(REMOVE_AT COMMON_PACKAGE_ARGS ${COMMON_PACKAGE_REQUIRED_POS})
+    find_package(${Name} ${COMMON_PACKAGE_ARGS}) # try standard cmake way
     if((NOT ${Name}_FOUND) AND (NOT ${COMMON_PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-      pkg_check_modules(${Name} REQUIRED ${Name}
-        ${COMMON_PACKAGE_VERSION}) # try pkg_config way (and fail if needed)
+      pkg_check_modules(${Name} REQUIRED ${Name}${COMMON_PACKAGE_VERSION}
+        ${COMMON_PACKAGE_QUIET}) # try pkg_config way (and fail if needed)
     endif()
   endif()
 endmacro()
