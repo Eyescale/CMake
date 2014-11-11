@@ -174,9 +174,10 @@ execute_process(COMMAND ${GIT_EXECUTABLE} fetch --all -q
   WORKING_DIRECTORY ${DIR})
 execute_process(
   COMMAND ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master
-  OUTPUT_VARIABLE newref WORKING_DIRECTORY ${DIR})
+  OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE
+  WORKING_DIRECTORY ${DIR})
 if(newref)
-  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\")
+  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\\n\")
   git_external(${DIR} ${REPO} \${newref})
 else()
   file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
