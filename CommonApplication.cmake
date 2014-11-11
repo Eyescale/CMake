@@ -38,7 +38,7 @@ function(COMMON_APPLICATION Name)
     include_directories(${PROJECT_BINARY_DIR})
   endif()
   if(${NAME}_RESOURCES)
-    qt4_add_resources(QRC_SOURCES ${LIVREGUI_RESOURCES})
+    qt4_add_resources(QRC_SOURCES ${${NAME}_RESOURCES})
     list(APPEND SOURCES ${QRC_SOURCES})
   endif()
 
