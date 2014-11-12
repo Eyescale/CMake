@@ -46,6 +46,8 @@ set(COMMON_GCC_FLAGS
   "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
 
 # GCC (+clang)
+set(COMMON_GCC_C_FLAGS)
+set(COMMON_GCC_CPP_FLAGS) 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   compiler_dumpversion(GCC_COMPILER_VERSION)
@@ -64,13 +66,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
     endif()
     if(GCC_COMPILER_VERSION VERSION_GREATER 4.5)
-      set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -fmax-errors=5")
+      set(COMMON_GCC_C_FLAGS "${COMMON_GCC_FLAGS}")
+      set(COMMON_GCC_CPP_FLAGS "${COMMON_GCC_FLAGS} -fmax-errors=5")
     endif()
   endif()
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_C_FLAGS}")
   set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo -Wvla")
+    "${CMAKE_CXX_FLAGS} ${COMMON_GCC_CPP_FLAGS} -Wnon-virtual-dtor -Wsign-promo -Wvla")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 
