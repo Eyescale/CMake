@@ -1,10 +1,10 @@
 # Copyright (c) 2014 Stefan.Eilemann@epfl.ch
 
-# Provides common_package(Name args) which improves find_package First
-# invokes find_package with all the given arguments, and then falls
-# back to using pkg_config if available. The pkg_config path does only
-# implement the version, REQUIRED and QUIET find_package arguments
-# (e.g. no COMPONENTS)
+# Provides common_package(Name args) which improves find_package.
+# First invokes find_package with all the given arguments, and then
+# falls back to using pkg_config if available. The pkg_config path
+# does only implement the version, REQUIRED and QUIET find_package
+# arguments (e.g. no COMPONENTS)
 
 find_package(PkgConfig)
 set(ENV{PKG_CONFIG_PATH}
