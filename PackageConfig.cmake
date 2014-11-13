@@ -288,7 +288,6 @@ set(DEPENDENTS
 )
 
 # 2. add code to find each individual dependency
-list(REMOVE_DUPLICATES ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES)
 foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   string(TOUPPER ${_dependent} _DEPENDENT)
   # Check if the dependant project uses mixed case or upper case for its name
