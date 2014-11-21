@@ -187,6 +187,12 @@ function(add_cppcheck _name)
       return()
     endif()
 
+    if (CPPCHECK_IGNORED_PATHS)
+      string(REPLACE " " " -i" _ignored_paths ${CPPCHECK_IGNORED_PATHS})
+      set(CPPCHECK_IGNORED_PATHS ${_ignored_paths})
+      MESSAGE ("This is message: ${CPPCHECK_IGNORED_PATHS}")
+    endif(CPPCHECK_IGNORED_PATHS)
+
     if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
       # Older than CMake 2.8.0
       add_test(${_name}_cppcheck_test

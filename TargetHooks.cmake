@@ -7,7 +7,7 @@ include(CpplintTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
-set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
+set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude ${CPPCHECK_IGNORED_PATHS}
   -I${OUTPUT_INCLUDE_DIR} -D${UPPER_PROJECT_NAME}_STATIC=)
 
 macro(add_executable _target)
