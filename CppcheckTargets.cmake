@@ -3,9 +3,8 @@
 #  include(CppcheckTargets)
 #  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
 #                             [FAIL_ON_WARNINGS] [EXCLUDE_QT_MOC_FILES]) -
-#    Create a target to check a target's sources with cppcheck and the indicated options
-#  add_cppcheck_sources(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]) -
-#    Create a target to check standalone sources with cppcheck and the indicated options
+#    Create a target to check a target's sources with cppcheck and the
+#    indicated options
 #
 # Requires these CMake modules:
 #  Findcppcheck
@@ -32,114 +31,18 @@ if(NOT CPPCHECK_FOUND)
 endif()
 
 if(NOT CPPCHECK_FOUND)
-  add_custom_target(cppcheck
+  add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
-  set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif()
+
+if(NOT TARGET cppcheck_${PROJECT_NAME})
+  add_custom_target(cppcheck_${PROJECT_NAME})
 endif()
 
 if(NOT TARGET cppcheck)
-  add_custom_target(cppcheck)
+  add_custom_target(cppcheck DEPENDS cppcheck_${PROJECT_NAME})
 endif()
-
-function(add_cppcheck_sources _targetname)
-  if(CPPCHECK_FOUND)
-
-    if (CPPCHECK_IGNORED_PATHS)
-      string(REPLACE " " " -i" _ignored_paths ${CPPCHECK_IGNORED_PATHS})
-      set(CPPCHECK_IGNORED_PATHS -i${_ignored_paths})
-    endif(CPPCHECK_IGNORED_PATHS)
-
-    set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} -I ${CMAKE_SOURCE_DIR}
-      --error-exitcode=2 --inline-suppr
-      --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
-    set(_input ${ARGN})
-    list(FIND _input UNUSED_FUNCTIONS _unused_func)
-    if("${_unused_func}" GREATER "-1")
-      list(APPEND _cppcheck_args ${CPPCHECK_UNUSEDFUNC_ARG})
-      list(REMOVE_AT _input ${_unused_func})
-    endif()
-
-    list(FIND _input STYLE _style)
-    if("${_style}" GREATER "-1")
-      list(APPEND _cppcheck_args ${CPPCHECK_STYLE_ARG})
-      list(REMOVE_AT _input ${_style})
-    endif()
-
-    list(FIND _input POSSIBLE_ERROR _poss_err)
-    if("${_poss_err}" GREATER "-1")
-      list(APPEND _cppcheck_args ${CPPCHECK_POSSIBLEERROR_ARG})
-      list(REMOVE_AT _input ${_poss_err})
-    endif()
-
-    list(FIND _input FAIL_ON_WARNINGS _fail_on_warn)
-    if("${_fail_on_warn}" GREATER "-1")
-      list(APPEND
-        CPPCHECK_FAIL_REGULAR_EXPRESSION
-        ${CPPCHECK_WARN_REGULAR_EXPRESSION})
-      list(REMOVE_AT _input ${_fail_on_warn})
-    endif()
-
-    set(_files)
-    foreach(_source ${_input})
-      get_source_file_property(_cppcheck_loc "${_source}" LOCATION)
-      if(_cppcheck_loc)
-        # This file has a source file property, carry on.
-        get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
-        if("${_cppcheck_lang}" MATCHES "CXX")
-          list(APPEND _files "${_cppcheck_loc}")
-        endif()
-      else()
-        # This file doesn't have source file properties - figure it out.
-        get_filename_component(_cppcheck_loc "${_source}" ABSOLUTE)
-        if(EXISTS "${_cppcheck_loc}")
-          list(APPEND _files "${_cppcheck_loc}")
-        else()
-          message(FATAL_ERROR
-            "Adding CPPCHECK for file target ${_targetname}: "
-            "File ${_source} does not exist or needs a corrected path location "
-            "since we think its absolute path is ${_cppcheck_loc}")
-        endif()
-      endif()
-    endforeach()
-
-    if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
-      # Older than CMake 2.8.0
-      add_test(${_targetname}_cppcheck_test
-        "${CPPCHECK_EXECUTABLE}"
-        ${CPPCHECK_TEMPLATE_ARG}
-        ${_cppcheck_args}
-        ${_files})
-    else()
-      # CMake 2.8.0 and newer
-      add_test(NAME
-        ${_targetname}_cppcheck_test
-        COMMAND
-        "${CPPCHECK_EXECUTABLE}"
-        ${CPPCHECK_TEMPLATE_ARG}
-        ${_cppcheck_args}
-        ${_files})
-    endif()
-
-    set_tests_properties(${_targetname}_cppcheck_test
-      PROPERTIES
-      FAIL_REGULAR_EXPRESSION
-      "${CPPCHECK_FAIL_REGULAR_EXPRESSION}")
-
-    add_custom_target(${_targetname}_cppcheck
-      COMMAND
-      ${CPPCHECK_EXECUTABLE}
-      ${CPPCHECK_QUIET_ARG}
-      ${CPPCHECK_TEMPLATE_ARG}
-      ${_cppcheck_args}
-      ${_files}
-      WORKING_DIRECTORY
-      "${CMAKE_CURRENT_SOURCE_DIR}"
-      COMMENT
-      "${_targetname}_cppcheck: Running cppcheck on target ${_targetname}..."
-      VERBATIM)
-    add_dependencies(cppcheck ${_targetname}_cppcheck)
-  endif()
-endfunction()
 
 function(add_cppcheck _name)
   if(NOT TARGET ${_name})
@@ -147,15 +50,15 @@ function(add_cppcheck _name)
       "add_cppcheck given a target name that does not exist: '${_name}' !")
   endif()
   if(CPPCHECK_FOUND)
-
     if (CPPCHECK_IGNORED_PATHS)
       string(REPLACE " " " -i" _ignored_paths ${CPPCHECK_IGNORED_PATHS})
       set(CPPCHECK_IGNORED_PATHS -i${_ignored_paths})
     endif(CPPCHECK_IGNORED_PATHS)
 
-    set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} -I ${CMAKE_SOURCE_DIR}
+    set(_cppcheck_args -i${CPPCHECK_IGNORED_PATHS} -I ${PROJECT_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
-      --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
+      --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
+      ${CPPCHECK_EXTRA_ARGS})
 
     list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
     if("${_unused_func}" GREATER "-1")
@@ -199,7 +102,8 @@ function(add_cppcheck _name)
 
     add_test(NAME ${_name}_cppcheck_test
       COMMAND "${CPPCHECK_EXECUTABLE}" ${CPPCHECK_TEMPLATE_ARG}
-      ${_cppcheck_args} ${_files})
+      ${_cppcheck_args} ${_files}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
     set_tests_properties(${_name}_cppcheck_test
       PROPERTIES
@@ -213,12 +117,10 @@ function(add_cppcheck _name)
       ${CPPCHECK_TEMPLATE_ARG}
       ${_cppcheck_args}
       ${_files}
-      WORKING_DIRECTORY
-      "${CMAKE_CURRENT_SOURCE_DIR}"
-      COMMENT
-      "${_name}_cppcheck: Running cppcheck on target ${_name}..."
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMENT "${_name}_cppcheck: Running cppcheck on target ${_name}..."
       VERBATIM)
-    add_dependencies(cppcheck ${_name}_cppcheck)
+    add_dependencies(cppcheck_${PROJECT_NAME} ${_name}_cppcheck)
   endif()
 
 endfunction()

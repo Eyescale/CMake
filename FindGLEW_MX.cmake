@@ -11,11 +11,11 @@ find_path(_glew_mx_INCLUDE_DIR GL/glew.h
   /usr/include /usr/local/include /opt/local/include)
 
 find_library(_glew_mx_LIBRARY
-  NAMES GLEWmx GLEW glew glew32
+  NAMES GLEWmx glew32mx GLEW glew glew32
   PATHS /usr/lib /usr/local/lib)
 
 if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
-  set(TEST_SRC ${CMAKE_BINARY_DIR}/glew_test.cpp)
+  set(TEST_SRC ${PROJECT_BINARY_DIR}/glew_test.cpp)
   file(WRITE ${TEST_SRC}
     "#include <GL/glew.h>\n"
     "int main( )\n"
@@ -24,7 +24,7 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
     "}\n"
     )
 
-  try_compile(_glew_mx_SUPPORTED ${CMAKE_BINARY_DIR}/glew_test ${TEST_SRC}
+  try_compile(_glew_mx_SUPPORTED ${PROJECT_BINARY_DIR}/glew_test ${TEST_SRC}
     CMAKE_FLAGS
     "-DINCLUDE_DIRECTORIES:STRING=${_glew_mx_INCLUDE_DIR}"
     "-DLINK_LIBRARIES:STRING=${_glew_mx_LIBRARY}"
@@ -46,7 +46,7 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
       "}\n"
       )
 
-    try_compile(_glxew_mx_SUPPORTED ${CMAKE_BINARY_DIR}/glew_test ${TEST_SRC}
+    try_compile(_glxew_mx_SUPPORTED ${PROJECT_BINARY_DIR}/glew_test ${TEST_SRC}
       CMAKE_FLAGS
       "-DINCLUDE_DIRECTORIES:STRING=${_glew_mx_INCLUDE_DIR}"
       "-DLINK_LIBRARIES:STRING=${_glew_mx_LIBRARY}"

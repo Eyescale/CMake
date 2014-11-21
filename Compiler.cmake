@@ -11,6 +11,10 @@
 #
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
+# * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
+# * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
+# * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
+# * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
 
 
 # Compiler name
@@ -25,11 +29,15 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 # use MSVC for Visual Studio
 
+include(System)
+
 if(NOT COMMON_MINIMUM_GCC_VERSION)
   set(COMMON_MINIMUM_GCC_VERSION 4.4)
 endif()
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
+option(ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
+
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
@@ -50,9 +58,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
       "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
+    set(CXX11_STDLIB "-stdlib=libc++")
   else()
     if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
+    endif()
+    if(GCC_COMPILER_VERSION VERSION_GREATER 4.5)
+      set(COMMON_GCC_FLAGS "${COMMON_GCC_FLAGS} -fmax-errors=5")
     endif()
   endif()
 
@@ -62,17 +74,25 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 
-  if(NOT COMMON_USE_CXX03)
+  if(APPLE AND OSX_VERSION VERSION_LESS 10.9)
+    # use C++03 std and stdlib, which is the default used by all
+    # software, including all MacPorts.
+  elseif(NOT COMMON_USE_CXX03)
     if(CMAKE_COMPILER_IS_CLANG)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+      set(COMMON_CXXSTD_FLAGS "-std=c++11")
     elseif(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
       if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+        set(COMMON_CXXSTD_FLAGS "-std=c++0x")
       else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        set(COMMON_CXXSTD_FLAGS "-std=c++11")
       endif()
     endif()
   endif()
+
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
@@ -84,8 +104,13 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -xhost")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -xhost")
   if(NOT COMMON_USE_CXX03)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(COMMON_CXXSTD_FLAGS "-std=c++11")
   endif()
+
+  set(C_DIALECT_OPT_C89    "-std=c89")
+  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
+  set(C_DIALECT_OPT_C99    "-std=c99")
+  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
@@ -105,6 +130,11 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
       "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
+
+  set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
+  set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
+  set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
+  set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
 endif()
 
 # Visual Studio
@@ -115,6 +145,7 @@ if(MSVC)
     /wd4068 # disable unknown pragma warnings
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
+    /wd4351 # new behavior: elements of array 'array' will be default initialized
     )
 
   # By default, do not warn when built on machines using only VS Express
@@ -129,4 +160,9 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
   endif()
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CXXSTD_FLAGS}")
+if(ENABLE_CXX11_STDLIB)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_STDLIB}")
 endif()

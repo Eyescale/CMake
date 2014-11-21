@@ -1,13 +1,15 @@
 # - Run cpplint on c++ source files as a custom target and a test
 #
 #  include(CpplintTargets)
-#  add_cpplint(TARGET target [CATEGORY_FILTER_OUT category ...] [EXTENSIONS extension ...] [VERBOSE level] 
-#    [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits] [EXCLUDE_PATTERN pattern ...])
-#    Create a target to check a target's sources with cpplint and the indicated options
+#  add_cpplint(TARGET target [CATEGORY_FILTER_OUT category ...]
+#              [EXTENSIONS extension ...] [VERBOSE level]
+#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits]
+#              [EXCLUDE_PATTERN pattern ...])
+#  Create a target to check a target's sources with cpplint and the indicated
+#  options
 #
-# Requires CMake 2.6 or newer (uses the 'function' command)
-#
-
+# Input variables:
+# * CPPLINT_ADD_TESTS: When set to ON, add cpplint targets to tests
 
 include(CMakeParseArguments)
 
@@ -40,7 +42,7 @@ function(add_cpplint _name)
   endif()
   if(CPPLINT_FOUND)
     set(_cpplint_args)
-    
+
     # handles category filters
     set(_category_filter)
     set(_category_filter_in "+build,+legal,+readability,+runtime,+whitespace")
@@ -49,7 +51,7 @@ function(add_cpplint _name)
       set(_category_filter "--filter=${_category_filter_in},-${add_cpplint_CATEGORY_FILTER_OUT}")
     endif(add_cpplint_CATEGORY_FILTER_OUT)
     list(APPEND _cpplint_args ${_category_filter})
-    
+
     # handles allowed extensions
     if (add_cpplint_EXTENSIONS)
       string(REPLACE ";" "," add_cpplint_EXTENSIONS "${add_cpplint_EXTENSIONS}")
@@ -66,7 +68,7 @@ function(add_cpplint _name)
     if (add_cpplint_COUNTING)
       list(APPEND _cpplint_args "--counting=${add_cpplint_COUNTING}")
     endif(add_cpplint_COUNTING)
-    
+
     # handles root directory used for deriving header guard CPP variable
     if(add_cpplint_ROOT)
       list(APPEND _cpplint_args "--root=${add_cpplint_ROOT}")
@@ -92,34 +94,17 @@ function(add_cpplint _name)
       return()
     endif(NOT _files)
 
-    if("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
-      # Older than CMake 2.8.0
-      add_test(${_name}_cpplint_test
-        "${CPPLINT_SCRIPT}"
-        ${_files})
-    else("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
-      # CMake 2.8.0 and newer
-      add_test(NAME
-        ${_name}_cpplint_test
-        COMMAND
-        "${CPPLINT_SCRIPT}"
-        ${_files})
-    endif("1.${CMAKE_VERSION}" VERSION_LESS "1.2.8.0")
-
-    set_tests_properties(${_name}_cpplint_test
-      PROPERTIES
-      PASS_REGULAR_EXPRESSION
-      "Total errors found: 0")
+    if(CPPLINT_ADD_TESTS)
+      add_test(NAME ${_name}_cpplint_test
+        COMMAND "${CPPLINT_SCRIPT}" ${_files})
+      set_tests_properties(${_name}_cpplint_test
+        PROPERTIES PASS_REGULAR_EXPRESSION "Total errors found: 0")
+    endif()
 
     add_custom_target(${_name}_cpplint
-      COMMAND
-      ${CPPLINT_SCRIPT}
-      ${_cpplint_args}
-      ${_files}
-      WORKING_DIRECTORY
-      "${CMAKE_CURRENT_SOURCE_DIR}"
-      COMMENT
-      "${_name}_cpplint: Running cpplint on target ${_name}..."
+      COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+      COMMENT "Running cpplint on ${_name}"
       VERBATIM)
     add_dependencies(cpplint ${_name}_cpplint)
   endif()

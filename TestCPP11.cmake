@@ -4,7 +4,7 @@
 set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map
   template_alias)
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_sharedptr.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_sharedptr.cpp
 "#include <memory>
 int main()
 {
@@ -12,7 +12,7 @@ int main()
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_tuple.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_tuple.cpp
 "#include <tuple>
 int main()
 {
@@ -20,7 +20,7 @@ int main()
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_auto.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_auto.cpp
 "int main()
 {
    int a = 2;
@@ -29,7 +29,7 @@ file(WRITE ${CMAKE_BINARY_DIR}/cpp11_auto.cpp
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_nullptr.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_nullptr.cpp
 "int main()
 {
    int *ptr = nullptr;
@@ -37,7 +37,7 @@ file(WRITE ${CMAKE_BINARY_DIR}/cpp11_nullptr.cpp
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_array.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_array.cpp
 "#include <array>
 int main()
 {
@@ -46,7 +46,7 @@ int main()
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_final_override.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_final_override.cpp
 "class Foo
 {
 public:
@@ -63,7 +63,7 @@ class Bar : public Foo
 
 int main() {}")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_unordered_map.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_unordered_map.cpp
 "#include <unordered_map>
 int main()
 {
@@ -72,7 +72,7 @@ int main()
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_template_alias.cpp
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_template_alias.cpp
 "#include <vector>
 template <typename T> using FooVector = std::vector< T >;
 int main()
@@ -89,8 +89,8 @@ while(TESTS_CPP11)
   string(TOUPPER ${TEST_CPP11_name} TEST_CPP11_NAME)
 
   try_compile(CXX_${TEST_CPP11_NAME}_SUPPORTED
-    ${CMAKE_BINARY_DIR}/cpp11_${TEST_CPP11_name}
-    ${CMAKE_BINARY_DIR}/cpp11_${TEST_CPP11_name}.cpp OUTPUT_VARIABLE output)
+    ${CMAKE_CURRENT_BINARY_DIR}/cpp11_${TEST_CPP11_name}
+    ${CMAKE_CURRENT_BINARY_DIR}/cpp11_${TEST_CPP11_name}.cpp OUTPUT_VARIABLE output)
 
   if(CXX_${TEST_CPP11_NAME}_SUPPORTED)
     set(TEST_CPP11_PASSED "${TEST_CPP11_PASSED} ${TEST_CPP11_name}")

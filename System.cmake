@@ -5,6 +5,8 @@ if(WIN32)
 endif(WIN32)
 if(APPLE)
   set(SYSTEM Darwin)
+  execute_process(COMMAND sw_vers -productVersion OUTPUT_VARIABLE OSX_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif(APPLE)
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(SYSTEM Linux)
