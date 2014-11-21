@@ -7,6 +7,7 @@ include(CMakeParseArguments)
 include(clangcheckTargets)
 include(CppcheckTargets)
 include(CpplintTargets)
+
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
 set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
