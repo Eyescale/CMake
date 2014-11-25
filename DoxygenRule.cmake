@@ -85,7 +85,7 @@ add_custom_target(${PROJECT_NAME}_doxygen_html
 if(NOT TARGET doxygen_html)
   add_custom_target(doxygen_html)
 endif()
-add_dependencies(doxygen_html DEPENDS ${PROJECT_NAME}_doxygen_html)
+add_dependencies(doxygen_html ${PROJECT_NAME}_doxygen_html)
 
 if(COVERAGE)
   # CoverageReport generated in this case
@@ -97,7 +97,7 @@ endif()
 if(NOT TARGET doxygen)
   add_custom_target(doxygen)
 endif()
-add_dependencies(doxygen DEPENDS ${PROJECT_NAME}_doxygen)
+add_dependencies(doxygen ${PROJECT_NAME}_doxygen)
 
 make_directory(${PROJECT_BINARY_DIR}/doc/html)
 install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
