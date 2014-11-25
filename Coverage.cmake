@@ -23,7 +23,7 @@ if(ENABLE_COVERAGE)
     endif()
     if(LCOV AND GENHTML)
       set(COVERAGE ON)
-      add_custom_target(lcov-clean
+      add_custom_target(${PROJECT_NAME}_lcov-clean
         COMMAND ${LCOV} -q --directory ${PROJECT_BINARY_DIR} --zerocounters
         COMMENT "Resetting code coverage counters")
     else()
@@ -52,27 +52,33 @@ if(ENABLE_COVERAGE)
     "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 endif()
 
-# Add custom targets to generate an html coverate report produced by running
-# the tests that make part of the given targets
+# Add custom targets to generate an html coverate report produced by
+# running the tests that make part of the given targets. Additional
+# arguments are added as dependencies to the gather phase.
 macro(COVERAGE_REPORT)
   if(NOT COVERAGE_LIMITS)
     # Tweak coverage limits to yellow 40%/green 80%
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
-  add_custom_target(lcov-gather
+  add_custom_target(${PROJECT_NAME}_lcov-gather
     COMMAND ${LCOV} --directory . --capture --output-file lcov.info
     COMMENT "Capturing code coverage counters"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${ARGV})
-  add_custom_target(lcov-remove
+  add_custom_target(${PROJECT_NAME}_lcov-remove
     COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    DEPENDS lcov-gather)
-  add_custom_target(lcov-html
+    DEPENDS ${PROJECT_NAME}_lcov-gather)
+  add_custom_target(${PROJECT_NAME}_lcov-html
     COMMAND ${GENHTML} -q ${COVERAGE_LIMITS} -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
     COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
-    DEPENDS lcov-remove)
+    DEPENDS ${PROJECT_NAME}_lcov-remove)
   make_directory(${PROJECT_BINARY_DIR}/doc/html)
+
+  if(NOT TARGET coverage)
+    add_custom_target(coverage)
+  endif()
+  add_dependencies(coverage ${PROJECT_NAME}_lcov-html)
 endmacro()
