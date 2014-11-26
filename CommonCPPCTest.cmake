@@ -52,7 +52,6 @@ foreach(FILE ${TEST_FILES})
   # Test link libraries
   target_link_libraries(${PROJECT_NAME}_${NAME} ${TEST_LIBRARIES}
     ${${NAME}_LINK_LIBRARIES})
-
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
   set(RUN_PREFIX ${TEST_PREFIX})
@@ -75,12 +74,16 @@ foreach(FILE ${TEST_FILES})
   endif()
 endforeach()
 
-add_custom_target(${PROJECT_NAME}_run_cpp_tests
-  COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMENT "Running all ${PROJECT_NAME} cpp tests")
-if(COVERAGE)
-  add_dependencies(${PROJECT_NAME}_run_cpp_tests ${PROJECT_NAME}_lcov-clean)
+if(TARGET ${PROJECT_NAME}_run_cpp_tests)
+  add_dependencies(${PROJECT_NAME}_run_cpp_tests ${ALL_CPP_TESTS})
+else()
+  add_custom_target(${PROJECT_NAME}_run_cpp_tests
+    COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running all ${PROJECT_NAME} cpp tests")
+  if(COVERAGE)
+    add_dependencies(${PROJECT_NAME}_run_cpp_tests ${PROJECT_NAME}_lcov-clean)
+  endif()
 endif()
 
 if(NOT TARGET run_cpp_tests)
