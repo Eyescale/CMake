@@ -30,10 +30,16 @@ find_path(_ROCKSDB_INCLUDE_DIR rocksdb/db.h
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt /opt/local)
 
-if(_ROCKSDB_INCLUDE_DIR AND EXISTS "${_ROCKSDB_INCLUDE_DIR}/rocksdb/db.h")
+if(EXISTS "${_ROCKSDB_INCLUDE_DIR}/rocksdb/version.h")
+  set(_ROCKSDB_Version_file "${_ROCKSDB_INCLUDE_DIR}/rocksdb/version.h")
+elseif(EXISTS "${_ROCKSDB_INCLUDE_DIR}/rocksdb/db.h")
   set(_ROCKSDB_Version_file "${_ROCKSDB_INCLUDE_DIR}/rocksdb/db.h")
+endif()
+if(_ROCKSDB_INCLUDE_DIR AND _ROCKSDB_Version_file)
   file(READ ${_ROCKSDB_Version_file} _ROCKSDB_header_contents)
   string(REGEX REPLACE ".*kMajorVersion = ([0-9]+).*kMinorVersion = ([0-9]+).*"
+    "\\1.\\2" _ROCKSDB_VERSION "${_ROCKSDB_header_contents}")
+  string(REGEX REPLACE ".*ROCKSDB_MAJOR ([0-9]+).*ROCKSDB_MINOR ([0-9]+).*"
     "\\1.\\2" _ROCKSDB_VERSION "${_ROCKSDB_header_contents}")
   set(ROCKSDB_VERSION ${_ROCKSDB_VERSION} CACHE INTERNAL
     "The version of rocksdb which was detected")
