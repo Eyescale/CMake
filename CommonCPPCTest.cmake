@@ -39,6 +39,10 @@ foreach(FILE ${TEST_FILES})
   set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
     FOLDER "Tests" OUTPUT_NAME ${NAME})
 
+  if(NOT TARGET ${NAME}) # Create target without project prefix if possible
+    add_custom_target(${NAME} DEPENDS ${PROJECT_NAME}_${NAME})
+  endif()
+
   # Per target INCLUDE_DIRECTORIES if supported
   if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
     set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
@@ -46,10 +50,8 @@ foreach(FILE ${TEST_FILES})
   endif()
 
   # Test link libraries
-  if(${NAME}_LINK_LIBRARIES)
-    target_link_libraries(${PROJECT_NAME}_${NAME} ${${NAME}_LINK_LIBRARIES})
-  endif()
-  target_link_libraries(${PROJECT_NAME}_${NAME} ${TEST_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_${NAME} ${TEST_LIBRARIES}
+    ${${NAME}_LINK_LIBRARIES})
 
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
@@ -62,31 +64,26 @@ foreach(FILE ${TEST_FILES})
     set(RUN_ARGS ${${NAME}_TEST_ARGS})
   endif()
 
-  if(CMAKE_VERSION VERSION_LESS 2.8)
-    get_target_property(EXECUTABLE ${PROJECT_NAME}_${NAME} LOCATION)
-    string(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-           EXECUTABLE "${EXECUTABLE}")
-    add_test(${PROJECT_NAME}_${NAME} ${RUN_PREFIX} ${EXECUTABLE} ${RUN_ARGS})
-  else()
-    add_test(NAME ${PROJECT_NAME}_${NAME}
-      COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
-  endif()
+  add_test(NAME ${PROJECT_NAME}_${NAME}
+    COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
   if(TEST_LABELS)
-    set_tests_properties(${PROJECT_NAME}_${NAME} PROPERTIES LABELS "${TEST_LABELS}")
+    set_tests_properties(${PROJECT_NAME}_${NAME} PROPERTIES
+      LABELS "${TEST_LABELS}")
   endif()
 endforeach()
 
-if(TARGET run_cpp_tests)
-  add_dependencies(run_cpp_tests ${ALL_CPP_TESTS})
-else()
-  add_custom_target(run_cpp_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Running all cpp unit tests")
-  if(COVERAGE)
-    add_dependencies(run_cpp_tests lcov-clean)
-  endif()
+add_custom_target(${PROJECT_NAME}_run_cpp_tests
+  COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Running all ${PROJECT_NAME} cpp tests")
+if(COVERAGE)
+  add_dependencies(${PROJECT_NAME}_run_cpp_tests ${PROJECT_NAME}_lcov-clean)
 endif()
+
+if(NOT TARGET run_cpp_tests)
+  add_custom_target(run_cpp_tests)
+endif()
+add_dependencies(run_cpp_tests ${PROJECT_NAME}_run_cpp_tests)

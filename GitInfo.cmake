@@ -7,13 +7,11 @@
 # GIT_ROOT_URL: The root remote of the working tree
 # GIT_BRANCH: The name of the current branch
 
-if(GIT_INFO_DONE)
+if(GIT_INFO_DONE_${PROJECT_NAME})
   return()
 endif()
 
-cmake_minimum_required(VERSION 2.8)
-
-set(GIT_INFO_DONE ON)
+set(GIT_INFO_DONE_${PROJECT_NAME} ON)
 set(GIT_REVISION "0")
 set(GIT_STATE)
 set(GIT_ORIGIN_URL)

@@ -15,6 +15,7 @@
 #  CPPCHECK_WARN_REGULAR_EXPRESSION
 #  CPPCHECK_MARK_AS_ADVANCED - whether to mark our vars as advanced even
 #    if we don't find this program.
+#  CPPCHECK_IGNORED_PATHS
 #
 # Requires these CMake modules:
 #  FindPackageHandleStandardArgs (known included with CMake >=2.6.2)

@@ -50,7 +50,12 @@ function(add_cppcheck _name)
       "add_cppcheck given a target name that does not exist: '${_name}' !")
   endif()
   if(CPPCHECK_FOUND)
-    set(_cppcheck_args -I ${PROJECT_SOURCE_DIR}
+    if (CPPCHECK_IGNORED_PATHS)
+      string(REPLACE " " " -i" _ignored_paths ${CPPCHECK_IGNORED_PATHS})
+      set(CPPCHECK_IGNORED_PATHS -i${_ignored_paths})
+    endif(CPPCHECK_IGNORED_PATHS)
+
+    set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} -I ${PROJECT_SOURCE_DIR}
       --error-exitcode=2 --inline-suppr
       --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
       ${CPPCHECK_EXTRA_ARGS})
