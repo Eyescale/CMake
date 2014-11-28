@@ -50,7 +50,8 @@ function(COMMON_LIBRARY Name)
       get_filename_component(PUBLIC_HEADER ${PUBLIC_HEADER} NAME)
     endif()
     if(NOT PUBLIC_HEADER MATCHES "defines.+\\.h" AND
-        PUBLIC_HEADER MATCHES ".*\\.h$" )
+        (PUBLIC_HEADER MATCHES ".*\\.h$" OR
+        PUBLIC_HEADER MATCHES ".*\\.hpp$"))
 
       file(APPEND ${PROJECT_GENERATED_HEADER}
         "#include <${PROJECT_INCLUDE_NAME}/${PUBLIC_HEADER}>\n")
