@@ -1,3 +1,5 @@
+# Find OpenMP package and add the needed flags for the correspondent architectures
+
 find_package(OpenMP)
 if(OPENMP_FOUND)
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc64")
