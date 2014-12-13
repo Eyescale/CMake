@@ -1,18 +1,29 @@
 
-# When included, automatically reads, parses and updates a .gitsubprojects file.
-# .gitsubprojects contains lines in the form:
-#   "git_subproject(<project> <giturl> <gittag>)"
-# All projects are cloned, updated and added using the the (separately usable)
-# git_subproject(project giturl gittag) macro as a sub project to the parent
-# project. The git_subproject macro uses the add_subproject(name) function to add
-# the project as a sub directory.
+# Include this file in a top-level CMakeLists to build several CMake
+# subprojects (which may depend on each other).
 #
-# Using a simple top level CMakeLists, several CMake subprojects
-# (which may depend on each other) can be built. To use the SubProject
-# feature, the sub projects should modify their CMake scripts. In the
-# scripts CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR and
-# CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR. A sample
-# project can be found at https://github.com/bilgili/SubProjects.git
+# When included, it will automatically parse a .gitsubprojects file if one is
+# present in the same CMake source directory.
+# .gitsubprojects contains lines in the form:
+# "git_subproject(<project> <giturl> <gittag>)"
+#
+# All the subprojects will be cloned and configured during the CMake configure
+# step thanks to the 'git_subproject(project giturl gittag)' macro
+# (also usable separately).
+# The latter relies on the add_subproject(name) function to add projects as
+# sub directories. See also: cmake command 'add_subdirectory'.
+#
+# The following targets are created by SubProject.cmake:
+# - An 'update_git_subprojects_${PROJECT_NAME}' target to update the <gittag> of
+#   all the .gitsubprojects entries to their latest respective origin/master ref
+# - A generic 'update' target to execute 'update_git_subrojects' recursively
+#
+# To be compatible with the SubProject feature, (sub)projects might need to
+# adapt their CMake scripts in the following way:
+# - CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR
+# - CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR
+#
+# A sample project can be found at https://github.com/Eyescale/Collage.git
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 
