@@ -50,8 +50,8 @@ foreach(FILE ${TEST_FILES})
   endif()
 
   # Test link libraries
-  target_link_libraries(${PROJECT_NAME}_${NAME} ${TEST_LIBRARIES}
-    ${${NAME}_LINK_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_${NAME}
+                    ${${NAME}_LINK_LIBRARIES} ${TEST_LIBRARIES})
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
   set(RUN_PREFIX ${TEST_PREFIX})
