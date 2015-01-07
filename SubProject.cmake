@@ -26,6 +26,7 @@
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeCompatibility.cmake)
 
 function(add_subproject name)
   string(TOUPPER ${name} NAME)
