@@ -80,7 +80,7 @@ macro(git_subproject name url tag)
       if(NOT ${NAME}_FOUND)
         git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${tag})
         add_subproject(${name})
-        find_package(${name} REQUIRED) # find subproject "package"
+        find_package(${name} REQUIRED CONFIG) # find subproject "package"
         include_directories(${${NAME}_INCLUDE_DIRS})
         list(APPEND __subprojects "${name} ${url} ${tag}")
       endif()
