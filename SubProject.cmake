@@ -67,7 +67,7 @@ function(add_subproject name)
     message("========== ${path} ==========")
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
       "${CMAKE_BINARY_DIR}/${name}")
-    message("========== ${PROJECT_NAME} ==========")
+    message("----------------------------")
   endif()
 endfunction()
 
