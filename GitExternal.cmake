@@ -12,10 +12,11 @@
 #
 # [optional] Flags which control behaviour
 #  NO_UPDATE
-#    When set, GitExternal will not change a repo that has already been checked out.
-#    The purpose of this is to allow one to set a default branch to be checked out,
-#    but stop GitExternal from changing back to that branch if the user has checked
-#    out and is working on another.
+#    When set, GitExternal will not change a repo that has already
+#    been checked out. The purpose of this is to allow one to set a
+#    default branch to be checked out, but stop GitExternal from
+#    changing back to that branch if the user has checked out and is
+#    working on another.
 #  VERBOSE
 #    When set, displays information about git commands that are executed
 #
@@ -115,7 +116,7 @@ if(NOT GIT_EXTERNALS)
   set(GIT_EXTERNALS "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals")
 endif()
 
-if(EXISTS ${GIT_EXTERNALS})
+if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
   include(${GIT_EXTERNALS})
   file(READ ${GIT_EXTERNALS} GIT_EXTERNAL_FILE)
   string(REGEX REPLACE "\n" ";" GIT_EXTERNAL_FILE "${GIT_EXTERNAL_FILE}")
@@ -161,7 +162,7 @@ if(EXISTS ${GIT_EXTERNALS})
             file(WRITE "${GIT_EXTERNAL_SCRIPT}"
               "file(WRITE ${GIT_EXTERNALS} \"# -*- mode: cmake -*-\n\")\n")
             add_custom_target(${GIT_EXTERNAL_TARGET}
-              COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
+              COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
               COMMENT "Recreate ${GIT_EXTERNALS_BASE}"
               WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           endif()
@@ -183,7 +184,7 @@ else()
   file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
 endif()")
           add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
-            COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
+            COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
             COMMENT "Update ${REPO} in ${GIT_EXTERNALS_BASE}"
             DEPENDS ${GIT_EXTERNAL_TARGET}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
