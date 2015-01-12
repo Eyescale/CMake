@@ -13,7 +13,7 @@
 # [optional] Flags which control behaviour
 #  NO_UPDATE
 #    When set, GitExternal will not change a repo that has already
-#    been checked out.  The purpose of this is to allow one to set a
+#    been checked out. The purpose of this is to allow one to set a
 #    default branch to be checked out, but stop GitExternal from
 #    changing back to that branch if the user has checked out and is
 #    working on another.
