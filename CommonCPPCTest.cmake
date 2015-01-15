@@ -2,6 +2,15 @@
 #               2010-2014, Stefan Eilemann <eile@eyescale.ch>
 #               2014, Juan Hernando <jhernando@fi.upm.es>
 #
+# Creates run_cpp_tests and run_perf_tests targets. The first one
+# creates a test for each .c or .cpp file in the current directory
+# tree, excluding the ones which start with perf (either as top-level
+# directory name or filename). The latter are added to run_perf_tests,
+# and are not meant to be executed with each test run. Both targets
+# will update and compile the test executables before invoking
+# ctest. CommonCTests includes the targets into the more general
+# 'tests' and 'perftests' targets, respectively.
+#
 # Input:
 # * TEST_LIBRARIES link each test executables against these libraries
 # * EXCLUDE_FROM_TESTS relative paths to test files to exclude; optional
@@ -29,12 +38,18 @@ endforeach()
 list(SORT TEST_FILES)
 
 set(ALL_CPP_TESTS)
+set(ALL_CPP_PERF_TESTS)
 foreach(FILE ${TEST_FILES})
   string(REGEX REPLACE "\\.(c|cpp)$" "" NAME ${FILE})
   string(REGEX REPLACE "[./]" "_" NAME ${NAME})
   source_group(\\ FILES ${FILE})
 
-  list(APPEND ALL_CPP_TESTS ${PROJECT_NAME}_${NAME})
+  if(NAME MATCHES "^perf.*")
+    list(APPEND ALL_CPP_PERF_TESTS ${PROJECT_NAME}_${NAME})
+  else()
+    list(APPEND ALL_CPP_TESTS ${PROJECT_NAME}_${NAME})
+  endif()
+
   add_executable(${PROJECT_NAME}_${NAME} ${FILE})
   set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
     FOLDER "Tests" OUTPUT_NAME ${NAME})
@@ -76,11 +91,18 @@ endforeach()
 
 if(TARGET ${PROJECT_NAME}_run_cpp_tests)
   add_dependencies(${PROJECT_NAME}_run_cpp_tests ${ALL_CPP_TESTS})
+  add_dependencies(${PROJECT_NAME}_run_perf_tests ${ALL_CPP_PERF_TESTS})
 else()
   add_custom_target(${PROJECT_NAME}_run_cpp_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_CPP_TESTS}
+    COMMAND ${CMAKE_CTEST_COMMAND} -E '^${PROJECT_NAME}_perf.*' \${ARGS}
+    DEPENDS ${ALL_CPP_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} cpp tests")
+  add_custom_target(${PROJECT_NAME}_run_perf_tests
+    COMMAND ${CMAKE_CTEST_COMMAND} -R '^${PROJECT_NAME}_perf.*' \${ARGS}
+    DEPENDS ${ALL_CPP_PERF_TESTS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running all ${PROJECT_NAME} performance tests")
   if(COVERAGE)
     add_dependencies(${PROJECT_NAME}_run_cpp_tests ${PROJECT_NAME}_lcov-clean)
   endif()
@@ -88,5 +110,7 @@ endif()
 
 if(NOT TARGET run_cpp_tests)
   add_custom_target(run_cpp_tests)
+  add_custom_target(run_perf_tests)
 endif()
 add_dependencies(run_cpp_tests ${PROJECT_NAME}_run_cpp_tests)
+add_dependencies(run_perf_tests ${PROJECT_NAME}_run_perf_tests)
