@@ -91,7 +91,9 @@ endforeach()
 
 if(TARGET ${PROJECT_NAME}_run_cpp_tests)
   add_dependencies(${PROJECT_NAME}_run_cpp_tests ${ALL_CPP_TESTS})
-  add_dependencies(${PROJECT_NAME}_run_perf_tests ${ALL_CPP_PERF_TESTS})
+  if(ALL_CPP_PERF_TESTS)
+    add_dependencies(${PROJECT_NAME}_run_perf_tests ${ALL_CPP_PERF_TESTS})
+  endif()
 else()
   add_custom_target(${PROJECT_NAME}_run_cpp_tests
     COMMAND ${CMAKE_CTEST_COMMAND} -E '^${PROJECT_NAME}_perf.*' \${ARGS}
