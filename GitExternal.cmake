@@ -58,7 +58,8 @@ function(GIT_EXTERNAL DIR REPO TAG)
       execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
         OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
         WORKING_DIRECTORY ${DIR})
-      GIT_EXTERNAL_MESSAGE("current ref is \"${currentref}\" and tag is \"${TAG}\"")
+      GIT_EXTERNAL_MESSAGE(
+        "current ref is \"${currentref}\" and tag is \"${TAG}\"")
       if(currentref STREQUAL TAG) # nothing to do
         return()
       endif()
@@ -151,7 +152,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
           endif()
 
           # Create a unique, flat name
-          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_CURRENT_SOURCE_DIR}
+          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_SOURCE_DIR}
             ${GIT_EXTERNALS})
           string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS_BASE})
 
