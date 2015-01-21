@@ -14,6 +14,9 @@
 #     are produced
 #   ${UPPER_PROJECT_NAME}_EXCLUDE_LIBRARIES - A list of library targets
 #     to remove from the list of exported libraries
+#   ${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN - If set, use this template in
+#     preference to CMake's BasicConfigVersion-SameMajorVersion.cmake.in.
+#     The PACKAGE_VERSION variable is set before perforiming the instantiation.
 #
 # Output variables
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
@@ -384,9 +387,14 @@ configure_file(
 )
 
 # create and install ProjectConfigVersion.cmake
-write_basic_package_version_file(
-  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
+if(${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN)
+  set(PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
+  configure_file("${${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN}" "${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+else()
+  write_basic_package_version_file(
+    ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
+endif()
 
 install(
   FILES ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake
