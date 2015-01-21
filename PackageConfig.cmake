@@ -16,7 +16,7 @@
 #     to remove from the list of exported libraries
 #   ${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN - If set, use this template in
 #     preference to CMake's BasicConfigVersion-SameMajorVersion.cmake.in.
-#     The PACKAGE_VERSION variable is set before perforiming the instantiation.
+#     The PACKAGE_VERSION variable is set before performing the instantiation.
 #
 # Output variables
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
