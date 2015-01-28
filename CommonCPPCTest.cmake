@@ -94,7 +94,7 @@ if(TARGET ${PROJECT_NAME}_run_cpp_tests)
   add_dependencies(${PROJECT_NAME}_run_perf_tests ${ALL_CPP_PERF_TESTS})
 else()
   add_custom_target(${PROJECT_NAME}_run_cpp_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} -E '^${PROJECT_NAME}_perf.*' \${ARGS}
+    COMMAND ${CMAKE_CTEST_COMMAND} -E '^.*_perf.*' \${ARGS}
     DEPENDS ${ALL_CPP_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} cpp tests")
