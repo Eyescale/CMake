@@ -64,10 +64,12 @@ function(add_subproject name)
 
     # add the source sub directory to our build and set the binary dir
     # to the build tree
-    message("========== ${path} ==========")
+    set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}   ")
+    message("${ADD_SUBPROJECT_INDENT}========== ${path} ==========")
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
       "${CMAKE_BINARY_DIR}/${name}")
-    message("----------------------------")
+    message("${ADD_SUBPROJECT_INDENT}---------- ${path} ----------")
+    set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
   endif()
 endfunction()
 
