@@ -194,6 +194,8 @@ set(_config_file_subproject_find
 # if no component or file was specified, find all produced libraries
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
+  "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
+  "      set(\${_LIBRARYNAME}_LIBRARY \${_libraryname})\n"
   "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
   "    endforeach()\n"
   "  endif()\n"
@@ -254,6 +256,7 @@ file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
 file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
   "set(${PROJECT_NAME}_PREFIX_DIR ${PROJECT_BINARY_DIR})\n"
   "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR})\n"
+  "list(APPEND CMAKE_MODULE_PATH ${PROJECT_BINARY_DIR}/${CMAKE_MODULE_INSTALL_PATH})\n"
   "\n"
   ${_config_file_body}
   ${_config_file_subproject_find}
