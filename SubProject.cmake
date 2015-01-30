@@ -130,7 +130,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
 
     add_custom_target(update_git_subprojects_${PROJECT_NAME}
       COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
-      COMMENT "Recreate ${PROJECT_NAME}/.gitsubprojects"
+      COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
     if(NOT TARGET update)
