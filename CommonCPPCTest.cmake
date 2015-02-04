@@ -97,12 +97,12 @@ if(TARGET ${PROJECT_NAME}_run_cpp_tests)
   endif()
 else()
   add_custom_target(${PROJECT_NAME}_run_cpp_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} -E '^.*_perf.*' \${ARGS}
+    COMMAND ${CMAKE_CTEST_COMMAND} -E '^.*perf_.*' \${ARGS}
     DEPENDS ${ALL_CPP_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} cpp tests")
   add_custom_target(${PROJECT_NAME}_run_perf_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} -R '^${PROJECT_NAME}_perf.*' \${ARGS}
+    COMMAND ${CMAKE_CTEST_COMMAND} -R '^.*perf_.*' \${ARGS}
     DEPENDS ${ALL_CPP_PERF_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} performance tests")
