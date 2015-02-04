@@ -23,6 +23,9 @@
 # - CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR
 # - CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR
 #
+# Respects the following variables:
+# - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
+#   example for continuous integration builds
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
@@ -76,8 +79,12 @@ function(add_subproject name)
 endfunction()
 
 macro(git_subproject name url tag)
-  if(NOT BUILDYARD)
+  if(NOT BUILDYARD AND NOT DISABLE_SUBPROJECTS)
     string(TOUPPER ${name} NAME)
+    set(TAG ${tag})
+    if(SUBPROJECT_TAG)
+      set(TAG ${SUBPROJECT_TAG})
+    endif()
     if(NOT ${NAME}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
       if(NOT EXISTS ${CMAKE_SOURCE_DIR}/${name})
@@ -86,7 +93,7 @@ macro(git_subproject name url tag)
         find_package(${name} QUIET CONFIG HINTS ${CMAKE_BINARY_DIR}/${NAME})
       endif()
       if(NOT ${NAME}_FOUND)
-        git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${tag})
+        git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
         add_subproject(${name})
         find_package(${name} REQUIRED CONFIG) # find subproject "package"
         include_directories(${${NAME}_INCLUDE_DIRS})

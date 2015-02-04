@@ -50,23 +50,24 @@ foreach(FILE ${TEST_FILES})
     list(APPEND ALL_CPP_TESTS ${PROJECT_NAME}_${NAME})
   endif()
 
-  add_executable(${PROJECT_NAME}_${NAME} ${FILE})
-  set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
-    FOLDER "Tests" OUTPUT_NAME ${NAME})
-
+  set(TEST_NAME ${PROJECT_NAME}_${NAME})
   if(NOT TARGET ${NAME}) # Create target without project prefix if possible
-    add_custom_target(${NAME} DEPENDS ${PROJECT_NAME}_${NAME})
+    set(TEST_NAME ${NAME})
   endif()
+
+  add_executable(${TEST_NAME} ${FILE})
+  set_target_properties(${TEST_NAME} PROPERTIES FOLDER "Tests"
+    OUTPUT_NAME ${NAME})
 
   # Per target INCLUDE_DIRECTORIES if supported
   if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
-    set_target_properties(${PROJECT_NAME}_${NAME} PROPERTIES
+    set_target_properties(${TEST_NAME} PROPERTIES
       INCLUDE_DIRECTORIES "${${NAME}_INCLUDE_DIRECTORIES}")
   endif()
 
   # Test link libraries
-  target_link_libraries(${PROJECT_NAME}_${NAME}
-                    ${${NAME}_LINK_LIBRARIES} ${TEST_LIBRARIES})
+  target_link_libraries(${TEST_NAME}
+    ${${NAME}_LINK_LIBRARIES} ${TEST_LIBRARIES})
   # Per target test command customisation with
   # ${NAME}_TEST_PREFIX and ${NAME}_TEST_ARGS
   set(RUN_PREFIX ${TEST_PREFIX})
@@ -78,13 +79,13 @@ foreach(FILE ${TEST_FILES})
     set(RUN_ARGS ${${NAME}_TEST_ARGS})
   endif()
 
-  add_test(NAME ${PROJECT_NAME}_${NAME}
-    COMMAND ${RUN_PREFIX} $<TARGET_FILE:${PROJECT_NAME}_${NAME}> ${RUN_ARGS})
+  add_test(NAME ${TEST_NAME}
+    COMMAND ${RUN_PREFIX} $<TARGET_FILE:${TEST_NAME}> ${RUN_ARGS})
 
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
   if(TEST_LABELS)
-    set_tests_properties(${PROJECT_NAME}_${NAME} PROPERTIES
+    set_tests_properties(${TEST_NAME} PROPERTIES
       LABELS "${TEST_LABELS}")
   endif()
 endforeach()
