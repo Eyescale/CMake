@@ -44,15 +44,15 @@ foreach(FILE ${TEST_FILES})
   string(REGEX REPLACE "[./]" "_" NAME ${NAME})
   source_group(\\ FILES ${FILE})
 
-  if(NAME MATCHES "^perf.*")
-    list(APPEND ALL_CPP_PERF_TESTS ${PROJECT_NAME}_${NAME})
-  else()
-    list(APPEND ALL_CPP_TESTS ${PROJECT_NAME}_${NAME})
-  endif()
-
   set(TEST_NAME ${PROJECT_NAME}_${NAME})
   if(NOT TARGET ${NAME}) # Create target without project prefix if possible
     set(TEST_NAME ${NAME})
+  endif()
+
+  if(NAME MATCHES "^perf.*")
+    list(APPEND ALL_CPP_PERF_TESTS ${TEST_NAME})
+  else()
+    list(APPEND ALL_CPP_TESTS ${TEST_NAME})
   endif()
 
   add_executable(${TEST_NAME} ${FILE})
