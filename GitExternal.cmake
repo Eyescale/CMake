@@ -35,13 +35,6 @@ endif()
 include(CMakeParseArguments)
 
 set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
-if(NOT GIT_EXTERNAL_USER)
-  if(MSVC)
-    set(GIT_EXTERNAL_USER $ENV{USERNAME})
-  else()
-    set(GIT_EXTERNAL_USER $ENV{USER})
-  endif()
-endif()
 set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
   "Github user name used to setup remote for user forks")
 
