@@ -45,8 +45,8 @@ else()
   set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 endif()
 
-add_custom_target(make-branch_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
+add_custom_target(make_branch_${PROJECT_NAME}
+  COMMAND ${GIT_EXECUTABLE} checkout ${BRANCH_VERSION} || ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
@@ -54,7 +54,7 @@ add_custom_target(make-branch_${PROJECT_NAME}
 if(TARGET flatten_git_external)
   set(BRANCH_DEP flatten_git_external)
 else()
-  set(BRANCH_DEP make-branch_${PROJECT_NAME})
+  set(BRANCH_DEP make_branch_${PROJECT_NAME})
 endif()
 
 add_custom_target(branch_${PROJECT_NAME}
