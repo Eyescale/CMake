@@ -39,6 +39,11 @@ function(add_clangcheck _name)
     ${CLANGCHECK_EXTRA_ARGS})
   set(_exclude_pattern ".*moc_.*\\.cxx$") # Qt moc files
 
+  get_target_property(_imported_target "${_name}" IMPORTED)
+  if(_imported_target)
+    return()
+  endif()
+
   get_target_property(_clangcheck_sources "${_name}" SOURCES)
   set(_files)
   foreach(_source ${_clangcheck_sources})
