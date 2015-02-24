@@ -14,6 +14,9 @@
 #     are produced
 #   ${UPPER_PROJECT_NAME}_EXCLUDE_LIBRARIES - A list of library targets
 #     to remove from the list of exported libraries
+#   ${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN - If set, use this template in
+#     preference to CMake's BasicConfigVersion-SameMajorVersion.cmake.in.
+#     The CVF_PACKAGE_VERSION variable is set before performing the instantiation.
 #
 # Output variables
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
@@ -170,7 +173,7 @@ set(_config_file_standard_find
 set(_config_file_subproject_find
   "if(NOT ${PROJECT_NAME}_fail)\n"
 # setup INCLUDE_DIRS and DEB_DEPENDENCIES
-  "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include)\n"
+  "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${PROJECT_NAME}_PREFIX_DIR}/include \${${PROJECT_NAME}_PREFIX_DIR})\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${CPACK_PACKAGE_NAME} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${CPACK_PACKAGE_NAME}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${CPACK_PACKAGE_NAME}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -191,7 +194,13 @@ set(_config_file_subproject_find
 # if no component or file was specified, find all produced libraries
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES \"@LIBRARY_NAMES@\")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
+  "      string(TOUPPER \${_libraryname} _LIBRARYNAME)\n"
+  "      set(\${_LIBRARYNAME}_LIBRARY \${_libraryname})\n"
   "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${_libraryname})\n"
+  "      string(REPLACE \"${PROJECT_NAME}_\" \"\" _component \${_libraryname})\n"
+  "      string(TOUPPER \${_component} _COMPONENT)\n"
+  "      set(${UPPER_PROJECT_NAME}_\${_COMPONENT}_FOUND TRUE)\n"
+  "      list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "    endforeach()\n"
   "  endif()\n"
   "\n"
@@ -251,6 +260,7 @@ file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.in
 file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake.build.in
   "set(${PROJECT_NAME}_PREFIX_DIR ${PROJECT_BINARY_DIR})\n"
   "set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR})\n"
+  "list(APPEND CMAKE_MODULE_PATH ${PROJECT_BINARY_DIR}/${CMAKE_MODULE_INSTALL_PATH})\n"
   "\n"
   ${_config_file_body}
   ${_config_file_subproject_find}
@@ -384,9 +394,14 @@ configure_file(
 )
 
 # create and install ProjectConfigVersion.cmake
-write_basic_package_version_file(
-  ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
+if(${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN)
+  set(CVF_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
+  configure_file("${${UPPER_PROJECT_NAME}_CONFIG_VERSION_IN}" "${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+else()
+  write_basic_package_version_file(
+    ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
+endif()
 
 install(
   FILES ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}Config.cmake

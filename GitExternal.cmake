@@ -1,4 +1,5 @@
-# configures an external git repository
+# Configures an external git repository
+#
 # Usage:
 #  * Automatically reads, parses and updates a .gitexternals file if it only
 #    contains lines in the form "# <directory> <giturl> <gittag>".
@@ -7,18 +8,24 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE] [RESET <files>])
+#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE]
+#      [RESET <files>])
 #  git_external_manage(<file>)
 #
 # [optional] Flags which control behaviour
 #  NO_UPDATE
-#    When set, GitExternal will not change a repo that has already been checked out.
-#    The purpose of this is to allow one to set a default branch to be checked out,
-#    but stop GitExternal from changing back to that branch if the user has checked
-#    out and is working on another.
+#    When set, GitExternal will not change a repo that has already
+#    been checked out. The purpose of this is to allow one to set a
+#    default branch to be checked out, but stop GitExternal from
+#    changing back to that branch if the user has checked out and is
+#    working on another.
 #  VERBOSE
 #    When set, displays information about git commands that are executed
 #
+# CMake variables
+#  GIT_EXTERNAL_USER_FORK If set, a remote called 'user' is set up for github
+#    repositories, pointing to github.com/<user>/<project>. Defaults to user
+#    name or GIT_EXTERNAL_USER environment variable.
 
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
@@ -26,6 +33,17 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
+
+set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
+if(NOT GIT_EXTERNAL_USER)
+  if(MSVC)
+    set(GIT_EXTERNAL_USER $ENV{USERNAME})
+  else()
+    set(GIT_EXTERNAL_USER $ENV{USER})
+  endif()
+endif()
+set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
+  "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
   if(${GIT_EXTERNAL_VERBOSE})
@@ -50,6 +68,16 @@ function(GIT_EXTERNAL DIR REPO TAG)
     endif()
   endif()
 
+  # set up "user" remote for github forks
+  if(GIT_EXTERNAL_USER_FORK AND REPO MATCHES ".*github.com.*")
+    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)"
+      "\\1${GIT_EXTERNAL_USER_FORK}\\2" GIT_EXTERNAL_USER_REPO ${REPO})
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" remote add user ${GIT_EXTERNAL_USER_REPO}
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${DIR}")
+  endif()
+
   if(IS_DIRECTORY "${DIR}/.git")
     if(${GIT_EXTERNAL_NO_UPDATE})
       GIT_EXTERNAL_MESSAGE("git update disabled by user")
@@ -57,7 +85,8 @@ function(GIT_EXTERNAL DIR REPO TAG)
       execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
         OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
         WORKING_DIRECTORY ${DIR})
-      GIT_EXTERNAL_MESSAGE("current ref is \"${currentref}\" and tag is \"${TAG}\"")
+      GIT_EXTERNAL_MESSAGE(
+        "current ref is \"${currentref}\" and tag is \"${TAG}\"")
       if(currentref STREQUAL TAG) # nothing to do
         return()
       endif()
@@ -77,7 +106,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
       endforeach()
 
       # fetch latest update
-      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
+      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch origin -q
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
       if(nok)
@@ -115,7 +144,7 @@ if(NOT GIT_EXTERNALS)
   set(GIT_EXTERNALS "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals")
 endif()
 
-if(EXISTS ${GIT_EXTERNALS})
+if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
   include(${GIT_EXTERNALS})
   file(READ ${GIT_EXTERNALS} GIT_EXTERNAL_FILE)
   string(REGEX REPLACE "\n" ";" GIT_EXTERNAL_FILE "${GIT_EXTERNAL_FILE}")
@@ -150,7 +179,7 @@ if(EXISTS ${GIT_EXTERNALS})
           endif()
 
           # Create a unique, flat name
-          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_CURRENT_SOURCE_DIR}
+          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_SOURCE_DIR}
             ${GIT_EXTERNALS})
           string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS_BASE})
 
@@ -161,7 +190,7 @@ if(EXISTS ${GIT_EXTERNALS})
             file(WRITE "${GIT_EXTERNAL_SCRIPT}"
               "file(WRITE ${GIT_EXTERNALS} \"# -*- mode: cmake -*-\n\")\n")
             add_custom_target(${GIT_EXTERNAL_TARGET}
-              COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
+              COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
               COMMENT "Recreate ${GIT_EXTERNALS_BASE}"
               WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           endif()
@@ -170,7 +199,7 @@ if(EXISTS ${GIT_EXTERNALS})
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
-execute_process(COMMAND ${GIT_EXECUTABLE} fetch --all -q
+execute_process(COMMAND ${GIT_EXECUTABLE} fetch origin -q
   WORKING_DIRECTORY ${DIR})
 execute_process(
   COMMAND ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master
@@ -183,7 +212,7 @@ else()
   file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
 endif()")
           add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
-            COMMAND ${CMAKE_COMMAND} -P ${GIT_EXTERNAL_SCRIPT}
+            COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
             COMMENT "Update ${REPO} in ${GIT_EXTERNALS_BASE}"
             DEPENDS ${GIT_EXTERNAL_TARGET}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -203,7 +232,7 @@ endif()")
             COMMAND ${GIT_EXECUTABLE} add -f .
             COMMAND ${GIT_EXECUTABLE} commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
             COMMENT "Flatten ${REPO} into ${DIR}"
-            DEPENDS make-branch
+            DEPENDS make_branch_${PROJECT_NAME}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
           add_dependencies(flatten_git_external
             flatten_git_external_${GIT_EXTERNAL_NAME})
