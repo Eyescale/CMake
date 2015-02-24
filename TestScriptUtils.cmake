@@ -57,8 +57,13 @@ function(add_test_script NAME SCRIPT INTERP)
         set(RUN_ARGS ${${NAME}_TEST_ARGS})
     endif()
 
+    set(SCRIPT_PATH "${SCRIPT}")
+    if(NOT IS_ABSOLUTE "${SCRIPT_PATH}")
+	set(SCRIPT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT_PATH}")
+    endif()
+
     add_test(NAME ${NAME}
-        COMMAND ${RUN_PREFIX} ${INTERP} "${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}" ${RUN_ARGS}
+        COMMAND ${RUN_PREFIX} ${INTERP} "${SCRIPT_PATH}" ${RUN_ARGS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}") 
 
     # Add test labels

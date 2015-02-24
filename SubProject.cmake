@@ -1,21 +1,35 @@
 
-# Simple macro to add subprojects from subdirs to form a super project
-# ARGS:
-#  name = the Project name as declared in project(xxx) of the sub-project
-#  (path) = The source directory (defaults to ${name})
+# Include this file in a top-level CMakeLists to build several CMake
+# subprojects (which may depend on each other).
 #
-# Using a simple top level CMakeLists, several CMake subprojects
-# (which may depend on each other) can be built. Each subproject can
-# be added to the superproject with an add_subproject(*name*)
-# directive.
+# When included, it will automatically parse a .gitsubprojects file if one is
+# present in the same CMake source directory.
+# .gitsubprojects contains lines in the form:
+# "git_subproject(<project> <giturl> <gittag>)"
 #
-# To use the SubProject feature, the sub projects should modify their
-# CMake scripts. In the scripts CMAKE_BINARY_DIR should be changed to
-# PROJECT_BINARY_DIR and CMAKE_SOURCE_DIR should be changed to
-# PROJECT_SOURCE_DIR. A sample project can be found at
-# https://github.com/bilgili/SubProjects.git
+# All the subprojects will be cloned and configured during the CMake configure
+# step thanks to the 'git_subproject(project giturl gittag)' macro
+# (also usable separately).
+# The latter relies on the add_subproject(name) function to add projects as
+# sub directories. See also: cmake command 'add_subdirectory'.
+#
+# The following targets are created by SubProject.cmake:
+# - An 'update_git_subprojects_${PROJECT_NAME}' target to update the <gittag> of
+#   all the .gitsubprojects entries to their latest respective origin/master ref
+# - A generic 'update' target to execute 'update_git_subrojects' recursively
+#
+# To be compatible with the SubProject feature, (sub)projects might need to
+# adapt their CMake scripts in the following way:
+# - CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR
+# - CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR
+#
+# Respects the following variables:
+# - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
+#   example for continuous integration builds
+# A sample project can be found at https://github.com/Eyescale/Collage.git
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeCompatibility.cmake)
 
 function(add_subproject name)
   string(TOUPPER ${name} NAME)
@@ -53,23 +67,82 @@ function(add_subproject name)
 
     # add the source sub directory to our build and set the binary dir
     # to the build tree
-    message("========== ${path} ==========")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/${path}" "${CMAKE_BINARY_DIR}/${name}")
-    message("========== ${PROJECT_NAME} ==========")
+    set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}   ")
+    message("${ADD_SUBPROJECT_INDENT}========== ${path} ==========")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
+      "${CMAKE_BINARY_DIR}/${name}")
+    message("${ADD_SUBPROJECT_INDENT}---------- ${path} ----------")
+    set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
+    # Mark globally that we've already used name as a sub project
+    set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
   endif()
 endfunction()
 
-macro(add_git_subproject name url tag)
-  string(TOUPPER ${name} NAME)
-  if(NOT ${NAME}_FOUND)
-    if(NOT ${name}_DIR)
-      find_package(${name})
+macro(git_subproject name url tag)
+  if(NOT BUILDYARD AND NOT DISABLE_SUBPROJECTS)
+    string(TOUPPER ${name} NAME)
+    set(TAG ${tag})
+    if(SUBPROJECT_TAG AND NOT tag STREQUAL "release")
+      set(TAG ${SUBPROJECT_TAG})
     endif()
     if(NOT ${NAME}_FOUND)
-      git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${tag})
-      add_subproject(${name})
-      find_package(${name} REQUIRED) # find subproject "package"
-      include_directories(${${NAME}_INCLUDE_DIRS})
+      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+      if(NOT EXISTS ${CMAKE_SOURCE_DIR}/${name})
+        find_package(${name} QUIET CONFIG)
+      elseif(__included) # already used as a sub project, just find it:
+        find_package(${name} QUIET CONFIG HINTS ${CMAKE_BINARY_DIR}/${NAME})
+      endif()
+      if(NOT ${NAME}_FOUND)
+        git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
+        add_subproject(${name})
+        find_package(${name} REQUIRED CONFIG) # find subproject "package"
+        include_directories(${${NAME}_INCLUDE_DIRS})
+      endif()
+    endif()
+    get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+    if(__included)
+      list(APPEND __subprojects "${name} ${url} ${tag}")
     endif()
   endif()
 endmacro()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
+  set(__subprojects) # appended on each git_subproject invocation
+  include(.gitsubprojects)
+
+  if(__subprojects)
+    set(GIT_SUBPROJECTS_SCRIPT
+      "${CMAKE_CURRENT_BINARY_DIR}/UpdateSubprojects.cmake")
+    file(WRITE "${GIT_SUBPROJECTS_SCRIPT}"
+      "file(WRITE .gitsubprojects \"# -*- mode: cmake -*-\n\")\n")
+    foreach(__subproject ${__subprojects})
+      string(REPLACE " " ";" __subproject_list ${__subproject})
+      list(GET __subproject_list 0 __subproject_name)
+      list(GET __subproject_list 1 __subproject_repo)
+      set(__subproject_dir "${CMAKE_SOURCE_DIR}/${__subproject_name}")
+      file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
+        "execute_process(COMMAND ${GIT_EXECUTABLE} fetch --all -q\n"
+        "  WORKING_DIRECTORY ${__subproject_dir})\n"
+        "execute_process(COMMAND \n"
+        "  ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master\n"
+        "  OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
+        "  WORKING_DIRECTORY ${__subproject_dir})\n"
+        "if(newref)\n"
+        "  file(APPEND .gitsubprojects\n"
+        "    \"git_subproject(${__subproject_name} ${__subproject_repo} \${newref})\\n\")\n"
+        "else()\n"
+        "  file(APPEND .gitsubprojects \"git_subproject(${__subproject})\n\")\n"
+        "endif()\n")
+    endforeach()
+
+    add_custom_target(update_git_subprojects_${PROJECT_NAME}
+      COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
+      COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+    if(NOT TARGET update)
+      add_custom_target(update)
+    endif()
+    add_dependencies(update update_git_subprojects_${PROJECT_NAME})
+  endif()
+endif()

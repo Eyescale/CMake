@@ -21,7 +21,7 @@
 #   regular release build using Buildyard, which can be very time consuming.
 
 function(COMMON_DOCUMENTATION)
-  add_custom_target(${PROJECT_NAME}_doxygit
+  add_custom_target(${PROJECT_NAME}_doxygit ALL
     COMMAND ${CMAKE_COMMAND}
     -DPROJECT_NAME="${PROJECT_NAME}"
     -DDOXYGIT_TOC_POST:STRING="${DOXYGIT_TOC_POST}"
@@ -32,7 +32,7 @@ function(COMMON_DOCUMENTATION)
 
   # For meta project, separate doxygit and ${PROJECT_NAME}_doxygit
   if(NOT TARGET doxygit)
-    add_custom_target(doxygit)
+    add_custom_target(doxygit ALL)
   endif()
   add_dependencies(doxygit ${PROJECT_NAME}_doxygit)
 

@@ -79,6 +79,11 @@ function(add_cpplint _name)
       list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
     endif(add_cpplint_LINELENGTH)
 
+    get_target_property(_imported_target "${_name}" IMPORTED)
+    if(_imported_target)
+      return()
+    endif()
+
     get_target_property(_cpplint_sources "${_name}" SOURCES)
     set(_files)
     #set(_exclude_pattern ".*moc_.*\\.cxx|Buildyard/Build")
