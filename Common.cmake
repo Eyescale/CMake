@@ -129,6 +129,10 @@ if($ENV{TRAVIS})
   set(TRAVIS ON)
 endif()
 
+if(IS_DIRECTORY "/bgsys")
+    set(BLUEGENE TRUE)
+endif()
+
 include(CommonApplication)
 include(CommonCode)
 include(CommonDocumentation)
