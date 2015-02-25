@@ -15,7 +15,7 @@ libfind_pkg_check_modules(TUIO_PKGCONF TUIO)
 # Include dir
 find_path(TUIO_INCLUDE_DIR
   NAMES TUIO/TuioClient.h
-  PATHS ${TUIO_PKGCONF_INCLUDE_DIRS} ${TUIO_ROOT} $ENV{TUIO_ROOT}
+  PATHS ${TUIO_PKGCONF_INCLUDE_DIRS} ${TUIO_ROOT}/include $ENV{TUIO_ROOT}/include
 )
 
 # also add the TUIO/ directory to the include path
@@ -27,7 +27,7 @@ SET(TUIO_INCLUDE_DIR_3 "${TUIO_INCLUDE_DIR}/oscpack")
 # Finally the library itself
 find_library(TUIO_LIBRARY
   NAMES TUIO
-  PATHS ${TUIO_PKGCONF_LIBRARY_DIRS} ${TUIO_ROOT} $ENV{TUIO_ROOT}
+  PATHS ${TUIO_PKGCONF_LIBRARY_DIRS} ${TUIO_ROOT}/lib $ENV{TUIO_ROOT}/lib
 )
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
