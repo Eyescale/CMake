@@ -121,7 +121,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       list(GET __subproject_list 1 __subproject_repo)
       set(__subproject_dir "${CMAKE_SOURCE_DIR}/${__subproject_name}")
       file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
-        "execute_process(COMMAND ${GIT_EXECUTABLE} fetch --all -q\n"
+        "execute_process(COMMAND ${GIT_EXECUTABLE} fetch origin -q\n"
         "  WORKING_DIRECTORY ${__subproject_dir})\n"
         "execute_process(COMMAND \n"
         "  ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master\n"
