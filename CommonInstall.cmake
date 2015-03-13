@@ -7,8 +7,8 @@
 # directly into the DESTINATION, that is, their directory is not
 # preserved. If RELATIVE is set, directories are ignored on all files.
 
-# Usage: install_files(FILES <files> [COMPONENT <name>] [DESTINATION <prefix>]
-#                      [RELATIVE])
+# Usage: common_install(FILES <files> [COMPONENT <name>] [DESTINATION <prefix>]
+#                       [RELATIVE])
 
 include(CMakeParseArguments)
 
