@@ -10,8 +10,8 @@ include(CpplintTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
-set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction --suppress=missingInclude
-  -I${OUTPUT_INCLUDE_DIR} -D${UPPER_PROJECT_NAME}_STATIC=)
+set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction
+  -D${UPPER_PROJECT_NAME}_STATIC= -D${UPPER_PROJECT_NAME}_API=)
 
 # only ever define this macro once, just in case sub-projects include the same rules
 get_property(ADD_EXE_DEFINED GLOBAL PROPERTY ADD_EXE_MACRO_DEFINED)
