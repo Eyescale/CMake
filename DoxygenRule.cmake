@@ -89,7 +89,7 @@ add_dependencies(doxygen_html ${PROJECT_NAME}_doxygen_html)
 
 if(COVERAGE)
   # CoverageReport generated in this case
-  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html tests)
+  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html ${PROJECT_NAME}_lcov-html)
 else()
   add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html)
 endif()

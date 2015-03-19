@@ -17,9 +17,8 @@ if(ENABLE_COVERAGE)
       string(REGEX REPLACE ".+([0-9]+\\.[0-9]+)" "\\1" LCOV_VERSION
         ${LCOV_VERSION})
     endif()
-    if( GCC_COMPILER_VERSION VERSION_GREATER 4.6.99 AND
-        LCOV_VERSION VERSION_LESS 1.10)
-      message(FATAL_ERROR "Need lcov >= 1.10 for gcc ${GCC_COMPILER_VERSION}, found lcov ${LCOV_VERSION}")
+    if(LCOV_VERSION VERSION_LESS 1.10)
+      message(FATAL_ERROR "lcov >= 1.10 needed, found lcov ${LCOV_VERSION}")
     endif()
     if(LCOV AND GENHTML)
       set(COVERAGE ON)
@@ -61,17 +60,17 @@ macro(COVERAGE_REPORT)
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
   add_custom_target(${PROJECT_NAME}_lcov-gather
-    COMMAND ${LCOV} --directory . --capture --output-file lcov.info
+    COMMAND ${LCOV} -q --capture --directory . --no-external --directory ${PROJECT_SOURCE_DIR} --output-file lcov.info
     COMMENT "Capturing code coverage counters"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${ARGV})
   add_custom_target(${PROJECT_NAME}_lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '*.l' 'CMake/test/*' '*/install/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS ${PROJECT_NAME}_lcov-gather)
   add_custom_target(${PROJECT_NAME}_lcov-html
-    COMMAND ${GENHTML} -q ${COVERAGE_LIMITS} -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
+    COMMAND ${GENHTML} -q --title ${PROJECT_NAME} ${COVERAGE_LIMITS} -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
     COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
     DEPENDS ${PROJECT_NAME}_lcov-remove)
