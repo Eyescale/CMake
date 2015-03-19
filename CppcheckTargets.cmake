@@ -62,6 +62,10 @@ function(add_cppcheck _name)
     --inline-suppr --suppress=preprocessorErrorDirective
     ${CPPCHECK_EXTRA_ARGS})
 
+  if(CPPCHECK_VERSION VERSION_LESS 1.68)
+    list(APPEND _cppcheck_args --suppress=unmatchedSuppression)
+  endif()
+
   list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
   if("${_unused_func}" GREATER "-1")
     list(APPEND _cppcheck_args ${CPPCHECK_UNUSEDFUNC_ARG})
