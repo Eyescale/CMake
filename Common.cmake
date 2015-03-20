@@ -82,6 +82,11 @@ add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
 if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
 endif()
+if(NOT "$ENV{BOOST_ROOT}" STREQUAL "" OR
+    NOT "$ENV{BOOST_LIBRARYDIR}" STREQUAL "")
+  # Fix find of non-system Boost
+  option(Boost_NO_SYSTEM_PATHS "Disable system paths for FindBoost" ON)
+endif()
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
