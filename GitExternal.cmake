@@ -12,14 +12,14 @@
 #      [RESET <files>])
 #  git_external_manage(<file>)
 #
-# [optional] Flags which control behaviour
-#  NO_UPDATE
+# Options which control behaviour:
+#  GIT_EXTERNAL_DISABLE_UPDATE
 #    When set, GitExternal will not change a repo that has already
 #    been checked out. The purpose of this is to allow one to set a
 #    default branch to be checked out, but stop GitExternal from
 #    changing back to that branch if the user has checked out and is
 #    working on another.
-#  VERBOSE
+#  GIT_EXTERNAL_VERBOSE
 #    When set, displays information about git commands that are executed
 #
 # CMake variables
@@ -33,6 +33,8 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
+option(GIT_EXTERNAL_DISABLE_UPDATE "Disable update of cloned repositories" ON)
+option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
 
 set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
 if(NOT GIT_EXTERNAL_USER)
@@ -46,13 +48,13 @@ set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
   "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
-  if(${GIT_EXTERNAL_VERBOSE})
+  if(GIT_EXTERNAL_VERBOSE)
     message(STATUS "${NAME} : ${msg}")
   endif()
 endmacro(GIT_EXTERNAL_MESSAGE)
 
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL "NO_UPDATE;VERBOSE" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
   get_filename_component(DIR  "${DIR}" ABSOLUTE)
   get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
@@ -79,7 +81,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   endif()
 
   if(IS_DIRECTORY "${DIR}/.git")
-    if(${GIT_EXTERNAL_NO_UPDATE})
+    if(GIT_EXTERNAL_DISABLE_UPDATE)
       GIT_EXTERNAL_MESSAGE("git update disabled by user")
     else()
       execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
