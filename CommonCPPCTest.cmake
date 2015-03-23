@@ -24,6 +24,9 @@
 #   and additional arguments to follow the test executable.
 # * TEST_LABEL sets the LABEL property on each generated test;
 #   ${NAME}_TEST_LABEL specifies an additional label.
+# * UNIT_AND_PERF_TESTS a list with files which should be compiled
+#   also as performance tests. The unit test will be named 'file',
+#   whereas the performance test will be named 'perf_file'.
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -39,11 +42,8 @@ list(SORT TEST_FILES)
 
 set(ALL_CPP_TESTS)
 set(ALL_CPP_PERF_TESTS)
-foreach(FILE ${TEST_FILES})
-  string(REGEX REPLACE "\\.(c|cpp)$" "" NAME ${FILE})
-  string(REGEX REPLACE "[./]" "_" NAME ${NAME})
-  source_group(\\ FILES ${FILE})
 
+macro(common_add_cpp_test NAME FILE)
   set(TEST_NAME ${PROJECT_NAME}_${NAME})
   if(NOT TARGET ${NAME}) # Create target without project prefix if possible
     set(TEST_NAME ${NAME})
@@ -87,6 +87,18 @@ foreach(FILE ${TEST_FILES})
   if(TEST_LABELS)
     set_tests_properties(${TEST_NAME} PROPERTIES
       LABELS "${TEST_LABELS}")
+  endif()
+endmacro()
+
+foreach(FILE ${TEST_FILES})
+  string(REGEX REPLACE "\\.(c|cpp)$" "" NAME ${FILE})
+  string(REGEX REPLACE "[./]" "_" NAME ${NAME})
+  source_group(\\ FILES ${FILE})
+
+  common_add_cpp_test(${NAME} ${FILE})
+  list(FIND UNIT_AND_PERF_TESTS ${FILE} ADD_PERF_TEST)
+  if(ADD_PERF_TEST GREATER -1)
+    common_add_cpp_test(perf_${NAME} ${FILE})
   endif()
 endforeach()
 
