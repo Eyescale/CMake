@@ -58,9 +58,8 @@ function(add_cppcheck _name)
     set(CPPCHECK_IGNORED_PATHS -i${_ignored_paths})
   endif(CPPCHECK_IGNORED_PATHS)
 
-  set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} -I ${PROJECT_SOURCE_DIR}
-    --error-exitcode=2 --inline-suppr
-    --suppress=unmatchedSuppression --suppress=preprocessorErrorDirective
+  set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} --error-exitcode=2
+    --inline-suppr --suppress=preprocessorErrorDirective
     ${CPPCHECK_EXTRA_ARGS})
 
   list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
