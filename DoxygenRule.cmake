@@ -1,6 +1,6 @@
 # Copyright (c) 2012-2014 Stefan Eilemann <eile@eyescale.ch>
 
-# Configures a Doxyfile and provides doxygen and doxygit targets. Relies on
+# Configures a Doxyfile and provides doxygen and doxycopy targets. Relies on
 # TargetHooks installed by Common and must be included after all targets!
 #
 # Input Variables
@@ -16,16 +16,29 @@
 #   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
 #
+# Optional project information
+# Output to a metadata file for html index page generation by Jekyll
+# * ${UPPER_PROJECT_NAME}_DESCRIPTION A short description of the project
+# * ${UPPER_PROJECT_NAME}_ISSUES_URL A link pointing to the ticket tracker
+# * ${UPPER_PROJECT_NAME}_PACKAGE_URL A link pointing to the package repository
+# * ${UPPER_PROJECT_NAME}_MATURITY EP, RD or RS
+#
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
 # * DOXYGEN_CONFIG_FILE or one is auto-configured
 # * COMMON_ORGANIZATION_NAME (from GithubInfo. Defaults to: Unknown)
 # * COMMON_PROJECT_DOMAIN a reverse DNS name. (Defaults to: org.doxygen)
 #
+# Generated targets
 # * doxygen runs doxygen after compiling and installing the project
-# * doxygit runs doxygen and installs the documentation in
+# * doxycopy runs doxygen and copies the documentation to the documention git
+#   repository, which is assumed to be located at:
 #   PROJECT_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
 #   PROJECT_SOURCE_DIR/../GIT_ORIGIN_org
+#   When using Buildyard, this repository is automatically cloned if it was
+#   correctly declared as a project dependency.
+#   When using subprojects, it is the responsiblity of the user to clone
+#   the documentation repository in the project's parent folder.
 
 find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
@@ -89,7 +102,7 @@ add_dependencies(doxygen_html ${PROJECT_NAME}_doxygen_html)
 
 if(COVERAGE)
   # CoverageReport generated in this case
-  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html ${PROJECT_NAME}_lcov-html)
+  add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html tests)
 else()
   add_custom_target(${PROJECT_NAME}_doxygen DEPENDS ${PROJECT_NAME}_doxygen_html)
 endif()
@@ -104,16 +117,33 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
   DESTINATION ${DOC_DIR}/API
   COMPONENT doc CONFIGURATIONS Release)
 
+set(_jekyll_md_file "${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}.md")
+file(WRITE ${_jekyll_md_file}
+"---\n"
+"name: ${PROJECT_NAME}\n"
+"version: ${VERSION_MAJOR}.${VERSION_MINOR}\n"
+"description: ${${UPPER_PROJECT_NAME}_DESCRIPTION}\n"
+"issuesurl: ${${UPPER_PROJECT_NAME}_ISSUES_URL}\n"
+"packageurl: ${${UPPER_PROJECT_NAME}_PACKAGE_URL}\n"
+"maturity: ${${UPPER_PROJECT_NAME}_MATURITY}\n"
+"---\n")
+
 if(GIT_DOCUMENTATION_REPO)
   set(_GIT_DOC_SRC_DIR "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
-  set(GIT_DOCUMENTATION_DIR
-    ${_GIT_DOC_SRC_DIR}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
 
-  add_custom_target(${PROJECT_NAME}_doxycopy
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
-    COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
-    DEPENDS ${PROJECT_NAME}_doxygen VERBATIM)
+  if(IS_DIRECTORY ${_GIT_DOC_SRC_DIR})
+    set(GIT_DOCUMENTATION_DIR
+      ${_GIT_DOC_SRC_DIR}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    add_custom_target(${PROJECT_NAME}_doxycopy
+      COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy ${_jekyll_md_file} ${_GIT_DOC_SRC_DIR}/_projects
+      COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
+      DEPENDS ${PROJECT_NAME}_doxygen VERBATIM)
+  else()
+    add_custom_target(${PROJECT_NAME}_doxycopy
+      COMMENT "doxycopy target not available, missing ${_GIT_DOC_SRC_DIR}")
+  endif()
 else()
   add_custom_target(${PROJECT_NAME}_doxycopy
     COMMENT "doxycopy target not available, missing GIT_DOCUMENTATION_REPO")
