@@ -8,9 +8,11 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE]
-#      [RESET <files>])
-#  git_external_manage(<file>)
+#      git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE]
+#        [RESET <files>])
+#    which will check out directory in CMAKE_SOURCE_DIR (if relative)
+#    or in the given absolute path using the given repository and tag
+#    (commit-ish).
 #
 # Options which control behaviour:
 #  GIT_EXTERNAL_DISABLE_UPDATE
@@ -51,11 +53,28 @@ macro(GIT_EXTERNAL_MESSAGE msg)
   if(GIT_EXTERNAL_VERBOSE)
     message(STATUS "${NAME} : ${msg}")
   endif()
-endmacro(GIT_EXTERNAL_MESSAGE)
+endmacro()
 
 function(GIT_EXTERNAL DIR REPO TAG)
   cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
-  get_filename_component(DIR  "${DIR}" ABSOLUTE)
+
+  # check if we had a previous external of the same name
+  string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
+  get_property(OLD_TAG GLOBAL PROPERTY ${TARGET}_GITEXTERNAL_TAG)
+  if(OLD_TAG)
+    if(NOT OLD_TAG STREQUAL TAG)
+      string(REPLACE "${CMAKE_SOURCE_DIR}/" "" PWD
+        "${CMAKE_CURRENT_SOURCE_DIR}")
+      message(STATUS "${DIR}: already configured with ${OLD_TAG}, ignoring requested ${TAG} in ${PWD}")
+      return()
+    endif()
+  else()
+    set_property(GLOBAL PROPERTY ${TARGET}_GITEXTERNAL_TAG ${TAG})
+  endif()
+
+  if(NOT IS_ABSOLUTE "${DIR}")
+    set(DIR "${CMAKE_SOURCE_DIR}/${DIR}")
+  endif()
   get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
@@ -80,64 +99,66 @@ function(GIT_EXTERNAL DIR REPO TAG)
       WORKING_DIRECTORY "${DIR}")
   endif()
 
-  if(IS_DIRECTORY "${DIR}/.git")
-    if(GIT_EXTERNAL_DISABLE_UPDATE)
-      GIT_EXTERNAL_MESSAGE("git update disabled by user")
-    else()
-      execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-        OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
-        WORKING_DIRECTORY ${DIR})
-      GIT_EXTERNAL_MESSAGE(
-        "current ref is \"${currentref}\" and tag is \"${TAG}\"")
-      if(currentref STREQUAL TAG) # nothing to do
-        return()
-      endif()
+  if(NOT IS_DIRECTORY "${DIR}/.git")
+    message(STATUS "Can't update git external ${DIR}: Not a git repository")
+    return()
+  endif()
 
-      # reset generated files
-      foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
-        GIT_EXTERNAL_MESSAGE("git reset -q ${GIT_EXTERNAL_RESET_FILE}")
-        execute_process(
-          COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
-          RESULT_VARIABLE nok ERROR_VARIABLE error
-          WORKING_DIRECTORY "${DIR}")
-        GIT_EXTERNAL_MESSAGE("git checkout -q -- ${GIT_EXTERNAL_RESET_FILE}")
-        execute_process(
-          COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
-          RESULT_VARIABLE nok ERROR_VARIABLE error
-          WORKING_DIRECTORY "${DIR}")
-      endforeach()
+  if(GIT_EXTERNAL_DISABLE_UPDATE)
+    git_external_message("git update disabled by user")
+    return()
+  endif()
 
-      # fetch latest update
-      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch origin -q
-        RESULT_VARIABLE nok ERROR_VARIABLE error
-        WORKING_DIRECTORY "${DIR}")
-      if(nok)
-        message(STATUS "Update of ${DIR} failed:\n   ${error}")
-      endif()
+  # update to given tag
+  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+    OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
+    WORKING_DIRECTORY ${DIR})
+  git_external_message(
+    "current ref is \"${currentref}\" and tag is \"${TAG}\"")
+  if(currentref STREQUAL TAG) # nothing to do
+    return()
+  endif()
 
-      # update tag
-      GIT_EXTERNAL_MESSAGE("git rebase FETCH_HEAD")
-      execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
-        RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
-        WORKING_DIRECTORY "${DIR}")
-      if(RESULT)
-        message(STATUS "git rebase failed, aborting ${DIR} merge")
-        execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
-          WORKING_DIRECTORY "${DIR}")
-      endif()
+  # reset generated files
+  foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
+    git_external_message("git reset -q ${GIT_EXTERNAL_RESET_FILE}")
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${DIR}")
+    git_external_message("git checkout -q -- ${GIT_EXTERNAL_RESET_FILE}")
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${DIR}")
+  endforeach()
 
-      # checkout requested tag
-      execute_process(
-        COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
-        RESULT_VARIABLE nok ERROR_VARIABLE error
-        WORKING_DIRECTORY "${DIR}"
-        )
-      if(nok)
-        message(STATUS "git checkout ${TAG} in ${DIR} failed: ${error}\n")
-      endif()
-    else()
-      message(STATUS "Can't update git external ${DIR}: Not a git repository")
-    endif()
+  # fetch latest update
+  execute_process(COMMAND "${GIT_EXECUTABLE}" fetch origin -q
+    RESULT_VARIABLE nok ERROR_VARIABLE error
+    WORKING_DIRECTORY "${DIR}")
+  if(nok)
+    message(STATUS "Update of ${DIR} failed:\n   ${error}")
+  endif()
+
+  # update tag
+  git_external_message("git rebase FETCH_HEAD")
+  execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
+    RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
+    WORKING_DIRECTORY "${DIR}")
+  if(RESULT)
+    message(STATUS "git rebase failed, aborting ${DIR} merge")
+    execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
+      WORKING_DIRECTORY "${DIR}")
+  endif()
+
+  # checkout requested tag
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+    RESULT_VARIABLE nok ERROR_VARIABLE error
+    WORKING_DIRECTORY "${DIR}")
+  if(nok)
+    message(STATUS "git checkout ${TAG} in ${DIR} failed: ${error}\n")
   endif()
 endfunction()
 

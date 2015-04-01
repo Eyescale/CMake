@@ -3,9 +3,11 @@
 # subprojects (which may depend on each other).
 #
 # When included, it will automatically parse a .gitsubprojects file if one is
-# present in the same CMake source directory.
-# .gitsubprojects contains lines in the form:
-# "git_subproject(<project> <giturl> <gittag>)"
+# present in the same CMake source directory. The .gitsubprojects file
+# contains lines in the form:
+#   "git_subproject(<project> <giturl> <gittag>)"
+# Will also parse Buildyard config files in the current directory and
+# activate all configurations which have <NAME>_SUBPROJECT set.
 #
 # All the subprojects will be cloned and configured during the CMake configure
 # step thanks to the 'git_subproject(project giturl gittag)' macro
@@ -101,8 +103,10 @@ macro(git_subproject name url tag)
       if(NOT ${NAME}_FOUND)
         git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
         add_subproject(${name})
-        find_package(${name} REQUIRED CONFIG) # find subproject "package"
-        include_directories(${${NAME}_INCLUDE_DIRS})
+        if(NOT ${NAME}_FOUND)
+          find_package(${name} REQUIRED CONFIG) # find subproject "package"
+          include_directories(${${NAME}_INCLUDE_DIRS})
+        endif()
       endif()
     endif()
     get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
@@ -112,6 +116,7 @@ macro(git_subproject name url tag)
   endif()
 endmacro()
 
+# Interpret .gitsubprojects
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
   set(__subprojects) # appended on each git_subproject invocation
   include(.gitsubprojects)
@@ -152,3 +157,42 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
     add_dependencies(update update_git_subprojects_${PROJECT_NAME})
   endif()
 endif()
+
+# interpret Buildyard project.cmake and depends.txt configurations
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/depends.txt")
+  file(READ depends.txt SUBPROJECT_DEPENDS)
+  string(REGEX REPLACE "#[^\n]*" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
+  string(REGEX REPLACE "^\n" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
+  string(REGEX REPLACE "[ \n]" ";" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
+
+  list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
+  while(SUBPROJECT_DEPENDS_LEFT GREATER 2)
+    list(GET SUBPROJECT_DEPENDS 0 SUBPROJECT_DEPENDS_DIR)
+    list(GET SUBPROJECT_DEPENDS 1 SUBPROJECT_DEPENDS_REPO)
+    list(GET SUBPROJECT_DEPENDS 2 SUBPROJECT_DEPENDS_TAG)
+    list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
+    list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
+
+    git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
+      ${SUBPROJECT_DEPENDS_TAG})
+  endwhile()
+endif()
+
+file(GLOB _files *.cmake)
+foreach(_file ${_files})
+  string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" _config ${_file})
+  list(APPEND _localFiles ${_config})
+
+  string(REPLACE ".cmake" "" Name ${_config})
+  get_filename_component(NAME ${Name} NAME)
+  string(TOUPPER ${NAME} NAME)
+  set(${NAME}_DIR ${BASEDIR})
+  include(${_file})
+
+  if(${NAME}_SUBPROJECT)
+    if(NOT ${NAME}_REPO_TAG)
+      set(${NAME}_REPO_TAG master)
+    endif()
+    git_subproject(${Name} ${${NAME}_REPO_URL} ${${NAME}_REPO_TAG})
+  endif()
+endforeach()
