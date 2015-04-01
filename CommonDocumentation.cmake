@@ -12,6 +12,7 @@
 # documentation folders and 'git add' the changes.
 #
 # Input (optional):
+# * DOXYGIT_GENERATE_INDEX generate an index.html page (default: OFF)
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory (default: 10)
 # * DOXYGIT_TOC_POST html content to insert in 'index.html' (default: '')
 #
@@ -24,6 +25,7 @@ function(COMMON_DOCUMENTATION)
   add_custom_target(${PROJECT_NAME}_doxygit ALL
     COMMAND ${CMAKE_COMMAND}
     -DPROJECT_NAME="${PROJECT_NAME}"
+    -DDOXYGIT_GENERATE_INDEX="${DOXYGIT_GENERATE_INDEX}"
     -DDOXYGIT_TOC_POST:STRING="${DOXYGIT_TOC_POST}"
     -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P "${PROJECT_SOURCE_DIR}/CMake/common/Doxygit.cmake"
