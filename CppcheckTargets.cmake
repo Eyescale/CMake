@@ -36,10 +36,6 @@ if(NOT CPPCHECK_FOUND)
   set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif()
 
-if(NOT TARGET cppcheck_${PROJECT_NAME})
-  add_custom_target(cppcheck_${PROJECT_NAME})
-endif()
-
 if(NOT TARGET cppcheck)
   add_custom_target(cppcheck DEPENDS cppcheck_${PROJECT_NAME})
 endif()
@@ -127,5 +123,9 @@ function(add_cppcheck _name)
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "cppcheck_run_${_name}: Running cppcheck on target ${_name}..."
     VERBATIM)
+
+  if(NOT TARGET cppcheck_${PROJECT_NAME})
+    add_custom_target(cppcheck_${PROJECT_NAME})
+  endif()
   add_dependencies(cppcheck_${PROJECT_NAME} cppcheck_run_${_name})
 endfunction()
