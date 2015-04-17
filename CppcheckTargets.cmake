@@ -56,7 +56,7 @@ function(add_cppcheck _name)
 
   set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} --error-exitcode=2
     --inline-suppr --suppress=preprocessorErrorDirective
-    ${CPPCHECK_EXTRA_ARGS})
+    --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
 
   if(CPPCHECK_VERSION VERSION_LESS 1.68)
     list(APPEND _cppcheck_args --suppress=unmatchedSuppression)
