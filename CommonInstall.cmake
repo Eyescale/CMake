@@ -42,6 +42,6 @@ function(COMMON_INSTALL)
     install(FILES ${FILE} DESTINATION ${THIS_DESTINATION}/${DIR}
       ${THIS_COMPONENT})
     configure_file(${FILE}
-      ${THIS_BINARY_DIR}/${THIS_DESTINATION}/${DIR}/${BASENAME} @COPYONLY)
+      ${THIS_BINARY_DIR}/${THIS_DESTINATION}/${DIR}/${BASENAME} COPYONLY)
   endforeach()
 endfunction()
