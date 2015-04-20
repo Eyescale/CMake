@@ -34,6 +34,11 @@
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeCompatibility.cmake)
 
+if(TARGET git_subproject_${PROJECT_NAME}_done)
+  return()
+endif()
+add_custom_target(git_subproject_${PROJECT_NAME}_done)
+
 function(add_subproject name)
   string(TOUPPER ${name} NAME)
   if(CMAKE_MODULE_PATH)

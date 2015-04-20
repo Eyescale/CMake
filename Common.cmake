@@ -19,6 +19,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.cmake)
   include(${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.cmake)
 endif()
 include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+include(SubProject)
 include(GitInfo)
 
 enable_testing()
