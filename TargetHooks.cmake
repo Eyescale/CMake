@@ -10,7 +10,7 @@ include(CpplintTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
-set(CPPCHECK_EXTRA_ARGS --suppress=unusedFunction
+set(CPPCHECK_EXTRA_ARGS
   -D${UPPER_PROJECT_NAME}_STATIC= -D${UPPER_PROJECT_NAME}_API=)
 
 # only ever define this macro once, just in case sub-projects include the same rules

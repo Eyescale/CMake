@@ -55,12 +55,9 @@ function(add_cppcheck _name)
   endif(CPPCHECK_IGNORED_PATHS)
 
   set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} --error-exitcode=2
-    --inline-suppr --suppress=preprocessorErrorDirective
-    --suppress=unmatchedSuppression ${CPPCHECK_EXTRA_ARGS})
-
-  if(CPPCHECK_VERSION VERSION_LESS 1.68)
-    list(APPEND _cppcheck_args --suppress=unmatchedSuppression)
-  endif()
+    --inline-suppr --suppress=unusedFunction --suppress=unmatchedSuppression
+    --suppress=missingInclude --suppress=preprocessorErrorDirective
+    ${CPPCHECK_EXTRA_ARGS})
 
   list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
   if("${_unused_func}" GREATER "-1")
