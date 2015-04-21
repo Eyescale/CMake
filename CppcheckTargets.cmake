@@ -37,7 +37,7 @@ if(NOT CPPCHECK_FOUND)
 endif()
 
 if(NOT TARGET cppcheck)
-  add_custom_target(cppcheck DEPENDS cppcheck_${PROJECT_NAME})
+  add_custom_target(cppcheck)
 endif()
 
 function(add_cppcheck _name)
@@ -113,13 +113,11 @@ function(add_cppcheck _name)
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
   set_tests_properties(cppcheck_test_${_name}
-    PROPERTIES
-    FAIL_REGULAR_EXPRESSION
-    "${CPPCHECK_FAIL_REGULAR_EXPRESSION}")
+    PROPERTIES FAIL_REGULAR_EXPRESSION "${CPPCHECK_FAIL_REGULAR_EXPRESSION}")
 
   add_custom_target(cppcheck_run_${_name}
-    COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG} ${CPPCHECK_TEMPLATE_ARG}
-      ${_cppcheck_args} ${_files}
+    COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG}
+      ${CPPCHECK_TEMPLATE_ARG} ${_cppcheck_args} ${_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "cppcheck_run_${_name}: Running cppcheck on target ${_name}..."
     VERBATIM)
@@ -128,4 +126,5 @@ function(add_cppcheck _name)
     add_custom_target(cppcheck_${PROJECT_NAME})
   endif()
   add_dependencies(cppcheck_${PROJECT_NAME} cppcheck_run_${_name})
+  add_dependencies(cppcheck cppcheck_${PROJECT_NAME})
 endfunction()

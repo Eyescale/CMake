@@ -1,15 +1,15 @@
 # Copyright (c) 2010 Daniel Pfeifer
-#               2010-2014, Stefan Eilemann <eile@eyescale.ch>
+#               2010-2015, Stefan Eilemann <eile@eyescale.ch>
 #               2014, Juan Hernando <jhernando@fi.upm.es>
 #
-# Creates run_cpp_tests and run_perf_tests targets. The first one
-# creates a test for each .c or .cpp file in the current directory
-# tree, excluding the ones which start with perf (either as top-level
-# directory name or filename). The latter are added to run_perf_tests,
-# and are not meant to be executed with each test run. Both targets
-# will update and compile the test executables before invoking
-# ctest. CommonCTests includes the targets into the more general
-# 'tests' and 'perftests' targets, respectively.
+# Creates cpptests and perftests targets. The first one creates a test
+# for each .c or .cpp file in the current directory tree, excluding
+# the ones which start with perf (either as top-level directory name
+# or filename). The latter are added to perftests, and are not meant
+# to be executed with each test run. Both targets will update and
+# compile the test executables before invoking ctest. CommonCTests
+# includes the targets into the more general 'tests' and 'perftests'
+# targets, respectively.
 #
 # Input:
 # * TEST_LIBRARIES link each test executables against these libraries
@@ -28,7 +28,7 @@
 #   also as performance tests. The unit test will be named 'file',
 #   whereas the performance test will be named 'perf_file'.
 
-if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
+if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath support
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
@@ -102,30 +102,28 @@ foreach(FILE ${TEST_FILES})
   endif()
 endforeach()
 
-if(TARGET ${PROJECT_NAME}_run_cpp_tests)
-  add_dependencies(${PROJECT_NAME}_run_cpp_tests ${ALL_CPP_TESTS})
+if(TARGET ${PROJECT_NAME}_cpptests)
+  add_dependencies(${PROJECT_NAME}_cpptests ${ALL_CPP_TESTS})
   if(ALL_CPP_PERF_TESTS)
-    add_dependencies(${PROJECT_NAME}_run_perf_tests ${ALL_CPP_PERF_TESTS})
+    add_dependencies(${PROJECT_NAME}_perftests ${ALL_CPP_PERF_TESTS})
   endif()
 else()
-  add_custom_target(${PROJECT_NAME}_run_cpp_tests
+  add_custom_target(${PROJECT_NAME}_cpptests
     COMMAND ${CMAKE_CTEST_COMMAND} -E '^.*perf_.*' \${ARGS}
     DEPENDS ${ALL_CPP_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} cpp tests")
-  add_custom_target(${PROJECT_NAME}_run_perf_tests
+  add_custom_target(${PROJECT_NAME}_perftests
     COMMAND ${CMAKE_CTEST_COMMAND} -R '^.*perf_.*' \${ARGS}
     DEPENDS ${ALL_CPP_PERF_TESTS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} performance tests")
-  if(COVERAGE)
-    add_dependencies(${PROJECT_NAME}_run_cpp_tests ${PROJECT_NAME}_lcov-clean)
-  endif()
 endif()
 
-if(NOT TARGET run_cpp_tests)
-  add_custom_target(run_cpp_tests)
-  add_custom_target(run_perf_tests)
+add_dependencies(${PROJECT_NAME}_tests ${PROJECT_NAME}_cpptests)
+add_dependencies(tests ${PROJECT_NAME}_tests)
+add_dependencies(perftests ${PROJECT_NAME}_perftests)
+if(COVERAGE)
+  add_dependencies(${PROJECT_NAME}_cpptests ${PROJECT_NAME}_lcov-clean)
+  coverage_report(${PROJECT_NAME}_cpptests)
 endif()
-add_dependencies(run_cpp_tests ${PROJECT_NAME}_run_cpp_tests)
-add_dependencies(run_perf_tests ${PROJECT_NAME}_run_perf_tests)
