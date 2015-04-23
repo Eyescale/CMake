@@ -1,7 +1,8 @@
-# hooks to gather targets in global properties ${PROJECT_NAME}_ALL_DEP_TARGETS and
-# ${PROJECT_NAME}_ALL_LIB_TARGETS for future processing
-# We add ${PROJECT_NAME}_ to the start of the global property so that when
-# multiple subprojects are built in a single go, the properties are unique per project
+# hooks to gather targets in global properties
+# ${PROJECT_NAME}_ALL_DEP_TARGETS and ${PROJECT_NAME}_ALL_LIB_TARGETS
+# for future processing. We add ${PROJECT_NAME}_ to the start of the
+# global property so that when multiple subprojects are built in a
+# single go, the properties are unique per project
 
 include(CMakeParseArguments)
 include(clangcheckTargets)
@@ -13,28 +14,37 @@ set(ALL_LIB_TARGETS "")
 set(CPPCHECK_EXTRA_ARGS
   -D${UPPER_PROJECT_NAME}_STATIC= -D${UPPER_PROJECT_NAME}_API=)
 
-# only ever define this macro once, just in case sub-projects include the same rules
+# only ever define this macro once, in case subprojects include the same rules
 get_property(ADD_EXE_DEFINED GLOBAL PROPERTY ADD_EXE_MACRO_DEFINED)
 if(NOT ADD_EXE_DEFINED)
   set_property(GLOBAL PROPERTY ADD_EXE_MACRO_DEFINED "1")
   macro(add_executable _target)
     _add_executable(${_target} ${ARGN})
     add_clangcheck(${_target})
-    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_QT_MOC_FILES)
+    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS
+      EXCLUDE_QT_MOC_FILES)
     add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams
       EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
-    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${_target})
+
+    # ignore IMPORTED add_library from finders (e.g. Qt)
+    cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
+
+    if(NOT _arg_IMPORTED)
+      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS
+        ${_target})
+    endif()
   endmacro()
 endif()
 
-# only ever define this macro once, just in case sub-projects include the same rules
+# only ever define this macro once, in case subprojects include the same rules
 get_property(ADD_LIBRARY_DEFINED GLOBAL PROPERTY ADD_LIBRARY_MACRO_DEFINED)
 if(NOT ADD_LIBRARY_DEFINED)
   set_property(GLOBAL PROPERTY ADD_LIBRARY_MACRO_DEFINED "1")
   macro(add_library _target)
     _add_library(${_target} ${ARGN})
     add_clangcheck(${_target})
-    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_QT_MOC_FILES)
+    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS
+      EXCLUDE_QT_MOC_FILES)
     add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams
       EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
 
@@ -68,9 +78,10 @@ if(NOT ADD_LIBRARY_DEFINED)
       set_target_properties(${_target} PROPERTIES
         COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
 
-      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${_target})
-      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS ${_target})
-
+      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS
+        ${_target})
+      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS
+        ${_target})
     endif()
   endmacro()
 endif()
