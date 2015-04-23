@@ -29,6 +29,8 @@
 # Respects the following variables:
 # - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
 #   example for continuous integration builds
+# - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
+#   "port install" the known system packages. Will be unset after installation.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
@@ -38,6 +40,34 @@ if(TARGET git_subproject_${PROJECT_NAME}_done)
   return()
 endif()
 add_custom_target(git_subproject_${PROJECT_NAME}_done)
+
+function(subproject_install_packages file name)
+  if(NOT EXISTS ${file} OR NOT INSTALL_PACKAGES)
+    return()
+  endif()
+
+  include(${file})
+  string(TOUPPER ${name} NAME)
+
+  if(${NAME}_DEB_DEPENDS AND CMAKE_SYSTEM_NAME MATCHES "Linux" )
+    list(SORT ${NAME}_DEB_DEPENDS)
+    list(REMOVE_DUPLICATES ${NAME}_DEB_DEPENDS)
+    message("Running 'sudo apt-get install ${${NAME}_DEB_DEPENDS}'")
+    execute_process(COMMAND sudo apt-get install ${${NAME}_DEB_DEPENDS})
+  endif()
+  if(${NAME}_PORT_DEPENDS AND APPLE)
+    list(SORT ${NAME}_PORT_DEPENDS)
+    list(REMOVE_DUPLICATES ${NAME}_PORT_DEPENDS)
+    set(${NAME}_PORT_DEPENDS_UNI)
+    foreach(__port ${${NAME}_PORT_DEPENDS})
+      list(APPEND ${NAME}_PORT_DEPENDS_UNI ${__port} +universal)
+    endforeach()
+    message(
+      "Running 'sudo port install ${${NAME}_PORT_DEPENDS} (+universal)'")
+    execute_process(COMMAND sudo port install -p
+      ${${NAME}_PORT_DEPENDS_UNI})
+  endif()
+endfunction()
 
 function(add_subproject name)
   string(TOUPPER ${name} NAME)
@@ -72,6 +102,9 @@ function(add_subproject name)
       set(${name}_DIR "${CMAKE_BINARY_DIR}/${name}" CACHE PATH
         "Location of ${name} project" FORCE)
     endif()
+
+    subproject_install_packages(
+      "${CMAKE_SOURCE_DIR}/${path}/CMake/${name}.cmake" ${name})
 
     # add the source sub directory to our build and set the binary dir
     # to the build tree
@@ -123,6 +156,9 @@ endmacro()
 
 # Interpret .gitsubprojects
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
+  subproject_install_packages(
+    "${CMAKE_SOURCE_DIR}/CMake/${PROJECT_NAME}.cmake" ${PROJECT_NAME})
+
   set(__subprojects) # appended on each git_subproject invocation
   include(.gitsubprojects)
 
@@ -201,3 +237,7 @@ foreach(_file ${_files})
     git_subproject(${Name} ${${NAME}_REPO_URL} ${${NAME}_REPO_TAG})
   endif()
 endforeach()
+
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
+endif()
