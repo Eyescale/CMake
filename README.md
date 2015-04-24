@@ -47,13 +47,17 @@ and use it in your top-level CMakeLists.txt:
   documentation into PROJECT_BINARY_DIR/doc. Optional *doxygit* target to
   copy result to ../GITHUB_ORGANIZATION/Project-M.m/. Must be included
   after all targets.
-* [SubProject](SubProject.cmake): Using a top level simple CMake 
-  superproject, several CMake subprojects (which may depend on each other) 
-  can be build. Each subproject can be added to the superproject 
-  with an add_subdirectory( *subproject* ) directive. To use the SubProject
-  feature, the sub projects should modify their CMake scripts.
-  In the scripts CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR 
-  and CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR. A
-  sample project can be found at https://github.com/bilgili/SubProjects.git
+* [SubProject](SubProject.cmake): Using a top level simple CMake
+  superproject, several CMake subprojects (which typically depend on
+  each other) can be build. Each subproject is added to the parent
+  superproject with an add_subdirectory( *subproject* ) directive. To
+  use the SubProject feature, the sub projects should modify their CMake
+  scripts. In the scripts most CMAKE_BINARY_DIR should be changed to
+  PROJECT_BINARY_DIR and CMAKE_SOURCE_DIR should be changed to
+  PROJECT_SOURCE_DIR. A simple sample project can be found at
+  https://github.com/Eyescale/Collage.git, and a complex one at
+  https://github.com/BlueBrain/Livre.git. Users can use
+  "cmake -DINSTALL_PACKAGES=1" during the initial configuration to
+  install known system packages (Ubuntu and OS X only).
 
 * Find scripts for non-CMake projects.
