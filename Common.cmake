@@ -78,6 +78,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Boost settings
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
+set(Boost_DETAILED_FAILURE_MSG ON) # Output which components are missing
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
 if(NOT Boost_USE_STATIC_LIBS)
