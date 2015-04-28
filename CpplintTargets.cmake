@@ -24,8 +24,8 @@ if(NOT CPPLINT_FOUND)
 endif(NOT CPPLINT_FOUND)
 
 if(NOT CPPLINT_FOUND)
-  add_custom_target(cpplint COMMENT "${CPPLINT_NOT_FOUND_MSG}")
-  set_target_properties(cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  add_custom_target(cpplint_${PROJECT_NAME} COMMENT "${CPPLINT_NOT_FOUND_MSG}")
+  set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif(NOT CPPLINT_FOUND)
 
 if(NOT TARGET cpplint)
@@ -40,77 +40,84 @@ function(add_cpplint _name)
     message(FATAL_ERROR
       "add_cpplint is given a target name that does not exist: '${_name}' !")
   endif()
-  if(CPPLINT_FOUND)
-    set(_cpplint_args)
+  if(NOT CPPLINT_FOUND)
+    return()
+  endif( )
 
-    # handles category filters
-    set(_category_filter)
-    set(_category_filter_in "+build,+legal,+readability,+runtime,+whitespace")
-    if (add_cpplint_CATEGORY_FILTER_OUT)
-      string(REPLACE ";" ",-" add_cpplint_CATEGORY_FILTER_OUT "${add_cpplint_CATEGORY_FILTER_OUT}")
-      set(_category_filter "--filter=${_category_filter_in},-${add_cpplint_CATEGORY_FILTER_OUT}")
-    endif(add_cpplint_CATEGORY_FILTER_OUT)
-    list(APPEND _cpplint_args ${_category_filter})
+  set(_cpplint_args)
 
-    # handles allowed extensions
-    if (add_cpplint_EXTENSIONS)
-      string(REPLACE ";" "," add_cpplint_EXTENSIONS "${add_cpplint_EXTENSIONS}")
-      set(add_cpplint_EXTENSIONS "--extensions=${add_cpplint_EXTENSIONS}")
-      list(APPEND _cpplint_args ${add_cpplint_EXTENSIONS})
-    endif(add_cpplint_EXTENSIONS)
+  # handles category filters
+  set(_category_filter)
+  set(_category_filter_in "+build,+legal,+readability,+runtime,+whitespace")
+  if (add_cpplint_CATEGORY_FILTER_OUT)
+    string(REPLACE ";" ",-" add_cpplint_CATEGORY_FILTER_OUT "${add_cpplint_CATEGORY_FILTER_OUT}")
+    set(_category_filter "--filter=${_category_filter_in},-${add_cpplint_CATEGORY_FILTER_OUT}")
+  endif(add_cpplint_CATEGORY_FILTER_OUT)
+  list(APPEND _cpplint_args ${_category_filter})
 
-    # handles verbosity level ([0-5])
-    if (add_cpplint_VERBOSE)
-      list(APPEND _cpplint_args "--verbose=${add_cpplint_VERBOSE}")
-    endif(add_cpplint_VERBOSE)
+  # handles allowed extensions
+  if (add_cpplint_EXTENSIONS)
+    string(REPLACE ";" "," add_cpplint_EXTENSIONS "${add_cpplint_EXTENSIONS}")
+    set(add_cpplint_EXTENSIONS "--extensions=${add_cpplint_EXTENSIONS}")
+    list(APPEND _cpplint_args ${add_cpplint_EXTENSIONS})
+  endif(add_cpplint_EXTENSIONS)
 
-    # handles counting level of detail (total|toplevel|detailed)
-    if (add_cpplint_COUNTING)
-      list(APPEND _cpplint_args "--counting=${add_cpplint_COUNTING}")
-    endif(add_cpplint_COUNTING)
+  # handles verbosity level ([0-5])
+  if (add_cpplint_VERBOSE)
+    list(APPEND _cpplint_args "--verbose=${add_cpplint_VERBOSE}")
+  endif(add_cpplint_VERBOSE)
 
-    # handles root directory used for deriving header guard CPP variable
-    if(add_cpplint_ROOT)
-      list(APPEND _cpplint_args "--root=${add_cpplint_ROOT}")
-    endif(add_cpplint_ROOT)
+  # handles counting level of detail (total|toplevel|detailed)
+  if (add_cpplint_COUNTING)
+    list(APPEND _cpplint_args "--counting=${add_cpplint_COUNTING}")
+  endif(add_cpplint_COUNTING)
 
-    # handles line length
-    if (add_cpplint_LINELENGTH)
-      list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
-    endif(add_cpplint_LINELENGTH)
+  # handles root directory used for deriving header guard CPP variable
+  if(add_cpplint_ROOT)
+    list(APPEND _cpplint_args "--root=${add_cpplint_ROOT}")
+  endif(add_cpplint_ROOT)
 
-    get_target_property(_imported_target "${_name}" IMPORTED)
-    if(_imported_target)
-      return()
-    endif()
+  # handles line length
+  if (add_cpplint_LINELENGTH)
+    list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
+  endif(add_cpplint_LINELENGTH)
 
-    get_target_property(_cpplint_sources "${_name}" SOURCES)
-    set(_files)
-    #set(_exclude_pattern ".*moc_.*\\.cxx|Buildyard/Build")
-    foreach(_source ${_cpplint_sources})
-      get_source_file_property(_cpplint_lang "${_source}" LANGUAGE)
-      get_source_file_property(_cpplint_loc "${_source}" LOCATION)
-      if("${_cpplint_lang}" MATCHES "CXX" AND NOT ${_cpplint_loc} MATCHES ${add_cpplint_EXCLUDE_PATTERN})
-        list(APPEND _files "${_cpplint_loc}")
-      endif("${_cpplint_lang}" MATCHES "CXX" AND NOT ${_cpplint_loc} MATCHES ${add_cpplint_EXCLUDE_PATTERN})
-    endforeach(_source ${_cpplint_sources})
-
-    if(NOT _files) # nothing to check
-      return()
-    endif(NOT _files)
-
-    if(CPPLINT_ADD_TESTS)
-      add_test(NAME ${_name}_cpplint_test
-        COMMAND "${CPPLINT_SCRIPT}" ${_files})
-      set_tests_properties(${_name}_cpplint_test
-        PROPERTIES PASS_REGULAR_EXPRESSION "Total errors found: 0")
-    endif()
-
-    add_custom_target(${_name}_cpplint
-      COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      COMMENT "Running cpplint on ${_name}"
-      VERBATIM)
-    add_dependencies(cpplint ${_name}_cpplint)
+  get_target_property(_imported_target "${_name}" IMPORTED)
+  if(_imported_target)
+    return()
   endif()
+
+  get_target_property(_cpplint_sources "${_name}" SOURCES)
+  set(_files)
+  #set(_exclude_pattern ".*moc_.*\\.cxx|Buildyard/Build")
+  foreach(_source ${_cpplint_sources})
+    get_source_file_property(_cpplint_lang "${_source}" LANGUAGE)
+    get_source_file_property(_cpplint_loc "${_source}" LOCATION)
+    if("${_cpplint_lang}" MATCHES "CXX" AND NOT ${_cpplint_loc} MATCHES ${add_cpplint_EXCLUDE_PATTERN})
+      list(APPEND _files "${_cpplint_loc}")
+    endif()
+  endforeach()
+
+  if(NOT _files) # nothing to check
+    return()
+  endif(NOT _files)
+
+  if(CPPLINT_ADD_TESTS)
+    add_test(NAME cpplint_test_${_name}
+      COMMAND "${CPPLINT_SCRIPT}" ${_files})
+    set_tests_properties(cpplint_test_${_name}
+      PROPERTIES PASS_REGULAR_EXPRESSION "Total errors found: 0")
+  endif()
+
+  add_custom_target(cpplint_run_${_name}
+    COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    COMMENT "cpplint_run_${_name}: Running cpplint on ${_name}"
+    VERBATIM)
+
+  if(NOT TARGET cpplint_${PROJECT_NAME})
+    add_custom_target(cpplint_${PROJECT_NAME})
+  endif()
+  add_dependencies(cpplint_${PROJECT_NAME} cpplint_run_${_name})
+  add_dependencies(cpplint cpplint_${PROJECT_NAME})
 endfunction(add_cpplint)
