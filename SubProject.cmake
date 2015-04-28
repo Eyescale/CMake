@@ -199,9 +199,12 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
       COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_target_properties(update_git_subprojects_${PROJECT_NAME} PROPERTIES
+      EXCLUDE_FROM_ALL ON FOLDER "${PROJECT_NAME}")
 
     if(NOT TARGET update)
       add_custom_target(update)
+      set_target_properties(update PROPERTIES EXCLUDE_FROM_ALL ON)
     endif()
     add_dependencies(update update_git_subprojects_${PROJECT_NAME})
   endif()
