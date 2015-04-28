@@ -119,6 +119,9 @@ else()
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} performance tests")
 endif()
+set_target_properties(${PROJECT_NAME}_cpptests PROPERTIES FOLDER "Tests")
+set_target_properties(${PROJECT_NAME}_perftests PROPERTIES
+  EXCLUDE_FROM_ALL ON FOLDER "Tests")
 
 add_dependencies(${PROJECT_NAME}_tests ${PROJECT_NAME}_cpptests)
 add_dependencies(tests ${PROJECT_NAME}_tests)

@@ -33,11 +33,13 @@ endif()
 if(NOT CPPCHECK_FOUND)
   add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
-  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE
+     FOLDER "Tests")
 endif()
 
 if(NOT TARGET cppcheck)
   add_custom_target(cppcheck)
+  set_target_properties(cppcheck PROPERTIES EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
 endif()
 
 function(add_cppcheck _name)

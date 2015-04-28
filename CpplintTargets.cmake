@@ -25,12 +25,14 @@ endif(NOT CPPLINT_FOUND)
 
 if(NOT CPPLINT_FOUND)
   add_custom_target(cpplint_${PROJECT_NAME} COMMENT "${CPPLINT_NOT_FOUND_MSG}")
-  set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL ON
+    FOLDER "Tests")
 endif(NOT CPPLINT_FOUND)
 
 if(NOT TARGET cpplint)
   add_custom_target(cpplint)
 endif()
+set_target_properties(cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
 
 function(add_cpplint _name)
   set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
@@ -60,27 +62,27 @@ function(add_cpplint _name)
     string(REPLACE ";" "," add_cpplint_EXTENSIONS "${add_cpplint_EXTENSIONS}")
     set(add_cpplint_EXTENSIONS "--extensions=${add_cpplint_EXTENSIONS}")
     list(APPEND _cpplint_args ${add_cpplint_EXTENSIONS})
-  endif(add_cpplint_EXTENSIONS)
+  endif()
 
   # handles verbosity level ([0-5])
   if (add_cpplint_VERBOSE)
     list(APPEND _cpplint_args "--verbose=${add_cpplint_VERBOSE}")
-  endif(add_cpplint_VERBOSE)
+  endif()
 
   # handles counting level of detail (total|toplevel|detailed)
   if (add_cpplint_COUNTING)
     list(APPEND _cpplint_args "--counting=${add_cpplint_COUNTING}")
-  endif(add_cpplint_COUNTING)
+  endif()
 
   # handles root directory used for deriving header guard CPP variable
   if(add_cpplint_ROOT)
     list(APPEND _cpplint_args "--root=${add_cpplint_ROOT}")
-  endif(add_cpplint_ROOT)
+  endif()
 
   # handles line length
   if (add_cpplint_LINELENGTH)
     list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
-  endif(add_cpplint_LINELENGTH)
+  endif()
 
   get_target_property(_imported_target "${_name}" IMPORTED)
   if(_imported_target)
@@ -114,9 +116,13 @@ function(add_cpplint _name)
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     COMMENT "cpplint_run_${_name}: Running cpplint on ${_name}"
     VERBATIM)
+  set_target_properties(cpplint_run_${_name} PROPERTIES
+    EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
 
   if(NOT TARGET cpplint_${PROJECT_NAME})
     add_custom_target(cpplint_${PROJECT_NAME})
+    set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES
+      EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
   endif()
   add_dependencies(cpplint_${PROJECT_NAME} cpplint_run_${_name})
   add_dependencies(cpplint cpplint_${PROJECT_NAME})
