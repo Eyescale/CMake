@@ -25,12 +25,12 @@ endif(NOT CPPLINT_FOUND)
 
 if(NOT CPPLINT_FOUND)
   add_custom_target(cpplint COMMENT "${CPPLINT_NOT_FOUND_MSG}")
-  set_target_properties(cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE)
 endif(NOT CPPLINT_FOUND)
 
 if(NOT TARGET cpplint)
   add_custom_target(cpplint)
 endif()
+set_target_properties(cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
 
 function(add_cpplint _name)
   set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
@@ -111,6 +111,8 @@ function(add_cpplint _name)
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       COMMENT "Running cpplint on ${_name}"
       VERBATIM)
+    set_target_properties(${_name}_cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE
+      FOLDER "Tests")
     add_dependencies(cpplint ${_name}_cpplint)
   endif()
 endfunction(add_cpplint)

@@ -32,6 +32,11 @@
 # - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
 #   "port install" the known system packages. Will be unset after installation.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
+#
+# How to create a dependency graph:
+#  cmake --graphviz=graph.dot
+#  tred graph.dot > graph2.dot
+#  neato -Goverlap=prism -Goutputorder=edgesfirst graph2.dot -Tpdf -o graph.pdf
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeCompatibility.cmake)
@@ -40,6 +45,8 @@ if(TARGET git_subproject_${PROJECT_NAME}_done)
   return()
 endif()
 add_custom_target(git_subproject_${PROJECT_NAME}_done)
+set_target_properties(git_subproject_${PROJECT_NAME}_done PROPERTIES
+  EXCLUDE_FROM_ALL ON FOLDER "zzphony")
 
 function(subproject_install_packages file name)
   if(NOT EXISTS ${file} OR NOT INSTALL_PACKAGES)
@@ -120,6 +127,7 @@ function(add_subproject name)
     get_property(__targets GLOBAL PROPERTY ${name}_ALL_DEP_TARGETS)
     if(__targets)
       add_custom_target(${name}-all DEPENDS ${__targets})
+      set_target_properties(${name}-all PROPERTIES FOLDER "${name}")
     endif()
   endif()
 endfunction()

@@ -259,6 +259,11 @@ endif()")
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
           add_dependencies(flatten_git_external
             flatten_git_external_${GIT_EXTERNAL_NAME})
+
+          foreach(_target flatten_git_external_${GIT_EXTERNAL_NAME} flatten_git_external update_git_external_${GIT_EXTERNAL_NAME} update_git_external update )
+            set_target_properties(${_target} PROPERTIES
+              EXCLUDE_FROM_ALL ON FOLDER "git")
+          endforeach()
         endif()
       endif()
     endif()

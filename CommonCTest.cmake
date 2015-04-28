@@ -10,6 +10,7 @@ if(NOT TARGET perftests)
 endif()
 if(NOT TARGET ${PROJECT_NAME}_tests)
   add_custom_target(${PROJECT_NAME}_tests)
+  set_target_properties(${PROJECT_NAME}_tests PROPERTIES FOLDER "Tests")
 endif()
 
 set_target_properties(tests PROPERTIES FOLDER "Tests")
