@@ -119,7 +119,8 @@ else()
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running all ${PROJECT_NAME} performance tests")
 endif()
-set_target_properties(${PROJECT_NAME}_cpptests PROPERTIES FOLDER "Tests")
+set_target_properties(${PROJECT_NAME}_cpptests PROPERTIES
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 set_target_properties(${PROJECT_NAME}_perftests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 

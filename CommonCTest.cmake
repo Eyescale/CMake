@@ -10,12 +10,14 @@ if(NOT TARGET perftests)
 endif()
 if(NOT TARGET ${PROJECT_NAME}_tests)
   add_custom_target(${PROJECT_NAME}_tests)
-  set_target_properties(${PROJECT_NAME}_tests PROPERTIES FOLDER "Tests")
+  set_target_properties(${PROJECT_NAME}_tests PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 endif()
 
-set_target_properties(tests PROPERTIES FOLDER "Tests")
-set_target_properties(perftests PROPERTIES FOLDER "Tests")
-set_target_properties(${PROJECT_NAME}_tests PROPERTIES FOLDER "Tests")
+set_target_properties(tests PROPERTIES
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+set_target_properties(perftests PROPERTIES
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 
 add_dependencies(tests ${PROJECT_NAME}_tests)
 
