@@ -25,14 +25,15 @@ endif(NOT CPPLINT_FOUND)
 
 if(NOT CPPLINT_FOUND)
   add_custom_target(cpplint_${PROJECT_NAME} COMMENT "${CPPLINT_NOT_FOUND_MSG}")
-  set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_ALL ON
-    FOLDER "Tests")
+  set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 endif(NOT CPPLINT_FOUND)
 
 if(NOT TARGET cpplint)
   add_custom_target(cpplint)
 endif()
-set_target_properties(cpplint PROPERTIES EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
+set_target_properties(cpplint PROPERTIES
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 
 function(add_cpplint _name)
   set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
@@ -117,12 +118,12 @@ function(add_cpplint _name)
     COMMENT "cpplint_run_${_name}: Running cpplint on ${_name}"
     VERBATIM)
   set_target_properties(cpplint_run_${_name} PROPERTIES
-    EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 
   if(NOT TARGET cpplint_${PROJECT_NAME})
     add_custom_target(cpplint_${PROJECT_NAME})
     set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES
-      EXCLUDE_FROM_ALL TRUE FOLDER "Tests")
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
   endif()
   add_dependencies(cpplint_${PROJECT_NAME} cpplint_run_${_name})
   add_dependencies(cpplint cpplint_${PROJECT_NAME})

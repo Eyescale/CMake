@@ -262,7 +262,7 @@ endif()")
 
           foreach(_target flatten_git_external_${GIT_EXTERNAL_NAME} flatten_git_external update_git_external_${GIT_EXTERNAL_NAME} ${GIT_EXTERNAL_TARGET} update_git_external update)
             set_target_properties(${_target} PROPERTIES
-              EXCLUDE_FROM_ALL ON FOLDER "git")
+              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "git")
           endforeach()
         endif()
       endif()
