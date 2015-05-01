@@ -210,45 +210,48 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
   endif()
 endif()
 
-# interpret Buildyard project.cmake and depends.txt configurations
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/depends.txt")
-  file(READ depends.txt SUBPROJECT_DEPENDS)
-  string(REGEX REPLACE "#[^\n]*" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
-  string(REGEX REPLACE "^\n" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
-  string(REGEX REPLACE "[ \n]" ";" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
+function(subproject_configure)
+  # interpret Buildyard project.cmake and depends.txt configurations
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/depends.txt")
+    file(READ depends.txt SUBPROJECT_DEPENDS)
+    string(REGEX REPLACE "#[^\n]*" "" SUBPROJECT_DEPENDS
+      "${SUBPROJECT_DEPENDS}")
+    string(REGEX REPLACE "^\n" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
+    string(REGEX REPLACE "[ \n]" ";" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
 
-  list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
-  while(SUBPROJECT_DEPENDS_LEFT GREATER 2)
-    list(GET SUBPROJECT_DEPENDS 0 SUBPROJECT_DEPENDS_DIR)
-    list(GET SUBPROJECT_DEPENDS 1 SUBPROJECT_DEPENDS_REPO)
-    list(GET SUBPROJECT_DEPENDS 2 SUBPROJECT_DEPENDS_TAG)
-    list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
     list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
+    while(SUBPROJECT_DEPENDS_LEFT GREATER 2)
+      list(GET SUBPROJECT_DEPENDS 0 SUBPROJECT_DEPENDS_DIR)
+      list(GET SUBPROJECT_DEPENDS 1 SUBPROJECT_DEPENDS_REPO)
+      list(GET SUBPROJECT_DEPENDS 2 SUBPROJECT_DEPENDS_TAG)
+      list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
+      list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
 
-    git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
-      ${SUBPROJECT_DEPENDS_TAG})
-  endwhile()
-endif()
-
-file(GLOB _files *.cmake)
-foreach(_file ${_files})
-  string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" _config ${_file})
-  list(APPEND _localFiles ${_config})
-
-  string(REPLACE ".cmake" "" Name ${_config})
-  get_filename_component(NAME ${Name} NAME)
-  string(TOUPPER ${NAME} NAME)
-  set(${NAME}_DIR ${BASEDIR})
-  include(${_file})
-
-  if(${NAME}_SUBPROJECT)
-    if(NOT ${NAME}_REPO_TAG)
-      set(${NAME}_REPO_TAG master)
-    endif()
-    git_subproject(${Name} ${${NAME}_REPO_URL} ${${NAME}_REPO_TAG})
+      git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
+        ${SUBPROJECT_DEPENDS_TAG})
+    endwhile()
   endif()
-endforeach()
 
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-  unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
-endif()
+  file(GLOB _files *.cmake)
+  foreach(_file ${_files})
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" _config ${_file})
+    list(APPEND _localFiles ${_config})
+
+    string(REPLACE ".cmake" "" Name ${_config})
+    get_filename_component(NAME ${Name} NAME)
+    string(TOUPPER ${NAME} NAME)
+    set(${NAME}_DIR ${BASEDIR})
+    include(${_file})
+
+    if(${NAME}_SUBPROJECT)
+      if(NOT ${NAME}_REPO_TAG)
+        set(${NAME}_REPO_TAG master)
+      endif()
+      git_subproject(${Name} ${${NAME}_REPO_URL} ${${NAME}_REPO_TAG})
+    endif()
+  endforeach()
+
+  if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
+  endif()
+endfunction()
