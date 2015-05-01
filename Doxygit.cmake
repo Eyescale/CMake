@@ -210,4 +210,5 @@ endif()
 
 execute_process(
   COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries} ${RemovedEntries}
-  css/github.css index.html WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  css/github.css index.html _projects/*.md
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
