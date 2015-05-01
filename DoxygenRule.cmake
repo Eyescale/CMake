@@ -142,11 +142,13 @@ if(GIT_DOCUMENTATION_REPO)
       DEPENDS ${PROJECT_NAME}_doxygen VERBATIM)
   else()
     add_custom_target(${PROJECT_NAME}_doxycopy
-      COMMENT "doxycopy target not available, missing ${_GIT_DOC_SRC_DIR}")
+      COMMAND ${CMAKE_COMMAND} -E echo
+      "doxycopy target not available, missing ${_GIT_DOC_SRC_DIR}")
   endif()
 else()
   add_custom_target(${PROJECT_NAME}_doxycopy
-    COMMENT "doxycopy target not available, missing GIT_DOCUMENTATION_REPO")
+    COMMAND ${CMAKE_COMMAND} -E echo
+    "doxycopy target not available, missing GIT_DOCUMENTATION_REPO for ${PROJECT_NAME}")
 endif()
 
 if(NOT TARGET doxycopy)
