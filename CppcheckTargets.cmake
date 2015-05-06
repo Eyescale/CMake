@@ -34,7 +34,7 @@ if(NOT CPPCHECK_FOUND)
   add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
   set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cppcheck")
 endif()
 
 if(NOT TARGET cppcheck)
@@ -113,9 +113,13 @@ function(add_cppcheck _name)
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "cppcheck_run_${_name}: Running cppcheck on target ${_name}..."
     VERBATIM)
+  set_target_properties(cppcheck_run_${_name} PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cppcheck")
 
   if(NOT TARGET cppcheck_${PROJECT_NAME})
     add_custom_target(cppcheck_${PROJECT_NAME})
+    set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cppcheck")
   endif()
   if(NOT TARGET ${PROJECT_NAME}_tests)
     add_custom_target(${PROJECT_NAME}_tests)
