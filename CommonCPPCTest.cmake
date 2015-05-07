@@ -56,7 +56,7 @@ macro(common_add_cpp_test NAME FILE)
   endif()
 
   add_executable(${TEST_NAME} ${FILE})
-  set_target_properties(${TEST_NAME} PROPERTIES FOLDER "Tests"
+  set_target_properties(${TEST_NAME} PROPERTIES FOLDER "Tests/${PROJECT_NAME}"
     OUTPUT_NAME ${NAME})
 
   # Per target INCLUDE_DIRECTORIES if supported
