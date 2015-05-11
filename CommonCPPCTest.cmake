@@ -49,12 +49,6 @@ macro(common_add_cpp_test NAME FILE)
     set(TEST_NAME ${NAME})
   endif()
 
-  if(NAME MATCHES "^perf.*")
-    list(APPEND ALL_CPP_PERF_TESTS ${TEST_NAME})
-  else()
-    list(APPEND ALL_CPP_TESTS ${TEST_NAME})
-  endif()
-
   add_executable(${TEST_NAME} ${FILE})
   set_target_properties(${TEST_NAME} PROPERTIES FOLDER "Tests/${PROJECT_NAME}"
     OUTPUT_NAME ${NAME})
@@ -82,11 +76,25 @@ macro(common_add_cpp_test NAME FILE)
   add_test(NAME ${TEST_NAME}
     COMMAND ${RUN_PREFIX} $<TARGET_FILE:${TEST_NAME}> ${RUN_ARGS})
 
+  add_custom_target(ctest_${TEST_NAME}
+    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+      -R '^${TEST_NAME}$$' -C $<CONFIGURATION> \${ARGS}
+    DEPENDS ${TEST_NAME}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running ${TEST_NAME} cpp test")
+  set_target_properties(ctest_${TEST_NAME} PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+
+  if(NAME MATCHES "^perf.*")
+    list(APPEND ALL_CPP_PERF_TESTS ctest_${TEST_NAME})
+  else()
+    list(APPEND ALL_CPP_TESTS ctest_${TEST_NAME})
+  endif()
+
   # Add test labels
   set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
   if(TEST_LABELS)
-    set_tests_properties(${TEST_NAME} PROPERTIES
-      LABELS "${TEST_LABELS}")
+    set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${TEST_LABELS}")
   endif()
 endmacro()
 
@@ -102,27 +110,21 @@ foreach(FILE ${TEST_FILES})
   endif()
 endforeach()
 
-if(TARGET ${PROJECT_NAME}_cpptests)
-  add_dependencies(${PROJECT_NAME}_cpptests ${ALL_CPP_TESTS})
-  if(ALL_CPP_PERF_TESTS)
-    add_dependencies(${PROJECT_NAME}_perftests ${ALL_CPP_PERF_TESTS})
-  endif()
-else()
-  add_custom_target(${PROJECT_NAME}_cpptests
-    COMMAND ${CMAKE_CTEST_COMMAND} -E '^.*perf_.*' -C $<CONFIGURATION> \${ARGS}
-    DEPENDS ${ALL_CPP_TESTS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Running all ${PROJECT_NAME} cpp tests")
-  add_custom_target(${PROJECT_NAME}_perftests
-    COMMAND ${CMAKE_CTEST_COMMAND} -R '^.*perf_.*' -C $<CONFIGURATION> \${ARGS}
-    DEPENDS ${ALL_CPP_PERF_TESTS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Running all ${PROJECT_NAME} performance tests")
+if(NOT TARGET ${PROJECT_NAME}_cpptests)
+  add_custom_target(${PROJECT_NAME}_cpptests)
+endif()
+if(NOT TARGET ${PROJECT_NAME}_perftests)
+  add_custom_target(${PROJECT_NAME}_perftests)
 endif()
 set_target_properties(${PROJECT_NAME}_cpptests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 set_target_properties(${PROJECT_NAME}_perftests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+
+add_dependencies(${PROJECT_NAME}_cpptests ${ALL_CPP_TESTS})
+if(ALL_CPP_PERF_TESTS)
+  add_dependencies(${PROJECT_NAME}_perftests ${ALL_CPP_PERF_TESTS})
+endif()
 
 add_dependencies(${PROJECT_NAME}_tests ${PROJECT_NAME}_cpptests)
 add_dependencies(tests ${PROJECT_NAME}_tests)

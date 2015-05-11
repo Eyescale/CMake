@@ -59,23 +59,31 @@ macro(COVERAGE_REPORT)
     # Tweak coverage limits to yellow 40%/green 80%
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
-  add_custom_target(${PROJECT_NAME}_lcov-gather
-    COMMAND ${LCOV} -q --capture --directory . --no-external --directory ${PROJECT_SOURCE_DIR} --output-file lcov.info
-    COMMENT "Capturing code coverage counters"
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    DEPENDS ${ARGV})
-  add_custom_target(${PROJECT_NAME}_lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '*.l' 'CMake/test/*' '*/install/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE} --output-file lcov2.info
-    COMMENT "Cleaning up code coverage counters"
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-    DEPENDS ${PROJECT_NAME}_lcov-gather)
-  add_custom_target(${PROJECT_NAME}_lcov-html
-    COMMAND ${GENHTML} -q --title ${PROJECT_NAME} ${COVERAGE_LIMITS} -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
-    COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
-    DEPENDS ${PROJECT_NAME}_lcov-remove)
+  if(NOT TARGET ${PROJECT_NAME}_lcov-gather)
+    add_custom_target(${PROJECT_NAME}_lcov-gather
+      COMMAND ${LCOV} -q --capture --directory . --no-external
+        --directory ${PROJECT_SOURCE_DIR} --output-file lcov.info
+      COMMENT "Capturing code coverage counters"
+      WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    add_custom_target(${PROJECT_NAME}_lcov-remove
+      COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '*.l' 'CMake/test/*'
+        '*/install/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE}
+        --output-file lcov2.info
+      COMMENT "Cleaning up code coverage counters"
+      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+      DEPENDS ${PROJECT_NAME}_lcov-gather)
+    add_custom_target(${PROJECT_NAME}_lcov-html
+      COMMAND ${GENHTML} -q --title ${PROJECT_NAME} ${COVERAGE_LIMITS}
+        -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
+      COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
+      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
+      DEPENDS ${PROJECT_NAME}_lcov-remove)
+  endif()
   make_directory(${PROJECT_BINARY_DIR}/doc/html)
 
+  if(ARGV)
+    add_dependencies(${PROJECT_NAME}_lcov-gather ${ARGV})
+  endif()
   if(NOT TARGET coverage)
     add_custom_target(coverage)
   endif()

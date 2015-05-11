@@ -106,10 +106,10 @@ function(add_cpplint _name)
   endif(NOT _files)
 
   if(CPPLINT_ADD_TESTS)
-    add_test(NAME cpplint_test_${_name}
-      COMMAND "${CPPLINT_SCRIPT}" ${_files})
-    set_tests_properties(cpplint_test_${_name}
-      PROPERTIES PASS_REGULAR_EXPRESSION "Total errors found: 0")
+    if(NOT TARGET ${PROJECT_NAME}_tests)
+      add_custom_target(${PROJECT_NAME}_tests)
+    endif()
+    add_dependencies(${PROJECT_NAME}_tests cpplint_run_${_name})
   endif()
 
   add_custom_target(cpplint_run_${_name}
