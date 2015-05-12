@@ -149,7 +149,7 @@ macro(git_subproject name url tag)
       if(NOT ${NAME}_FOUND)
         git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
         add_subproject(${name})
-        if(NOT ${NAME}_FOUND)
+        if(NOT ${name}_SKIP_FIND)
           find_package(${name} REQUIRED CONFIG) # find subproject "package"
           include_directories(${${NAME}_INCLUDE_DIRS})
         endif()
@@ -227,6 +227,8 @@ function(subproject_configure)
       list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
       list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
 
+      # Skip find in git_subproject after add_subproject
+      set(${SUBPROJECT_DEPENDS_DIR}_SKIP_FIND ON)
       git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
         ${SUBPROJECT_DEPENDS_TAG})
     endwhile()
@@ -254,4 +256,5 @@ function(subproject_configure)
   if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
   endif()
+
 endfunction()
