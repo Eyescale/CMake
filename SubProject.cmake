@@ -102,7 +102,6 @@ function(add_subproject name)
     # if the project needs to do anything special when configured as a
     # sub project then it can check the variable ${PROJECT}_IS_SUBPROJECT
     set(${name}_IS_SUBPROJECT ON)
-    set(${NAME}_FOUND ON PARENT_SCOPE)
 
     # set ${PROJECT}_DIR to the location of the new build dir for the project
     if(NOT ${name}_DIR)
@@ -118,7 +117,11 @@ function(add_subproject name)
     set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}   ")
     message("${ADD_SUBPROJECT_INDENT}========== ${path} ==========")
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
-      "${CMAKE_BINARY_DIR}/${name}")
+                     "${CMAKE_BINARY_DIR}/${name}")
+    if(NOT ${name}_SKIP_FIND)
+      find_package(${name} REQUIRED CONFIG) # find subproject "package"
+      include_directories(${${NAME}_INCLUDE_DIRS})
+    endif()
     message("${ADD_SUBPROJECT_INDENT}---------- ${path} ----------")
     set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
     # Mark globally that we've already used name as a sub project
@@ -149,10 +152,6 @@ macro(git_subproject name url tag)
       if(NOT ${NAME}_FOUND)
         git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
         add_subproject(${name})
-        if(NOT ${name}_SKIP_FIND)
-          find_package(${name} REQUIRED CONFIG) # find subproject "package"
-          include_directories(${${NAME}_INCLUDE_DIRS})
-        endif()
       endif()
     endif()
     get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
