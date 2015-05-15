@@ -119,7 +119,7 @@ function(add_subproject name)
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
                      "${CMAKE_BINARY_DIR}/${name}")
     if(NOT ${name}_SKIP_FIND)
-      find_package(${name} REQUIRED CONFIG) # find subproject "package"
+      find_package(${name} REQUIRED) # find subproject "package"
       include_directories(${${NAME}_INCLUDE_DIRS})
     endif()
     message("${ADD_SUBPROJECT_INDENT}---------- ${path} ----------")
