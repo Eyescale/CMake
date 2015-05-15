@@ -10,6 +10,7 @@
 # * NAME_LINK_LIBRARIES for dependencies of name
 # * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library, with
 #   COMMON_LIBRARY_TYPE being an option stored in the CMakeCache.
+# * NAME_OMIT_PROJECT_HEADER when set, no project header (name.h) is generated.
 # * PROJECT_INCLUDE_NAME for the include directory and project include header
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
@@ -28,16 +29,7 @@ set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
 set_property(CACHE COMMON_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
-function(COMMON_LIBRARY Name)
-  string(TOUPPER ${Name} NAME)
-  if(NOT PROJECT_INCLUDE_NAME)
-    string(TOLOWER ${Name} PROJECT_INCLUDE_NAME)
-  endif()
-  set(SOURCES ${${NAME}_SOURCES})
-  set(HEADERS ${${NAME}_HEADERS})
-  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS})
-  set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
-  
+macro(GENERATE_PROJECT_HEADER NAME)
   get_filename_component(BASE_NAME ${PROJECT_INCLUDE_NAME} NAME)
 
   set(PROJECT_GENERATED_HEADER
@@ -67,6 +59,21 @@ function(COMMON_LIBRARY Name)
     ${PROJECT_GENERATED_HEADER}
     ${PROJECT_INCLUDE_HEADER} COPYONLY)
   list(APPEND PUBLIC_HEADERS ${PROJECT_INCLUDE_HEADER})
+endmacro()
+
+function(COMMON_LIBRARY Name)
+  string(TOUPPER ${Name} NAME)
+  if(NOT PROJECT_INCLUDE_NAME)
+    string(TOLOWER ${Name} PROJECT_INCLUDE_NAME)
+  endif()
+  set(SOURCES ${${NAME}_SOURCES})
+  set(HEADERS ${${NAME}_HEADERS})
+  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS})
+  set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
+
+  if(NOT ${NAME}_OMIT_PROJECT_HEADER)
+    generate_project_header(${NAME})
+  endif()
 
   if(SOURCES)
     list(SORT SOURCES)
