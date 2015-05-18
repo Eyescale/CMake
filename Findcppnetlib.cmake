@@ -55,13 +55,13 @@ if(NOT CPPNETLIB_PATH)
     ${CMAKE_SOURCE_DIR}/cppnetlib
     /usr/local/include
     /usr/include)
+  mark_as_advanced (CPPNETLIB_INCLUDE_DIR)
   set(CPPNETLIB_PATH "${CPPNETLIB_INCLUDE_DIR}/..")
 endif()
 
 # HEADERS AND DYNAMIC LIBRARIES_________________________________________________
 
 if(CPPNETLIB_PATH)
-  mark_as_advanced (CPPNETLIB_INCLUDE_DIR)
   set(__libraries
     cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri)
 
