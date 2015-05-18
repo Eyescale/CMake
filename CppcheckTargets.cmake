@@ -9,7 +9,8 @@
 # Requires these CMake modules:
 #  Findcppcheck
 #
-# Requires CMake 2.6 or newer (uses the 'function' command)
+# Accepts the following input variables:
+# * CPPCHECK_EXTRA_ARGS for additional command line parameters to cppcheck
 #
 # Original Author:
 # 2009-2010 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
