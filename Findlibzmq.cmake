@@ -44,7 +44,7 @@ if(MSVC)
     set(_zmq_TOOLSET "-v90")
   endif()
 
-  set(_zmq_versions "4_0_4" "4_0_3" "4_0_2" "4_0_1" "4_0_0"
+  set(_zmq_versions "4_0_5" "4_0_4" "4_0_3" "4_0_2" "4_0_1" "4_0_0"
                     "3_2_5" "3_2_4" "3_2_3" "3_2_2"  "3_2_1" "3_2_0" "3_1_0")
   set(_zmq_release_names)
   set(_zmq_debug_names)
@@ -55,17 +55,24 @@ if(MSVC)
     list(APPEND _zmq_debug_names "libzmq${_zmq_TOOLSET}-mt-gd-${ver}")
   endforeach()
 
+  list(APPEND _zmq_debug_names "libzmq_d")
+
+  set(_zmq_hint_paths ${LIBZMQ_ROOT_DIR}/bin ${LIBZMQ_ROOT_DIR}/lib)
+  if(CMAKE_CL_64)
+    list(APPEND _zmq_hint_paths ${LIBZMQ_ROOT_DIR}/lib/x64)
+  else()
+    list(APPEND _zmq_hint_paths ${LIBZMQ_ROOT_DIR}/lib/Win32)
+  endif()
+
   #now try to find the release and debug version
   find_library(LIBZMQ_LIBRARY_RELEASE
     NAMES ${_zmq_release_names} zmq libzmq
-    HINTS ${LIBZMQ_ROOT_DIR}/bin
-          ${LIBZMQ_ROOT_DIR}/lib
+    HINTS ${_zmq_hint_paths}
     )
 
   find_library(LIBZMQ_LIBRARY_DEBUG
     NAMES ${_zmq_debug_names} zmq libzmq
-    HINTS ${LIBZMQ_ROOT_DIR}/bin
-          ${LIBZMQ_ROOT_DIR}/lib
+    HINTS ${_zmq_hint_paths}
     )
 
   if(LIBZMQ_LIBRARY_RELEASE AND LIBZMQ_LIBRARY_DEBUG)
