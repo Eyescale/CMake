@@ -1,17 +1,15 @@
-# Copyright (c) 2013 Ahmet Bilgili <ahmet.bilgili@epfl.ch>
-# Modified from: FindSAGE.cmake
+# Copyright (c) 2015 Ahmet Bilgili <ahmet.bilgili@epfl.ch>
+# Modified from: FindTuvok.cmake
 
 # - Try to find the TUVOK library
 # Once done this will define
 #
-#  TUVOK_ROOT - Set this variable to the root installation of CAIRO
+#  TUVOK_ROOT - Set this variable to the root installation of Tuvok
 #
 # Read-Only variables:
 #  TUVOK_FOUND - system has the TUVOK library
 #  TUVOK_INCLUDE_DIR - the TUVOK include directory
 #  TUVOK_LIBRARY - The libraries needed to use SAGE
-#  (TODO) TUVOK_VERSION - This is set to $major.$minor.$revision (eg. 0.9.8)
-
 include(FindPackageHandleStandardArgs)
 
 if(TUVOK_FIND_REQUIRED)
@@ -26,12 +24,12 @@ if(TUVOK_FIND_QUIETLY)
   set(_TUVOK_quiet QUIET)
 endif()
 
-find_path(_TUVOK_INCLUDE_DIR StdTuvokDefines.h
+find_path(_TUVOK_INCLUDE_DIR NAMES Tuvok/StdTuvokDefines.h
   HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
-  PATH_SUFFIXES include/Tuvok
+  PATH_SUFFIXES include
   PATHS /usr/local /usr /opt )
 
-if(_TUVOK_INCLUDE_DIR AND EXISTS "${_TUVOK_INCLUDE_DIR}/StdTuvokDefines.h")
+if(_TUVOK_INCLUDE_DIR AND EXISTS "${_TUVOK_INCLUDE_DIR}/Tuvok/StdTuvokDefines.h")
   set(_TUVOK_FAIL FALSE)
 else()
   set(_TUVOK_FAIL TRUE)
@@ -62,5 +60,5 @@ if(_TUVOK_FAIL)
   set(TUVOK_INCLUDE_DIR)
   set(TUVOK_LIBRARY)
 else()
-  set(TUVOK_INCLUDE_DIR ${_TUVOK_INCLUDE_DIR})
+  set(TUVOK_INCLUDE_DIR ${_TUVOK_INCLUDE_DIR} ${_TUVOK_INCLUDE_DIR}/Tuvok)
 endif()
