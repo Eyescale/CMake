@@ -234,6 +234,7 @@ function(subproject_configure)
   endif()
 
   file(GLOB _files *.cmake)
+  list(SORT _files)
   foreach(_file ${_files})
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" _config ${_file})
     list(APPEND _localFiles ${_config})
