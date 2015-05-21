@@ -81,7 +81,9 @@ function(COMMON_LIBRARY Name)
   if(HEADERS)
     list(SORT HEADERS)
   endif()
-  list(SORT PUBLIC_HEADERS)
+  if(PUBLIC_HEADERS)
+    list(SORT PUBLIC_HEADERS)
+  endif()
 
   source_group(
     ${PROJECT_INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
