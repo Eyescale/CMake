@@ -15,7 +15,7 @@ endif()
 if (PYTHON_EXECUTABLE)
   # write a python script that finds the numpy path
   file(WRITE ${PROJECT_BINARY_DIR}/FindNumpyPath.py
-      "try: import numpy; print numpy.get_include()\nexcept:pass\n")
+      "try: import numpy; print(numpy.get_include())\nexcept:pass\n")
 
   # execute the find script
   exec_program("${PYTHON_EXECUTABLE}" ${PROJECT_BINARY_DIR}
@@ -26,12 +26,7 @@ elseif(_numpy_out)
 endif(PYTHON_EXECUTABLE)
 
 find_path(PYTHON_NUMPY_INCLUDE_DIR numpy/arrayobject.h
-  "${NUMPY_PATH}"
-  "${PYTHON_INCLUDE_PATH}"
-  /usr/include/python2.7/
-  /usr/include/python2.6/
-  /usr/include/python2.5/
-  /usr/include/python2.4/)
+  HINTS "${NUMPY_PATH}" "${PYTHON_INCLUDE_PATH}")
 
 if(PYTHON_NUMPY_INCLUDE_DIR)
   set(PYTHON_NUMPY_FOUND 1 CACHE INTERNAL "Python numpy found")

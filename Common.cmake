@@ -76,20 +76,6 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
-# Boost settings
-set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
-set(Boost_DETAILED_FAILURE_MSG ON) # Output which components are missing
-add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
-add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
-if(NOT Boost_USE_STATIC_LIBS)
-  add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
-endif()
-if(NOT "$ENV{BOOST_ROOT}" STREQUAL "" OR
-    NOT "$ENV{BOOST_LIBRARYDIR}" STREQUAL "")
-  # Fix find of non-system Boost
-  option(Boost_NO_SYSTEM_PATHS "Disable system paths for FindBoost" ON)
-endif()
-
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(BIGENDIAN)
@@ -147,6 +133,7 @@ include(CommonInstall)
 include(CommonLibrary)
 include(Compiler)
 include(Coverage)
+include(FindBoostConfig)
 include(GitTargets)
 include(Maturity)
 include(ProjectInfo)
