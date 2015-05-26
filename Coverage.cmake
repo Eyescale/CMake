@@ -9,8 +9,6 @@
 # Input variables:
 # * LCOV_EXCLUDE Extra files to exclude from the coverage report
 # * COVERAGE_LIMITS Optional genhml flags to tweak the color codes of the report
-# * COVERAGE_INCLUDE_DIR Optional subfolder to include when searching for source
-#   files. Defaults to PROJECT_INCLUDE_NAME.
 #
 # Targets generated:
 # * lcov-clean_${PROJECT_NAME} for internal use - clean before running cpptests
@@ -32,8 +30,8 @@ if(ENABLE_COVERAGE)
       string(REGEX REPLACE ".+([0-9]+\\.[0-9]+)" "\\1" LCOV_VERSION
         ${LCOV_VERSION})
     endif()
-    if(LCOV_VERSION VERSION_LESS 1.10)
-      message(FATAL_ERROR "lcov >= 1.10 needed, found lcov ${LCOV_VERSION}")
+    if(LCOV_VERSION VERSION_LESS 1.11)
+      message(FATAL_ERROR "lcov >= 1.11 needed, found lcov ${LCOV_VERSION}")
     endif()
     if(NOT LCOV OR NOT GENHTML)
       set(COVERAGE_MISSING)
@@ -66,9 +64,6 @@ function(add_coverage_targets TEST_TARGET)
     # Tweak coverage limits to yellow 40%/green 80%
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
-  if(NOT COVERAGE_INCLUDE_DIR)
-    set(COVERAGE_INCLUDE_DIR ${PROJECT_INCLUDE_NAME})
-  endif()
 
   add_custom_target(lcov-clean_${PROJECT_NAME}
     COMMAND ${LCOV} -q --directory ${PROJECT_BINARY_DIR} --zerocounters
@@ -78,7 +73,7 @@ function(add_coverage_targets TEST_TARGET)
 
   add_custom_target(lcov-gather_${PROJECT_NAME}
     COMMAND ${LCOV} -q --capture --directory . --no-external
-      --directory ${PROJECT_SOURCE_DIR}/${COVERAGE_INCLUDE_DIR}
+      --directory ${PROJECT_SOURCE_DIR}/${PROJECT_INCLUDE_NAME}
       --output-file lcov.info
     COMMENT "Capturing code coverage counters"
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}

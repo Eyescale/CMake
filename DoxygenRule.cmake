@@ -85,8 +85,8 @@ if(NOT DOXYGEN_CONFIG_FILE)
 endif()
 
 add_custom_target(doxygen_install_${PROJECT_NAME}
-  ${CMAKE_COMMAND} -DCMAKE_INSTALL_LOCAL_ONLY=ON
-  -P ${PROJECT_BINARY_DIR}/cmake_install.cmake
+  ${CMAKE_COMMAND}
+  -P ${PROJECT_BINARY_DIR}/${PROJECT_INCLUDE_NAME}/cmake_install.cmake
   DEPENDS ${INSTALL_DEPENDS})
 set_target_properties(doxygen_install_${PROJECT_NAME} PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "doxygen")
