@@ -18,7 +18,7 @@
 #                 setenv ${UPPER_PROJECT_NAME}_ROOT         $root
 #                 prepend-path PATH            $root/bin
 #                 prepend-path LD_LIBRARY_PATH $root/lib
-#                 prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_PREFIX}
+#                 prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_SUFFIX}
 #
 # - MODULE_SW_BASEDIR: the directory for the module's binaries on a machine.
 #                      default /usr/share/Modules
@@ -55,9 +55,9 @@ if(NOT MODULE_ENV)
     "setenv ${UPPER_PROJECT_NAME}_ROOT         $root\\n\\n"
     "prepend-path PATH            $root/bin\\n"
     "prepend-path LD_LIBRARY_PATH $root/lib\\n")
-  if(PYTHON_LIBRARY_PREFIX)
+  if(PYTHON_LIBRARY_SUFFIX)
     list(APPEND MODULE_ENV
-      "prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_PREFIX}\\n")
+      "prepend-path PYTHONPATH      $root/${PYTHON_LIBRARY_SUFFIX}\\n")
   endif()
 endif()
 
