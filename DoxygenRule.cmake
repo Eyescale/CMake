@@ -44,7 +44,7 @@
 #   When using subprojects, it is the responsiblity of the user to clone
 #   the documentation repository in the project's parent folder.
 
-find_package(Doxygen)
+find_package(Doxygen QUIET)
 if(NOT DOXYGEN_FOUND)
   return()
 endif()

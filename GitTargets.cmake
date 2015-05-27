@@ -25,7 +25,7 @@ if(GITTARGETS_FOUND)
 endif()
 set(GITTARGETS_FOUND 1)
 
-find_package(Git)
+find_package(Git QUIET)
 if(NOT GIT_EXECUTABLE)
   return()
 endif()

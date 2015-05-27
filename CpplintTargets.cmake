@@ -20,7 +20,7 @@ endif(__add_cpplint)
 set(__add_cpplint YES)
 
 if(NOT CPPLINT_FOUND)
-  find_package(cpplint)
+  find_package(cpplint QUIET)
 endif(NOT CPPLINT_FOUND)
 
 if(NOT CPPLINT_FOUND)

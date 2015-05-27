@@ -6,7 +6,9 @@
 # After that, use the directories refer to the libraries and
 # also the headers
 
-find_package(PkgConfig)
+if(NOT PKGCONFIG_FOUND)
+  find_package(PkgConfig QUIET)
+endif()
 
 if(HWLOC_ROOT)
   set(ENV{PKG_CONFIG_PATH} "${HWLOC_ROOT}/lib/pkgconfig")
@@ -19,33 +21,38 @@ endif()
 
 if(hwloc_FIND_REQUIRED)
   set(_hwloc_OPTS "REQUIRED")
-elseif(hwloc_FIND_QUIETLY)
+endif()
+if(hwloc_FIND_QUIETLY)
   set(_hwloc_OPTS "QUIET")
-else()
+endif()
+if(hwloc_FIND_REQUIRED AND hwloc_FIND_QUIETLY)
+  set(_hwloc_OPTS "REQUIRED QUIET")
+endif()
+if(NOT hwloc_FIND_QUIETLY)
   set(_hwloc_output 1)
 endif()
 
 if(hwloc_FIND_VERSION)
   if(hwloc_FIND_VERSION_EXACT)
-    pkg_check_modules(HWLOC ${_hwloc_OPTS} hwloc=${hwloc_FIND_VERSION})
+    pkg_check_modules(hwloc ${_hwloc_OPTS} hwloc=${hwloc_FIND_VERSION})
   else()
-    pkg_check_modules(HWLOC ${_hwloc_OPTS} hwloc>=${hwloc_FIND_VERSION})
+    pkg_check_modules(hwloc ${_hwloc_OPTS} hwloc>=${hwloc_FIND_VERSION})
   endif()
 else()
-  pkg_check_modules(HWLOC ${_hwloc_OPTS} hwloc)
+  pkg_check_modules(hwloc ${_hwloc_OPTS} hwloc)
 endif()
 
-if(HWLOC_FOUND)
+if(hwloc_FOUND)
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIBRARIES
-    HWLOC_INCLUDE_DIRS)
+  find_package_handle_standard_args(hwloc DEFAULT_MSG hwloc_LIBRARIES
+    hwloc_INCLUDE_DIR)
 
-  if(NOT ${HWLOC_VERSION} VERSION_LESS 1.7.0)
-    set(HWLOC_GL_FOUND 1)
+  if(NOT ${hwloc_VERSION} VERSION_LESS 1.7.0)
+    set(hwloc_GL_FOUND 1)
   endif()
 
   if(_hwloc_output)
     message(STATUS
-      "Found hwloc ${HWLOC_VERSION} in ${HWLOC_INCLUDE_DIRS}:${HWLOC_LIBRARIES}")
+      "Found hwloc ${hwloc_VERSION} in ${hwloc_INCLUDE_DIR}:${hwloc_LIBRARIES}")
   endif()
 endif()

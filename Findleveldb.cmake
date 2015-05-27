@@ -15,14 +15,14 @@ include(FindPackageHandleStandardArgs)
 
 if(leveldb_FIND_REQUIRED)
   set(_LEVELDB_output_type FATAL_ERROR)
-  set(_LEVELDB_output 1)
 else()
   set(_LEVELDB_output_type STATUS)
-  if(leveldb_FIND_QUIETLY)
-    set(_LEVELDB_output)
-  else()
-    set(_LEVELDB_output 1)
-  endif()
+endif()
+
+if(leveldb_FIND_QUIETLY)
+  set(_LEVELDB_output)
+else()
+  set(_LEVELDB_output 1)
 endif()
 
 find_path(_LEVELDB_INCLUDE_DIR leveldb/db.h

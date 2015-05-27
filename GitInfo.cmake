@@ -19,7 +19,7 @@ set(GIT_ROOT_URL)
 set(GIT_BRANCH)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
-  find_package(Git)
+  find_package(Git QUIET)
   if(GIT_FOUND)
     execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
