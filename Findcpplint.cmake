@@ -19,11 +19,11 @@
 
 # Check python installation as cpplint is a python script
 if (NOT PYTHONINTERP_FOUND)
-  find_package(PythonInterp)
+  find_package(PythonInterp QUIET)
 endif(NOT PYTHONINTERP_FOUND)
 
 if(NOT PYTHONLIBS_FOUND)
- find_package(PythonLibs)
+ find_package(PythonLibs QUIET)
 endif(NOT PYTHONLIBS_FOUND)
 
 if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
@@ -78,6 +78,6 @@ endif(CPPLINT_FOUND OR CPPLINT_MARK_AS_ADVANCED)
 
 mark_as_advanced(CPPLINT_SCRIPT)
 
-if(CPPLINT_FOUND AND NOT CPPLINT_FIND_QUIETLY)
+if(CPPLINT_FOUND AND NOT cpplint_FIND_QUIETLY)
   message(STATUS "Found cpplint in ${CPPLINT_SCRIPT}")
-endif(CPPLINT_FOUND AND NOT CPPLINT_FIND_QUIETLY)
+endif(CPPLINT_FOUND AND NOT cpplint_FIND_QUIETLY)

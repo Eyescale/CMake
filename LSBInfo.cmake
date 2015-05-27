@@ -17,9 +17,6 @@ if(LSB_RELEASE_EXECUTABLE)
 
   execute_process(COMMAND ${LSB_RELEASE_EXECUTABLE} -si
     OUTPUT_VARIABLE LSB_DISTRIBUTOR_ID OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  message(STATUS "LSB-Release system information: Distributor-ID: "
-    "${LSB_DISTRIBUTOR_ID}  Release: ${LSB_RELEASE}  Codename: ${LSB_CODENAME}")
 else()
   set(LSB_DISTRIBUTOR_ID "unknown")
   set(LSB_RELEASE "unknown")

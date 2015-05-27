@@ -28,7 +28,7 @@ endif()
 set(__add_cppcheck YES)
 
 if(NOT CPPCHECK_FOUND)
-  find_package(cppcheck 1.61)
+  find_package(cppcheck 1.61 QUIET)
 endif()
 
 if(NOT CPPCHECK_FOUND)

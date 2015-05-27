@@ -32,7 +32,9 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-find_package(Git REQUIRED)
+if(NOT GIT_FOUND)
+  find_package(Git REQUIRED QUIET)
+endif()
 
 include(CommonProcess)
 include(Maturity)

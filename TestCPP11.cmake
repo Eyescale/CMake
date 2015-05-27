@@ -81,8 +81,6 @@ int main()
     return 0;
 }")
 
-set(TEST_CPP11_PASSED)
-set(TEST_CPP11_FAILED)
 while(TESTS_CPP11)
   list(GET TESTS_CPP11 0 TEST_CPP11_name)
   list(REMOVE_AT TESTS_CPP11 0)
@@ -93,13 +91,7 @@ while(TESTS_CPP11)
     ${CMAKE_CURRENT_BINARY_DIR}/cpp11_${TEST_CPP11_name}.cpp OUTPUT_VARIABLE output)
 
   if(CXX_${TEST_CPP11_NAME}_SUPPORTED)
-    set(TEST_CPP11_PASSED "${TEST_CPP11_PASSED} ${TEST_CPP11_name}")
     add_definitions(-DCXX_${TEST_CPP11_NAME}_SUPPORTED)
-  else()
-    set(TEST_CPP11_FAILED "${TEST_CPP11_FAILED} ${TEST_CPP11_name}")
-    #message("${TEST_CPP11_name} failed: ${output}")
   endif()
 endwhile()
 
-message(STATUS
-  "C++11 features PASSED:${TEST_CPP11_PASSED}, FAILED:${TEST_CPP11_FAILED}")
