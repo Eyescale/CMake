@@ -145,7 +145,11 @@ macro(git_subproject name url tag)
     if(NOT ${NAME}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
       if(NOT EXISTS ${CMAKE_SOURCE_DIR}/${name})
+        # Always try first using Config mode, then Module mode.
         find_package(${name} QUIET CONFIG)
+        if(NOT ${name}_FOUND)
+          find_package(${name} QUIET MODULE)
+        endif()
       elseif(__included) # already used as a sub project, just find it:
         find_package(${name} QUIET CONFIG HINTS ${CMAKE_BINARY_DIR}/${NAME})
       endif()
