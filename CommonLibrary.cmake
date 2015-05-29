@@ -14,6 +14,11 @@
 # * PROJECT_INCLUDE_NAME for the include directory and project include header
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
+# * Optional Qt support:
+# ** NAME_MOC_HEADERS list of internal moc input headers
+# ** NAME_MOC_PUBLIC_HEADERS list of public moc input headers, to be installed
+# ** NAME_UI_FORMS list of all .ui input files
+# ** NAME_RESOURCES list of all .qrc resource files
 #
 # If NAME_LIBRARY_TYPE is a list, libraries are built of each specified
 # (i.e. shared and static) type. Whichever is first becomes the library
@@ -24,6 +29,7 @@
 # including all public headers.
 
 include(InstallFiles)
+include(CommonQtSupport)
 
 set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
@@ -67,13 +73,16 @@ function(COMMON_LIBRARY Name)
     string(TOLOWER ${Name} PROJECT_INCLUDE_NAME)
   endif()
   set(SOURCES ${${NAME}_SOURCES})
-  set(HEADERS ${${NAME}_HEADERS})
-  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS})
+  set(HEADERS ${${NAME}_HEADERS} ${${NAME}_MOC_HEADERS})
+  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS} ${${NAME}_MOC_PUBLIC_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
 
   if(NOT ${NAME}_OMIT_PROJECT_HEADER)
     generate_project_header(${NAME})
   endif()
+
+  common_qt_support(${NAME})
+  list(APPEND SOURCES ${COMMON_QT_SUPPORT_SOURCES})
 
   if(SOURCES)
     list(SORT SOURCES)
