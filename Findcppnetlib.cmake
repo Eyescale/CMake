@@ -45,27 +45,27 @@
 #
 
 # Assume not found.
-SET(CPPNETLIB_FOUND FALSE)
+set(CPPNETLIB_FOUND FALSE)
+set(CPPNETLIB_PATH)
 
-# PATH ________________________________________________________________________
+# Find headers
+find_path(CPPNETLIB_INCLUDE_DIR boost/network.hpp
+  HINTS ${CPPNETLIB_ROOT}/include $ENV{CPPNETLIB_ROOT}/include
+  ${CMAKE_SOURCE_DIR}/cppnetlib
+  /usr/local/include
+  /usr/include)
 
-if(NOT CPPNETLIB_PATH)
-  find_path(CPPNETLIB_INCLUDE_DIR boost/network.hpp
-    HINTS ${CPPNETLIB_ROOT}/include $ENV{CPPNETLIB_ROOT}/include
-    ${CMAKE_SOURCE_DIR}/cppnetlib
-    /usr/local/include
-    /usr/include)
-  mark_as_advanced (CPPNETLIB_INCLUDE_DIR)
-  set(CPPNETLIB_PATH "${CPPNETLIB_INCLUDE_DIR}/..")
+if(CPPNETLIB_INCLUDE_DIR)
+    set(CPPNETLIB_PATH "${CPPNETLIB_INCLUDE_DIR}/..")
 endif()
 
-# HEADERS AND DYNAMIC LIBRARIES_________________________________________________
-
+# Find dynamic libraries
 if(CPPNETLIB_PATH)
-  set(__libraries
-    cppnetlib-client-connections cppnetlib-server-parsers cppnetlib-uri)
+    set(__libraries cppnetlib-client-connections 
+                    cppnetlib-server-parsers 
+                    cppnetlib-uri)
 
-  foreach(__library ${__libraries})
+    foreach(__library ${__libraries})
     if(TARGET ${__library})
       list(APPEND CPPNETLIB_LIBRARIES ${__library})
     else()
@@ -74,11 +74,10 @@ if(CPPNETLIB_PATH)
         PATHS ${CPPNETLIB_PATH}/lib64 ${CPPNETLIB_PATH}/lib)
       list(APPEND CPPNETLIB_LIBRARIES ${${__library}})
     endif()
-  endforeach()
-  mark_as_advanced(CPPNETLIB_LIBRARIES)
+    endforeach()
+    mark_as_advanced(CPPNETLIB_LIBRARIES)
 endif()
 
-# FOUND _______________________________________________________________________
 if(CPPNETLIB_FIND_REQUIRED)
   set(_cppnetlib_output 1)
 else()
@@ -88,7 +87,9 @@ else()
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(CPPNETLIB DEFAULT_MSG CPPNETLIB_LIBRARIES CPPNETLIB_INCLUDE_DIR)
+find_package_handle_standard_args(CPPNETLIB DEFAULT_MSG 
+                                  CPPNETLIB_LIBRARIES
+                                  CPPNETLIB_INCLUDE_DIR)
 
 if(CPPNETLIB_FOUND)
   set(CPPNETLIB_INCLUDE_DIRS ${CPPNETLIB_INCLUDE_DIR})
