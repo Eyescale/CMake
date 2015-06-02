@@ -39,9 +39,13 @@ set(USE_PYTHON_VERSION "auto" CACHE STRING
 set_property(CACHE USE_PYTHON_VERSION PROPERTY STRINGS 2 3 auto)
 
 if(NOT PYTHONINTERP_FOUND AND ${USE_PYTHON_VERSION} STREQUAL auto)
-  find_package(PythonInterp 3 QUIET)
+  # Finding Boost first if needed because if the Python3 interpreter is found
+  # first there's no way back.
   if(CHOOSE_PYTHON_REQUIRE_BOOST)
     find_package(Boost COMPONENTS python3 QUIET)
+  endif()
+  if(Boost_FOUND OR NOT CHOOSE_PYTHON_REQUIRE_BOOST)
+    find_package(PythonInterp 3 QUIET)
   endif()
 
   if(PYTHONINTERP_FOUND AND (NOT CHOOSE_PYTHON_REQUIRE_BOOST OR Boost_FOUND))
@@ -78,6 +82,8 @@ else()
   set(PythonInterp_FIND_VERSION 2)
 endif()
 
+find_package(PythonInterp) # Regardless of auto-detection, now we need to
+                           # find the interpreter to query the library suffix
 execute_process(COMMAND
   ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1,0,prefix=''))"
   OUTPUT_VARIABLE PYTHON_LIBRARY_SUFFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
