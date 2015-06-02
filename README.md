@@ -23,9 +23,6 @@ and use it in your top-level CMakeLists.txt:
       function to build an application using a standard recipe.
     * [CommonCode](CommonCode.cmake) generates standard header files for
       the project (api.h, defines.h, version.h).
-    * **GNUModules**: *module* target to create a
-      [GNUModules](GNUModules.cmake) *module* and *snapshot* targets to
-      create [GNU modules](http://modules.sourceforge.net/).
     * [GitTargets](GitTargets.cmake) *branch*, *cut*, *tag*, *erase*,
       *retag*, *tarball* targets.
     * [Compiler](Compiler.cmake): Default compiler flags, useful default
