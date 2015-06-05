@@ -13,6 +13,13 @@
 # ** NAME_UI_FORMS list of all .ui input files
 # ** NAME_RESOURCES list of all .qrc resource files
 #
+# Cross-platform wrapper around common_application() for GUI applications:
+#   common_gui_application(<Name>)
+#
+# Optional OSX bundle support (in conjunction with MACOSX_BUNDLE argument):
+# * NAME_ICON optional .icns file
+# * NAME_COPYRIGHT optional copyright notice
+#
 # Builds Name application and installs it.
 
 include(CommonQtSupport)
@@ -30,4 +37,40 @@ function(COMMON_APPLICATION Name)
   add_executable(${Name} ${ARGN} ${HEADERS} ${SOURCES})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
+endfunction()
+
+function(COMMON_GUI_APPLICATION Name)
+if(APPLE)
+  string(TOUPPER ${Name} NAME)
+
+  if(${NAME}_ICON)
+    set_source_files_properties(${${NAME}_ICON}
+      PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  endif()
+  # Configure bundle property file using current version, copyright and icon
+  set(_BUNDLE_NAME ${Name})
+  set(_COPYRIGHT ${${NAME}_COPYRIGHT})
+  set(_ICON ${${NAME}_ICON})
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/common/Info.plist.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
+
+  common_application(${Name} MACOSX_BUNDLE ${${NAME}_ICON} ${ARGN})
+
+  set_target_properties(${Name} PROPERTIES MACOSX_BUNDLE_INFO_PLIST
+    ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
+
+  # Bundle all dependent libraries inside the .app to make it self-contained
+  # and generate a disk image containing the .app for redistributing it.
+  set(_INSTALLDIR ${CMAKE_INSTALL_PREFIX}/bin)
+  install(CODE "message(\"-- macdeployqt: ${_INSTALLDIR}/${Name}.app -dmg\")"
+    COMPONENT apps)
+  install(CODE "execute_process(COMMAND macdeployqt ${Name}.app -dmg
+    WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
+  install(CODE "execute_process(COMMAND mv ${Name}.dmg ${Name}-${VERSION}.dmg
+    WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
+elseif(WIN32)
+  common_application(${Name} WIN32 ${ARGN})
+else()
+  common_application(${Name} ${ARGN})
+endif()
 endfunction()
