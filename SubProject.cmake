@@ -114,15 +114,15 @@ function(add_subproject name)
 
     # add the source sub directory to our build and set the binary dir
     # to the build tree
-    set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}   ")
-    message("${ADD_SUBPROJECT_INDENT}========== ${path} ==========")
+    set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}--")
+    message("  ${ADD_SUBPROJECT_INDENT}> ${path}")
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
                      "${CMAKE_BINARY_DIR}/${name}")
     if(NOT ${name}_SKIP_FIND)
       find_package(${name} REQUIRED) # find subproject "package"
       include_directories(${${NAME}_INCLUDE_DIRS})
     endif()
-    message("${ADD_SUBPROJECT_INDENT}---------- ${path} ----------")
+    message("  <${ADD_SUBPROJECT_INDENT} ${path}")
     set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
     # Mark globally that we've already used name as a sub project
     set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)

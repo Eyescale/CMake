@@ -98,16 +98,12 @@ endif()
 set(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(APPLE)
-  list(APPEND CMAKE_PREFIX_PATH /opt/local/ /opt/local/lib) # Macports
+  list(APPEND CMAKE_PREFIX_PATH /opt/local/ /opt/local/lib
+    /opt/local/libexec/qt5-mac) # Macports
   set(ENV{PATH} "/opt/local/bin:$ENV{PATH}") # dito
   if(NOT CMAKE_OSX_ARCHITECTURES OR CMAKE_OSX_ARCHITECTURES STREQUAL "")
-    if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-      set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64" CACHE
-        STRING "Build architectures for OS X" FORCE)
-    else()
-      set(CMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE
-        STRING "Build architectures for OS X" FORCE)
-    endif()
+    set(CMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE
+      STRING "Build architectures for OS X" FORCE)
   endif()
   set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
