@@ -8,11 +8,12 @@
 # This script provides an option to choose which Python version should be
 # requested to FindPythonInterp and FindPythonLibs. The user can choose
 # between version 2, 3 or autodetection (the default). If
-# CHOOSE_PYTHON_REQUIRE_BOOST is set, autodetection will choose Python 3 only
-# if Boost.Python is found to have support for Python 3.
+# CHOOSE_PYTHON_IGNORE_BOOST is set, autodetection will choose the Python
+# version without checking if Boost.Python is available and which version it
+# supports.
 #
 # Input Variables:
-# * CHOOSE_PYTHON_REQUIRE_BOOST
+# * CHOOSE_PYTHON_IGNORE_BOOST
 #
 # Output Variables:
 # * ${PROJECT_NAME}_USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
@@ -31,6 +32,11 @@
 # Defines:
 # * -D${PROJECT_NAME}_USE_PYTHON3=1: If Python 3 is chosen.
 
+if(CHOOSE_PYTHON_DONE)
+  return()
+endif()
+set(CHOOSE_PYTHON_DONE ON)
+
 include(FindBoostConfig) # Including the workarounds for boost finders.
 
 set(USE_PYTHON_VERSION "auto" CACHE STRING
@@ -46,19 +52,17 @@ endif()
 if(${USE_PYTHON_VERSION} STREQUAL auto)
   # Finding Boost first if needed because if the Python3 interpreter is found
   # first there's no way back.
-  if(CHOOSE_PYTHON_REQUIRE_BOOST)
+  if(NOT CHOOSE_PYTHON_IGNORE_BOOST)
     find_package(Boost COMPONENTS python3 QUIET)
   endif()
-  if(Boost_FOUND OR NOT CHOOSE_PYTHON_REQUIRE_BOOST)
+  if(Boost_FOUND OR CHOOSE_PYTHON_IGNORE_BOOST)
     find_package(PythonInterp 3 QUIET)
   endif()
 
-  if(PYTHONINTERP_FOUND AND (NOT CHOOSE_PYTHON_REQUIRE_BOOST OR Boost_FOUND))
+  if(PYTHONINTERP_FOUND AND (CHOOSE_PYTHON_IGNORE_BOOST OR Boost_FOUND))
     set(USE_PYTHON_VERSION 3)
-    message(STATUS "Python 3 chosen automatically")
   else()
     set(USE_PYTHON_VERSION 2)
-    message(STATUS "Python 2 chosen automatically")
   endif()
 endif()
 

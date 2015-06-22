@@ -52,7 +52,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Write the ProjectConfig.cmake.in file for configure_package_config_file
 # this will be copied eventually into the install directory
-file(READ "${CMAKE_CURRENT_LIST_DIR}/CommonPackage.cmake" COMMON_PACKAGE_MACRO)
 set(_config_file_prefix
   "\n"
 # add helper stuff from CMakePackageConfigHelpers
@@ -63,7 +62,6 @@ set(_config_file_prefix
   "  get_filename_component(CMAKE_CURRENT_LIST_DIR \${CMAKE_CURRENT_LIST_FILE} PATH)\n"
   "endif()\n"
   "list(APPEND CMAKE_MODULE_PATH \${CMAKE_CURRENT_LIST_DIR})\n"
-  "${COMMON_PACKAGE_MACRO}\n"
 )
 
 set(_config_file_body
@@ -336,7 +334,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     # Reset previously found dependent libraries
     "set(${${_dependent}_name}_LIBRARIES)\n"
     "set(${${_dependent}_name}_FOUND)\n"
-    "common_package(${_dependent} ${_FIND_VERSION} QUIET \${_req} ${_components})\n"
+    "find_package(${_dependent} ${_FIND_VERSION} QUIET \${_req} ${_components})\n"
     "if(${${_dependent}_name}_FOUND)\n"
     "  set(${UPPER_PROJECT_NAME}_${${_dependent}_name}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  set(${UPPER_PROJECT_NAME}_${${_dependent}_name}_FOUND TRUE)\n"
@@ -416,7 +414,7 @@ configure_file(
 
 # create and install Project.pc
 if(NOT LIBRARY_DIR)
-  set(LIBRARY_DIR lib)
+  message(FATAL_ERROR "LIBRARY_DIR not set, old or missing Common.cmake?")
 endif()
 
 file(WRITE ${PROJECT_BINARY_DIR}/pkg/${PROJECT_NAME}.pc

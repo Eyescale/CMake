@@ -114,9 +114,7 @@ function(add_cpplint _name)
 
   add_custom_target(cpplint_run_${_name}
     COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    COMMENT "cpplint_run_${_name}: Running cpplint on ${_name}"
-    VERBATIM)
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
   set_target_properties(cpplint_run_${_name} PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cpplint")
 
