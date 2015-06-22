@@ -106,10 +106,10 @@ function(add_cpplint _name)
   endif(NOT _files)
 
   if(CPPLINT_ADD_TESTS)
-    if(NOT TARGET ${PROJECT_NAME}_tests)
-      add_custom_target(${PROJECT_NAME}_tests)
+    if(NOT TARGET ${PROJECT_NAME}-tests)
+      add_custom_target(${PROJECT_NAME}-tests)
     endif()
-    add_dependencies(${PROJECT_NAME}_tests cpplint_run_${_name})
+    add_dependencies(${PROJECT_NAME}-tests cpplint_run_${_name})
   endif()
 
   add_custom_target(cpplint_run_${_name}
