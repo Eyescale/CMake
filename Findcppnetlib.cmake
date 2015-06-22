@@ -61,8 +61,8 @@ endif()
 
 # Find dynamic libraries
 if(CPPNETLIB_PATH)
-    set(__libraries cppnetlib-client-connections 
-                    cppnetlib-server-parsers 
+    set(__libraries cppnetlib-client-connections
+                    cppnetlib-server-parsers
                     cppnetlib-uri)
 
     foreach(__library ${__libraries})
@@ -78,23 +78,20 @@ if(CPPNETLIB_PATH)
     mark_as_advanced(CPPNETLIB_LIBRARIES)
 endif()
 
-if(CPPNETLIB_FIND_REQUIRED)
+
+if(NOT cppnetlib_FIND_QUIETLY)
   set(_cppnetlib_output 1)
-else()
-  if(NOT CPPNETLIB_FIND_QUIETLY)
-    set(_cppnetlib_output 1)
-  endif()
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(CPPNETLIB DEFAULT_MSG 
+find_package_handle_standard_args(cppnetlib DEFAULT_MSG
                                   CPPNETLIB_LIBRARIES
                                   CPPNETLIB_INCLUDE_DIR)
 
 if(CPPNETLIB_FOUND)
   set(CPPNETLIB_INCLUDE_DIRS ${CPPNETLIB_INCLUDE_DIR})
   if(_cppnetlib_output )
-    message(STATUS "Found cpp-netlib in ${CPPNETLIB_INCLUDE_DIR}:${CPPNETLIB_LIBRARIES}")
+    message(STATUS "Found cppnetlib in ${CPPNETLIB_INCLUDE_DIR}:${CPPNETLIB_LIBRARIES}")
   endif()
 else()
   set(CPPNETLIB_FOUND)

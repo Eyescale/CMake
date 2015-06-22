@@ -25,7 +25,6 @@ if(_git_origin_url)
 endif()
 
 if(NOT GIT_ORIGIN_ORG OR GIT_ORIGIN_ORG STREQUAL _git_origin_url)
-  message(STATUS "Can't determine github organization for ${_git_origin_url}")
   set(GIT_ORIGIN_ORG)
 else()
   string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_org)

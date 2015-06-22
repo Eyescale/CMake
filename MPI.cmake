@@ -47,7 +47,7 @@ if("${MPICC_COMPILER}" STREQUAL "" AND "${MPICXX_COMPILER}" STREQUAL "")
   message(STATUS "Could not find mpi wrappers in CMAKE_C_COMPILER or
 CMAKE_CXX_COMPILER. Trying to load mpi libs by default")
   set(MPI_WRAPPER_FOUND FALSE CACHE BOOL "Did not find the MPI Wrappers")
-  find_package(MPI REQUIRED)
+  find_package(MPI REQUIRED QUIET)
   # Add mpi linking flags
   if(MPI_LINK_FLAGS)
     LIST(APPEND LINK_FLAGS ${MPI_LINK_FLAGS})

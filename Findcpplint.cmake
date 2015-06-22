@@ -18,24 +18,24 @@
 #  FindPythonLibs
 
 # Check python installation as cpplint is a python script
-if (NOT PYTHONINTERP_FOUND)
+if(NOT PYTHON_EXECUTABLE)
   find_package(PythonInterp QUIET)
-endif(NOT PYTHONINTERP_FOUND)
+endif()
 
-if(NOT PYTHONLIBS_FOUND)
+if(NOT PYTHON_FOUND)
  find_package(PythonLibs QUIET)
-endif(NOT PYTHONLIBS_FOUND)
+endif()
 
-if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
+if(PYTHON_EXECUTABLE AND PYTHON_FOUND)
   set(_python_found true)
-endif(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
+endif()
 
 file(TO_CMAKE_PATH "${CPPLINT_ROOT_DIR}" CPPLINT_ROOT_DIR)
 set(CPPLINT_ROOT_DIR
-	"${CPPLINT_ROOT_DIR}"
-	CACHE
-	PATH
-	"Path to search for cpplint")
+    "${CPPLINT_ROOT_DIR}"
+    CACHE
+    PATH
+    "Path to search for cpplint")
 
 if(CPPLINT_SCRIPT AND NOT EXISTS "${CPPLINT_SCRIPT}")
   set(CPPLINT_SCRIPT NOTFOUND CACHE PATH "" FORCE)
@@ -44,9 +44,9 @@ endif(CPPLINT_SCRIPT AND NOT EXISTS "${CPPLINT_SCRIPT}")
 # If we have a custom path, look there first.
 if(CPPLINT_ROOT_DIR)
   find_file(CPPLINT_SCRIPT
-	NAMES cpplint.py
-	PATHS "${CPPLINT_ROOT_DIR}"
-	NO_DEFAULT_PATH)
+    NAMES cpplint.py
+    PATHS "${CPPLINT_ROOT_DIR}"
+    NO_DEFAULT_PATH)
 endif(CPPLINT_ROOT_DIR)
 
 set(CPPLINT_SCRIPT_DEFAULT_LOCATIONS
@@ -70,7 +70,7 @@ else(_python_found)
   set(CPPLINT_NOT_FOUND_MSG "Could NOT find python needed to run cpplint.py. Please check both executable and libraries are installed.")
 endif(_python_found)
 
-find_package_handle_standard_args(cpplint "${CPPLINT_NOT_FOUND_MSG}" PYTHONINTERP_FOUND PYTHONLIBS_FOUND CPPLINT_SCRIPT)
+find_package_handle_standard_args(cpplint "${CPPLINT_NOT_FOUND_MSG}" PYTHON_EXECUTABLE PYTHON_FOUND CPPLINT_SCRIPT)
 
 if(CPPLINT_FOUND OR CPPLINT_MARK_AS_ADVANCED)
   mark_as_advanced(CPPLINT_ROOT_DIR)
