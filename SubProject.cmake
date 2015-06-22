@@ -119,7 +119,7 @@ function(add_subproject name)
     add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
                      "${CMAKE_BINARY_DIR}/${name}")
     if(NOT ${name}_SKIP_FIND)
-      find_package(${name} REQUIRED) # find subproject "package"
+      find_package(${name} REQUIRED QUIET) # find subproject "package"
       include_directories(${${NAME}_INCLUDE_DIRS})
     endif()
     message("  <${ADD_SUBPROJECT_INDENT} ${path}")
@@ -260,5 +260,4 @@ function(subproject_configure)
   if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
   endif()
-
 endfunction()

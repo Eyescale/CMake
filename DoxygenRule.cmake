@@ -44,7 +44,9 @@
 #   When using subprojects, it is the responsiblity of the user to clone
 #   the documentation repository in the project's parent folder.
 
-find_package(Doxygen QUIET)
+if(NOT DOXYGEN_FOUND)
+  find_package(Doxygen QUIET)
+endif()
 if(NOT DOXYGEN_FOUND)
   return()
 endif()
@@ -65,7 +67,6 @@ if(NOT PROJECT_PACKAGE_NAME)
     message(STATUS "Set COMMON_PROJECT_DOMAIN to ${COMMON_PROJECT_DOMAIN}")
   endif()
   set(PROJECT_PACKAGE_NAME ${COMMON_PROJECT_DOMAIN}.${LOWER_PROJECT_NAME})
-  message(STATUS "Using ${PROJECT_PACKAGE_NAME} for documentation")
 endif()
 
 if(NOT DOXYGEN_PROJECT_NAME)
@@ -74,7 +75,6 @@ endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
   set(COMMON_ORGANIZATION_NAME Unknown)
-  message(STATUS "Using ${COMMON_ORGANIZATION_NAME} as organization")
 endif()
 
 if(NOT DOXYGEN_CONFIG_FILE)

@@ -19,7 +19,9 @@ set(GIT_ROOT_URL)
 set(GIT_BRANCH)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
-  find_package(Git QUIET)
+  if(NOT GIT_FOUND)
+    find_package(Git QUIET)
+  endif()
   if(GIT_FOUND)
     execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -47,9 +49,6 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
        set(GIT_STATE "<no-tag>")
     endif()
     string(REPLACE "* " "" GIT_BRANCH ${GIT_BRANCH})
-
-    message(STATUS
-      "git revision ${GIT_REVISION} state ${GIT_STATE} branch ${GIT_BRANCH}")
   else()
     message(STATUS "No revision version support, git not found")
   endif()

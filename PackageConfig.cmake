@@ -85,12 +85,11 @@ set(_config_file_body
   "set(_out)\n"
   "if(${PROJECT_NAME}_FIND_REQUIRED)\n"
   "  set(_output_type FATAL_ERROR)\n"
-  "  set(_out 1)\n"
   "else()\n"
   "  set(_output_type STATUS)\n"
-  "  if(NOT ${PROJECT_NAME}_FIND_QUIETLY)\n"
-  "    set(_out 1)\n"
-  "  endif()\n"
+  "endif()\n"
+  "if(NOT ${PROJECT_NAME}_FIND_QUIETLY)\n"
+  "  set(_out 1)\n"
   "endif()\n"
 )
 
