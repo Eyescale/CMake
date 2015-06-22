@@ -110,26 +110,26 @@ foreach(FILE ${TEST_FILES})
   endif()
 endforeach()
 
-if(NOT TARGET ${PROJECT_NAME}_cpptests)
-  add_custom_target(${PROJECT_NAME}_cpptests)
+if(NOT TARGET ${PROJECT_NAME}-cpptests)
+  add_custom_target(${PROJECT_NAME}-cpptests)
 endif()
-if(NOT TARGET ${PROJECT_NAME}_perftests)
-  add_custom_target(${PROJECT_NAME}_perftests)
+if(NOT TARGET ${PROJECT_NAME}-perftests)
+  add_custom_target(${PROJECT_NAME}-perftests)
 endif()
-set_target_properties(${PROJECT_NAME}_cpptests PROPERTIES
+set_target_properties(${PROJECT_NAME}-cpptests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
-set_target_properties(${PROJECT_NAME}_perftests PROPERTIES
+set_target_properties(${PROJECT_NAME}-perftests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 
-add_dependencies(${PROJECT_NAME}_cpptests ${ALL_CPP_TESTS})
+add_dependencies(${PROJECT_NAME}-cpptests ${ALL_CPP_TESTS})
 if(ALL_CPP_PERF_TESTS)
-  add_dependencies(${PROJECT_NAME}_perftests ${ALL_CPP_PERF_TESTS})
+  add_dependencies(${PROJECT_NAME}-perftests ${ALL_CPP_PERF_TESTS})
 endif()
 
-add_dependencies(${PROJECT_NAME}_tests ${PROJECT_NAME}_cpptests)
-add_dependencies(tests ${PROJECT_NAME}_tests)
-add_dependencies(perftests ${PROJECT_NAME}_perftests)
+add_dependencies(${PROJECT_NAME}-tests ${PROJECT_NAME}-cpptests)
+add_dependencies(tests ${PROJECT_NAME}-tests)
+add_dependencies(perftests ${PROJECT_NAME}-perftests)
 
 if(ENABLE_COVERAGE)
-  add_coverage_targets(${PROJECT_NAME}_cpptests)
+  add_coverage_targets(${PROJECT_NAME}-cpptests)
 endif()
