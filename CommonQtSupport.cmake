@@ -11,6 +11,7 @@
 # * COMMON_QT_SUPPORT_SOURCES
 
 macro(COMMON_QT_SUPPORT NAME)
+  set(COMMON_QT_SUPPORT_SOURCES "")
   if(${NAME}_MOC_HEADERS)
     if(NOT Qt5Core_FOUND)
       message(FATAL_ERROR "Qt5Core not found, needed for MOC of application ${Name}")
