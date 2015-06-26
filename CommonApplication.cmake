@@ -1,4 +1,5 @@
 # Copyright (c) 2014 Stefan.Eilemann@epfl.ch
+#               2015 Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
 #   common_application(<Name>)
@@ -62,8 +63,24 @@ if(APPLE)
   # Bundle all dependent libraries inside the .app to make it self-contained
   # and generate a disk image containing the .app for redistributing it.
   set(_INSTALLDIR ${CMAKE_INSTALL_PREFIX}/bin)
-  install(CODE "message(\"-- macdeployqt: ${_INSTALLDIR}/${Name}.app -dmg\")"
-    COMPONENT apps)
+  set(_BUNDLE ${_INSTALLDIR}/${Name}.app)
+  set(_RESOURCES ${_BUNDLE}/Contents/Resources)
+  set(_PLUGINS ${_BUNDLE}/Contents/PlugIns)
+
+  # Copy all Qt plugins within the app (this step is missing in macdeployqt)
+  set(_QT_ALL_PLUGINS ${Qt5Widgets_PLUGINS} ${Qt5Gui_PLUGINS})
+  foreach(plugin ${_QT_ALL_PLUGINS})
+    get_target_property(_loc ${plugin} LOCATION)
+    get_filename_component(_name ${_loc} NAME)
+    string(REGEX REPLACE ".*[/\\]([^/\\]*)[/\\]${_name}" "\\1" _dir ${_loc})
+    install(FILES ${_loc} DESTINATION ${_PLUGINS}/${_dir} COMPONENT apps)
+  endforeach()
+  # Add a qt.conf file to locate plugins after deployment
+  set(_QT_CONF "${CMAKE_CURRENT_BINARY_DIR}/qt.conf")
+  file(WRITE ${_QT_CONF} "[Paths]\nPlugins = PlugIns\n")
+  install(FILES ${_QT_CONF} DESTINATION ${_RESOURCES} COMPONENT apps)
+
+  install(CODE "message(\"-- macdeployqt: ${_BUNDLE} -dmg\")" COMPONENT apps)
   install(CODE "execute_process(COMMAND macdeployqt ${Name}.app -dmg
     WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
   install(CODE "execute_process(COMMAND mv ${Name}.dmg ${Name}-${VERSION}.dmg
