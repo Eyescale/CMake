@@ -21,6 +21,7 @@ endif()
 
 find_path(_TUVOK_INCLUDE_DIR NAMES Tuvok/StdTuvokDefines.h
   HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
+  ${CMAKE_SOURCE_DIR}
   PATH_SUFFIXES include
   PATHS /usr/local /usr /opt )
 
@@ -33,10 +34,14 @@ else()
   endif()
 endif()
 
-find_library(TUVOK_LIBRARY Tuvok
-  HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
-  PATH_SUFFIXES lib lib64
-  PATHS /usr/local /usr /usr/local /opt /opt/local)
+if(TARGET Tuvok)
+  set(TUVOK_LIBRARY Tuvok)
+else()
+  find_library(TUVOK_LIBRARY Tuvok
+    HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
+    PATH_SUFFIXES lib lib64
+    PATHS /usr/local /usr /usr/local /opt /opt/local)
+endif()
 
 if(Tuvok_FIND_REQUIRED)
  if(TUVOK_LIBRARY MATCHES "TUVOK_LIBRARY-NOTFOUND")
