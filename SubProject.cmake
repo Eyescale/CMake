@@ -82,8 +82,7 @@ function(add_subproject name)
     # We're adding a sub project here: Remove parent's CMake
     # directories so they don't take precendence over the sub project
     # directories. Change is scoped to this function.
-    list(REMOVE_ITEM CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-      ${PROJECT_SOURCE_DIR}/CMake/common)
+    list(REMOVE_ITEM CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
   endif()
 
   list(LENGTH ARGN argc)
