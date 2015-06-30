@@ -10,6 +10,8 @@
 #   in Doxyfile
 # * DOXYGEN_EXTRA_FILES additional files to be copied to documentation,
 #   appended to HTML_EXTRA_FILES in Doxyfile
+# * DOXYGEN_EXTRA_STYLESHEET additional css style sheet to assign to the
+#   HTML_EXTRA_STYLESHEET variable in Doxyfile
 # * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
 #   to PROJECT_NAME if not provided.
 # * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
