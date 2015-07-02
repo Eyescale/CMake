@@ -38,7 +38,7 @@ set(USE_PYTHON_VERSION "auto" CACHE STRING
 
 set_property(CACHE USE_PYTHON_VERSION PROPERTY STRINGS 2 3 auto)
 
-if(NOT PYTHON_EXECUTABLE AND ${USE_PYTHON_VERSION} STREQUAL auto)
+if(${USE_PYTHON_VERSION} STREQUAL auto)
   # Finding Boost first if needed because if the Python3 interpreter is found
   # first there's no way back.
   if(CHOOSE_PYTHON_REQUIRE_BOOST)
