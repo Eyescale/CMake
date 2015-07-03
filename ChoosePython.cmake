@@ -38,6 +38,11 @@ set(USE_PYTHON_VERSION "auto" CACHE STRING
 
 set_property(CACHE USE_PYTHON_VERSION PROPERTY STRINGS 2 3 auto)
 
+if(PYTHONINTERP_FOUND)
+  message(WARNING "This script must be included before trying to find Python.")
+  return()
+endif()
+
 if(${USE_PYTHON_VERSION} STREQUAL auto)
   # Finding Boost first if needed because if the Python3 interpreter is found
   # first there's no way back.
@@ -48,7 +53,7 @@ if(${USE_PYTHON_VERSION} STREQUAL auto)
     find_package(PythonInterp 3 QUIET)
   endif()
 
-  if(PYTHON_EXECUTABLE AND (NOT CHOOSE_PYTHON_REQUIRE_BOOST OR Boost_FOUND))
+  if(PYTHONINTERP_FOUND AND (NOT CHOOSE_PYTHON_REQUIRE_BOOST OR Boost_FOUND))
     set(USE_PYTHON_VERSION 3)
     message(STATUS "Python 3 chosen automatically")
   else()
@@ -83,8 +88,9 @@ else()
 endif()
 
 if(NOT PYTHON_EXECUTABLE)
-  find_package(PythonInterp QUIET) # Regardless of auto-detection, now we need to
-                                   # find the interpreter to query the library suffix
+  # Regardless of auto-detection, now we need to find the interpreter to
+  # query the library suffix.
+  find_package(PythonInterp QUIET)
 endif()
 execute_process(COMMAND
   ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1,0,prefix=''))"
