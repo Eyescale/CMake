@@ -40,9 +40,9 @@ function(COMMON_APPLICATION Name)
 endfunction()
 
 function(COMMON_GUI_APPLICATION Name)
-if(APPLE)
-  string(TOUPPER ${Name} NAME)
+string(TOUPPER ${Name} NAME)
 
+if(APPLE)
   if(${NAME}_ICON)
     set_source_files_properties(${${NAME}_ICON}
       PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
@@ -68,8 +68,13 @@ if(APPLE)
     WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
   install(CODE "execute_process(COMMAND mv ${Name}.dmg ${Name}-${VERSION}.dmg
     WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
-elseif(WIN32)
+elseif(MSVC)
   common_application(${Name} WIN32 ${ARGN})
+  # Qt5 gui applications need to link to WinMain on Windows
+  list(FIND ${NAME}_LINK_LIBRARIES Qt5::Core _USING_QT)
+  if(NOT _USING_QT EQUAL -1)
+    target_link_libraries(${Name} Qt5::WinMain)
+  endif()
 else()
   common_application(${Name} ${ARGN})
 endif()
