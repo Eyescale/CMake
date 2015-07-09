@@ -1,6 +1,41 @@
-### master
+### 2015.06
 
-* Add Qt support to CommonApplication.cmake
+* New SubProject module based on GitExternal
+* Subprojects share a single copy of CMake/common
+* Buildyard bootstrapping mechanism deprecated and removed
+* Using "cmake -DINSTALL_PACKAGES=1" installs system packages required by a
+  project (Debian/Ubuntu + OSX)
+* Added Qt5 support in common_library() and common_application()
+* New common_gui_application() for configuring GUI applications (OSX app bundle)
+* New common_documentation() for documentation repositories. Deprecated
+  generation of index.html by CMake in favor of Jekyll for github projects
+* Fixed *doxygen* and *coverage* targets for subprojects, enforce LCOV >= 1.11
+* Fixed *cppcheck* and *cpplint* targets for subprojects
+* New common_package() macro to find a dependency consistently
+* PackageConfig searches for ABI-matching upstream dependencies.
+  If VERSION_ABI is not available, fallback to matching VERSION MAJOR+MINOR
+* Support for detecting both Python2 and Python3 versions
+* Removed LAST_RELEASE variable from projects and use VERSION instead
+* Separate unit tests from performance tests
+* Arch Linux added to the list of supported platforms
+* Multiple fixes for CMake3
+* More quiet runs
+* Merged and retired CMakeBBP fork
+* Removed obsolete components:
+    * GNUModules
+    * WriteModuleFile
+    * BuildLibrary
+    * FindDisplayCluster
+    * FindFlatBuffers
+    * FindTuio
+* Windows-specific improvements:
+    * Targets are properly organized into folders in VisualStudio IDE
+    * Unwanted targets removed from VisualStudio "All Build" target
+    * Many fixes for Boost detection
+* Mac-specific improvements:
+    * common_gui_application() installs a relocatable app bundle packaged into
+      a .dmg (if macdeployqt is available)
+    * Use C++11 std and stdlib on OSX >= 10.9, C++03 on <= 10.8
 
 ### 2014.6
 
