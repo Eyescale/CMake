@@ -80,7 +80,9 @@ function(GIT_EXTERNAL DIR REPO TAG)
   get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
+  set(FRESH_CLONE 0)
   if(NOT EXISTS "${DIR}")
+    set(FRESH_CLONE 1)
     message(STATUS "git clone ${REPO} ${DIR}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone --recursive "${REPO}" "${DIR}"
@@ -106,8 +108,10 @@ function(GIT_EXTERNAL DIR REPO TAG)
     return()
   endif()
 
-  if(GIT_EXTERNAL_DISABLE_UPDATE)
-    git_external_message("git update disabled by user")
+  # if a fresh clone of a repo is underway, proceed, otherwise we may 
+  # get the default branch/sha instead of the one we asked for
+  if(GIT_EXTERNAL_DISABLE_UPDATE AND (NOT FRESH_CLONE))
+    git_external_message("git update of ${REPO} disabled by user")
     return()
   endif()
 
