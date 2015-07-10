@@ -8,7 +8,7 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#      git_external(<directory> <giturl> <gittag> [DISABLE_UPDATE,VERBOSE]
+#      git_external(<directory> <giturl> <gittag> [DISABLE_UPDATE,VERBOSE,SHALLOW]
 #        [RESET <files>])
 #    which will check out directory in CMAKE_SOURCE_DIR (if relative)
 #    or in the given absolute path using the given repository and tag
@@ -24,16 +24,21 @@
 #    The purpose of this is to allow one to set a default branch to be 
 #    checked out, but stop GitExternal from changing back to that branch 
 #    if the user has made local changes or checked out another branch.
+#  SHALLOW, when present, causes a shallow clone of depth 1 to be made
+#    of the specified repo. This may save considerable memory/bandwidth
+#    when only a specific branch of a repo is required and the full history 
+#    is not required. Note that the SHALLOW option will only work for a branch
+#    or tag and cannot be used or an arbitrary SHA.
 #
 # Global Options which control behaviour:
 #  GIT_EXTERNAL_DISABLE_UPDATE
 #    This is a global option which has the same effect as the DISABLE_UPDATE
 #    option, with the difference that it will disable all updates for all external
-#    repos in the current project.
+#    repos when set.
 #  GIT_EXTERNAL_VERBOSE
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all 
-#    external repos in the current project.
+#    external repos when set.
 #
 # CMake variables
 #  GIT_EXTERNAL_USER_FORK If set, a remote called 'user' is set up for github
@@ -69,7 +74,7 @@ macro(GIT_EXTERNAL_MESSAGE msg)
 endmacro()
 
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL_LOCAL_OPTION "DISABLE_UPDATE;VERBOSE" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL_OPTION "DISABLE_UPDATE;VERBOSE;SHALLOW" "" "RESET" ${ARGN})
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
@@ -94,13 +99,23 @@ function(GIT_EXTERNAL DIR REPO TAG)
   set(FRESH_CLONE 0)
   if(NOT EXISTS "${DIR}")
     set(FRESH_CLONE 1)
-    message(STATUS "git clone ${REPO} ${DIR}")
+    if (GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+      set(_command clone --recursive --depth 1 --branch ${TAG} ${REPO} ${DIR})
+    else()
+      set(_command clone --recursive ${REPO} ${DIR})
+    endif()
+    message(STATUS "git " ${_command})
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" clone --recursive "${REPO}" "${DIR}"
+      COMMAND "${GIT_EXECUTABLE}" ${_command}
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
     if(nok)
       message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
+    endif()
+    # for a shallow repo, after the intial clone, 
+    # we can exit as we are already on the required branch
+    if(FRESH_CLONE AND GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+      return()
     endif()
   endif()
 
