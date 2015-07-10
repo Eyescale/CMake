@@ -8,21 +8,32 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#      git_external(<directory> <giturl> <gittag> [VERBOSE]
+#      git_external(<directory> <giturl> <gittag> [DISABLE_UPDATE,VERBOSE]
 #        [RESET <files>])
 #    which will check out directory in CMAKE_SOURCE_DIR (if relative)
 #    or in the given absolute path using the given repository and tag
 #    (commit-ish).
 #
-# Options which control behaviour:
+# Options which can be supplied to the function
+#  VERBOSE, when present, this option tells the function to output
+#    information about what operations are being performed by git on 
+#    the repo.
+#  DISABLE_UPDATE, when present, once the repo has been initially cloned and 
+#    setup then no further git operations will be performed. GitExternal will not 
+#    make any changes to the checked out or modified state of the repo.
+#    The purpose of this is to allow one to set a default branch to be 
+#    checked out, but stop GitExternal from changing back to that branch 
+#    if the user has made local changes or checked out another branch.
+#
+# Global Options which control behaviour:
 #  GIT_EXTERNAL_DISABLE_UPDATE
-#    When set, GitExternal will not change a repo that has already
-#    been checked out. The purpose of this is to allow one to set a
-#    default branch to be checked out, but stop GitExternal from
-#    changing back to that branch if the user has checked out and is
-#    working on another.
+#    This is a global option which has the same effect as the DISABLE_UPDATE
+#    option, with the difference that it will disable all updates for all external
+#    repos in the current project.
 #  GIT_EXTERNAL_VERBOSE
-#    When set, displays information about git commands that are executed
+#    This is a global option which has the same effect as the VERBOSE option,
+#    with the difference that output information will be produced for all 
+#    external repos in the current project.
 #
 # CMake variables
 #  GIT_EXTERNAL_USER_FORK If set, a remote called 'user' is set up for github
@@ -52,13 +63,13 @@ set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
   "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
-  if(GIT_EXTERNAL_VERBOSE)
+  if(GIT_EXTERNAL_VERBOSE OR GIT_EXTERNAL_LOCAL_OPTION_VERBOSE)
     message(STATUS "${NAME} : ${msg}")
   endif()
 endmacro()
 
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL_OPTION "DISABLE_UPDATE;VERBOSE" "" "RESET" ${ARGN})
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
@@ -110,7 +121,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   # if a fresh clone of a repo is underway, proceed, otherwise we may 
   # get the default branch/sha instead of the one we asked for
-  if(GIT_EXTERNAL_DISABLE_UPDATE AND (NOT FRESH_CLONE))
+  if((GIT_EXTERNAL_DISABLE_UPDATE OR GIT_EXTERNAL_LOCAL_OPTION_DISABLE_UPDATE) AND (NOT FRESH_CLONE))
     git_external_message("git update of ${REPO} disabled by user")
     return()
   endif()
@@ -126,7 +137,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   endif()
 
   # reset generated files
-  foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
+  foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_LOCAL_OPTION_RESET})
     git_external_message("git reset -q ${GIT_EXTERNAL_RESET_FILE}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
