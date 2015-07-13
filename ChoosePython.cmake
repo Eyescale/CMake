@@ -16,9 +16,9 @@
 # * CHOOSE_PYTHON_IGNORE_BOOST
 #
 # Output Variables:
-# * ${PROJECT_NAME}_USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
-# * ${PROJECT_NAME}_USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is choosen,
-#     empty string otherwise
+# * USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
+# * USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is choosen, empty string
+#     otherwise
 # * PYTHON_LIBRARY_SUFFIX: The suffix path where Python site packages are
 #     to be installed for the chosen Python version.
 # * PythonLibs_FIND_VERSION
@@ -67,15 +67,15 @@ if(${USE_PYTHON_VERSION} STREQUAL auto)
 endif()
 
 if(${USE_PYTHON_VERSION} STREQUAL 3)
-  set(${PROJECT_NAME}_USE_PYTHON3 ON)
+  set(USE_PYTHON3 ON)
   # Enforcing a Python version to be searched by scripts included by
   # Common.cmake that search for Python (e.g. cpplint)
   set(PYTHON_ADDITIONAL_VERSIONS 3.4 3.3 3.2)
   set(Python_ADDITIONAL_VERSIONS 3.4 3.3 3.2)
   set(PythonLibs_FIND_VERSION 3)
   set(PythonInterp_FIND_VERSION 3)
-  add_definitions(-D${PROJECT_NAME}_USE_PYTHON3=1)
-  set(${PROJECT_NAME}_USE_BOOST_PYTHON_VERSION 3)
+  add_definitions(-DUSE_PYTHON3=1)
+  set(USE_BOOST_PYTHON_VERSION 3)
   # This shouldn't be necessary but helps detecting the Python libs
   # provided by the module python/3.2-rhel6-x86_64
   if(DEFINED ENV{PYTHON_LIBRARY})
