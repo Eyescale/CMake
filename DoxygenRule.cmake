@@ -4,6 +4,12 @@
 # TargetHooks installed by Common and must be included after all targets!
 #
 # Input Variables
+# * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
+#   to PROJECT_NAME if not provided.
+# * DOXYGEN_PROJECT_BRIEF A short description of the project. Defaults to
+#   ${UPPER_PROJECT_NAME}_DESCRIPTION if not provided.
+# * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
+#   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
 # * DOXYGEN_EXTRA_INPUT additional parsed input files, appended to INPUT in
 #   Doxyfile
 # * DOXYGEN_EXTRA_EXCLUDE additional excluded input files, appended to EXCLUDE
@@ -12,11 +18,6 @@
 #   appended to HTML_EXTRA_FILES in Doxyfile
 # * DOXYGEN_EXTRA_STYLESHEET additional css style sheet to assign to the
 #   HTML_EXTRA_STYLESHEET variable in Doxyfile
-# * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
-#   to PROJECT_NAME if not provided.
-# * DOXYGEN_MAINPAGE_MD markdown file to use as main page. See
-#   USE_MDFILE_AS_MAINPAGE doxygen documentation for details.
-# * DOXYGIT_MAX_VERSIONS number of versions to keep in directory
 #
 # Optional project information
 # Output to a metadata file for html index page generation by Jekyll
@@ -71,6 +72,10 @@ endif()
 
 if(NOT DOXYGEN_PROJECT_NAME)
   set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
+endif()
+
+if(NOT DOXYGEN_PROJECT_BRIEF)
+  set(DOXYGEN_PROJECT_BRIEF ${${UPPER_PROJECT_NAME}_DESCRIPTION})
 endif()
 
 if(NOT COMMON_ORGANIZATION_NAME)
