@@ -23,14 +23,17 @@ the beginning of the CMake run, and make all its features available.
 The following CMake modules can be included in your project:
 
 * [Common](Common.cmake) does a common CMake setup, and also includes:
-    * [CommonCode](CommonCode.cmake) generates standard header files for
-      the project (api.h, defines.h, version.h).
     * [CommonLibrary](CommonLibrary.cmake) *common_library* function to
-      build a shared library using a standard recipe.
+      build a shared library using a standard recipe and generates header
+      files for the library (api.h, defines.h, version.h).
     * [CommonApplication](CommonApplication.cmake) *common_application*
       function to build an application using a standard recipe.
-    * [Compiler](Compiler.cmake): Default compiler flags, useful default
-      warnings and 'safe' C++11 features.
+    * [CommonPackage](CommonPackage.cmake) *common_package* for more convenience
+      over find_package and *common_package_post* (last after all common_package
+      calls) to generate defines.h and options.cmake for feature checking.
+    * [Compiler](Compiler.cmake): Default compiler flags applied via
+      common_compiler_flags(), useful default warnings and 'safe' C++11
+      features.
     * [GitInfo](GitInfo.cmake) sets variables with information about the
       git source tree.
     * [GitTargets](GitTargets.cmake) *branch*, *cut*, *tag*, *erase*,

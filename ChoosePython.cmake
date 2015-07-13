@@ -8,16 +8,17 @@
 # This script provides an option to choose which Python version should be
 # requested to FindPythonInterp and FindPythonLibs. The user can choose
 # between version 2, 3 or autodetection (the default). If
-# CHOOSE_PYTHON_REQUIRE_BOOST is set, autodetection will choose Python 3 only
-# if Boost.Python is found to have support for Python 3.
+# CHOOSE_PYTHON_IGNORE_BOOST is set, autodetection will choose the Python
+# version without checking if Boost.Python is available and which version it
+# supports.
 #
 # Input Variables:
-# * CHOOSE_PYTHON_REQUIRE_BOOST
+# * CHOOSE_PYTHON_IGNORE_BOOST
 #
 # Output Variables:
-# * ${PROJECT_NAME}_USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
-# * ${PROJECT_NAME}_USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is choosen,
-#     empty string otherwise
+# * USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
+# * USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is choosen, empty string
+#     otherwise
 # * PYTHON_LIBRARY_SUFFIX: The suffix path where Python site packages are
 #     to be installed for the chosen Python version.
 # * PythonLibs_FIND_VERSION
@@ -30,6 +31,11 @@
 #
 # Defines:
 # * -D${PROJECT_NAME}_USE_PYTHON3=1: If Python 3 is chosen.
+
+if(CHOOSE_PYTHON_DONE)
+  return()
+endif()
+set(CHOOSE_PYTHON_DONE ON)
 
 include(FindBoostConfig) # Including the workarounds for boost finders.
 
@@ -46,32 +52,30 @@ endif()
 if(${USE_PYTHON_VERSION} STREQUAL auto)
   # Finding Boost first if needed because if the Python3 interpreter is found
   # first there's no way back.
-  if(CHOOSE_PYTHON_REQUIRE_BOOST)
+  if(NOT CHOOSE_PYTHON_IGNORE_BOOST)
     find_package(Boost COMPONENTS python3 QUIET)
   endif()
-  if(Boost_FOUND OR NOT CHOOSE_PYTHON_REQUIRE_BOOST)
+  if(Boost_FOUND OR CHOOSE_PYTHON_IGNORE_BOOST)
     find_package(PythonInterp 3 QUIET)
   endif()
 
-  if(PYTHONINTERP_FOUND AND (NOT CHOOSE_PYTHON_REQUIRE_BOOST OR Boost_FOUND))
+  if(PYTHONINTERP_FOUND AND (CHOOSE_PYTHON_IGNORE_BOOST OR Boost_FOUND))
     set(USE_PYTHON_VERSION 3)
-    message(STATUS "Python 3 chosen automatically")
   else()
     set(USE_PYTHON_VERSION 2)
-    message(STATUS "Python 2 chosen automatically")
   endif()
 endif()
 
 if(${USE_PYTHON_VERSION} STREQUAL 3)
-  set(${PROJECT_NAME}_USE_PYTHON3 ON)
+  set(USE_PYTHON3 ON)
   # Enforcing a Python version to be searched by scripts included by
   # Common.cmake that search for Python (e.g. cpplint)
   set(PYTHON_ADDITIONAL_VERSIONS 3.4 3.3 3.2)
   set(Python_ADDITIONAL_VERSIONS 3.4 3.3 3.2)
   set(PythonLibs_FIND_VERSION 3)
   set(PythonInterp_FIND_VERSION 3)
-  add_definitions(-D${PROJECT_NAME}_USE_PYTHON3=1)
-  set(${PROJECT_NAME}_USE_BOOST_PYTHON_VERSION 3)
+  add_definitions(-DUSE_PYTHON3=1)
+  set(USE_BOOST_PYTHON_VERSION 3)
   # This shouldn't be necessary but helps detecting the Python libs
   # provided by the module python/3.2-rhel6-x86_64
   if(DEFINED ENV{PYTHON_LIBRARY})

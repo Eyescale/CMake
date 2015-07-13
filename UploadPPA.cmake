@@ -5,6 +5,10 @@
 #  sudo apt-get install devscripts
 ##
 
+if(NOT LSB_DISTRIBUTOR_ID STREQUAL "Ubuntu")
+  return()
+endif()
+
 find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
 

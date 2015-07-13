@@ -111,9 +111,7 @@ function(add_cppcheck _name)
   add_custom_target(cppcheck_run_${_name}
     COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG}
       ${CPPCHECK_TEMPLATE_ARG} ${_cppcheck_args} ${_files}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "cppcheck_run_${_name}: Running cppcheck on target ${_name}..."
-    VERBATIM)
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
   set_target_properties(cppcheck_run_${_name} PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cppcheck")
 

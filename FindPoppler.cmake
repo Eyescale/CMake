@@ -47,7 +47,7 @@ set(POPPLER_REQUIRED "POPPLER_LIBRARY")
 # use pkg-config to get the directories and then use these values
 # in the find_path() and find_library() calls
 if( NOT WIN32 )
-  find_package(PkgConfig)
+  find_package(PkgConfig QUIET)
 
   pkg_check_modules(POPPLER_PKG QUIET poppler)
   if( FIND_CPP )

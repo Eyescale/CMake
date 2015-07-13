@@ -34,6 +34,8 @@ endif()
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${PROJECT_SOURCE_DIR})
 
+common_compiler_flags()
+
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.cpp)
 foreach(FILE ${EXCLUDE_FROM_TESTS})
   list(REMOVE_ITEM TEST_FILES ${FILE})

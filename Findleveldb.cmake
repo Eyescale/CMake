@@ -88,14 +88,14 @@ elseif(_LEVELDB_version_not_exact)
       "Version ${LEVELDB_VERSION} was found.")
   endif()
 else()
-  if(LEVELDB_FIND_REQUIRED)
+  if(leveldb_FIND_REQUIRED)
     if(LEVELDB_LIBRARY MATCHES "LEVELDB_LIBRARY-NOTFOUND")
       message(FATAL_ERROR "Missing the leveldb library.\n"
         "Consider using CMAKE_PREFIX_PATH or the LEVELDB_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  find_package_handle_standard_args(LEVELDB DEFAULT_MSG
+  find_package_handle_standard_args(leveldb DEFAULT_MSG
                                     LEVELDB_LIBRARY _LEVELDB_INCLUDE_DIR)
 endif()
 

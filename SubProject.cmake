@@ -31,6 +31,8 @@
 #   example for continuous integration builds
 # - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
 #   "port install" the known system packages. Will be unset after installation.
+# - COMMON_SOURCE_DIR: When set, the source code of subprojects will be
+#   downloaded in this path instead of CMAKE_SOURCE_DIR.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 #
 # How to create a dependency graph:
@@ -47,6 +49,12 @@ endif()
 add_custom_target(git_subproject_${PROJECT_NAME}_done)
 set_target_properties(git_subproject_${PROJECT_NAME}_done PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "zzphony")
+
+set(COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH
+  "Location of common directory of all sources")
+set(__common_source_dir ${COMMON_SOURCE_DIR})
+get_filename_component(__common_source_dir ${__common_source_dir} ABSOLUTE)
+file(MAKE_DIRECTORY ${__common_source_dir})
 
 function(subproject_install_packages file name)
   if(NOT EXISTS ${file} OR NOT INSTALL_PACKAGES)
@@ -92,8 +100,9 @@ function(add_subproject name)
     set(path ${name})
   endif ()
 
-  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${path}/")
-    message(FATAL_ERROR "Sub project ${path} not found in ${CMAKE_SOURCE_DIR}")
+  if(NOT EXISTS "${__common_source_dir}/${path}/")
+    message(FATAL_ERROR
+      "Sub project ${path} not found in ${__common_source_dir}")
   endif()
 
   option(SUBPROJECT_${name} "Build ${name} " ON)
@@ -109,19 +118,17 @@ function(add_subproject name)
     endif()
 
     subproject_install_packages(
-      "${CMAKE_SOURCE_DIR}/${path}/CMake/${name}.cmake" ${name})
+      "${__common_source_dir}/${path}/CMake/${name}.cmake" ${name})
 
     # add the source sub directory to our build and set the binary dir
     # to the build tree
-    set(ADD_SUBPROJECT_INDENT "${ADD_SUBPROJECT_INDENT}--")
-    message("  ${ADD_SUBPROJECT_INDENT}> ${path}")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/${path}"
+
+    add_subdirectory("${__common_source_dir}/${path}"
                      "${CMAKE_BINARY_DIR}/${name}")
     if(NOT ${name}_SKIP_FIND)
       find_package(${name} REQUIRED QUIET) # find subproject "package"
       include_directories(${${NAME}_INCLUDE_DIRS})
     endif()
-    message("  <${ADD_SUBPROJECT_INDENT} ${path}")
     set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
     # Mark globally that we've already used name as a sub project
     set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
@@ -143,7 +150,7 @@ macro(git_subproject name url tag)
     endif()
     if(NOT ${NAME}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(NOT EXISTS ${CMAKE_SOURCE_DIR}/${name})
+      if(NOT EXISTS ${__common_source_dir}/${name})
         # Always try first using Config mode, then Module mode.
         find_package(${name} QUIET CONFIG)
         if(NOT ${name}_FOUND)
@@ -153,7 +160,7 @@ macro(git_subproject name url tag)
         find_package(${name} QUIET CONFIG HINTS ${CMAKE_BINARY_DIR}/${NAME})
       endif()
       if(NOT ${NAME}_FOUND)
-        git_external(${CMAKE_SOURCE_DIR}/${name} ${url} ${TAG})
+        git_external(${__common_source_dir}/${name} ${url} ${TAG})
         add_subproject(${name})
       endif()
     endif()
@@ -181,7 +188,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       string(REPLACE " " ";" __subproject_list ${__subproject})
       list(GET __subproject_list 0 __subproject_name)
       list(GET __subproject_list 1 __subproject_repo)
-      set(__subproject_dir "${CMAKE_SOURCE_DIR}/${__subproject_name}")
+      set(__subproject_dir "${__common_source_dir}/${__subproject_name}")
       file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
         "execute_process(COMMAND ${GIT_EXECUTABLE} fetch origin -q\n"
         "  WORKING_DIRECTORY ${__subproject_dir})\n"

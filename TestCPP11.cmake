@@ -1,6 +1,12 @@
 # Copyright (c) 2013 ahmet.bilgili@epfl.ch
 #               2013 Stefan.Eilemann@epfl.ch
 
+# OPT: do this only once, included by Common.cmake
+if(TESTS_CPP11_DONE)
+  return()
+endif()
+set(TESTS_CPP11_DONE ON)
+
 set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map
   template_alias)
 
