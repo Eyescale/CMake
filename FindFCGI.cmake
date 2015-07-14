@@ -13,7 +13,7 @@ find_library(FCGIPP_LIBRARY NAMES fcgi++)
 
 # Handle the QUIETLY and REQUIRED arguments and set FCGI_FOUND to TRUE if all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(fcgi DEFAULT_MSG FCGI_INCLUDE_DIR FCGI_LIBRARY FCGIPP_LIBRARY)
+find_package_handle_standard_args(FCGI DEFAULT_MSG FCGI_INCLUDE_DIR FCGI_LIBRARY FCGIPP_LIBRARY)
 
 # Copy the results to the output variables.
 if(FCGI_FOUND)

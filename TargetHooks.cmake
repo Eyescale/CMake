@@ -12,10 +12,6 @@ include(CpplintTargets)
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
 
-# ${PROJECT_NAMESPACE}_API= -> Fix cppcheck error about not including version.h
-set(CPPCHECK_EXTRA_ARGS
-  -D${UPPER_PROJECT_NAME}_STATIC= -D${PROJECT_NAMESPACE}_API=)
-
 # only ever define this macro once, in case subprojects include the same rules
 get_property(ADD_EXE_DEFINED GLOBAL PROPERTY ADD_EXE_MACRO_DEFINED)
 if(NOT ADD_EXE_DEFINED)
