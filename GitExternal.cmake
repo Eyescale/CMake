@@ -73,6 +73,13 @@ macro(GIT_EXTERNAL_MESSAGE msg)
   endif()
 endmacro()
 
+# utility function for printing a list with custom separator
+function(JOIN VALUES GLUE OUTPUT)
+  string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
 function(GIT_EXTERNAL DIR REPO TAG)
   cmake_parse_arguments(GIT_EXTERNAL_LOCAL_OPTION "DISABLE_UPDATE;VERBOSE;SHALLOW" "" "RESET" ${ARGN})
 
@@ -104,7 +111,8 @@ function(GIT_EXTERNAL DIR REPO TAG)
     else()
       set(_command clone --recursive ${REPO} ${DIR})
     endif()
-    message(STATUS "git " ${_command})
+    JOIN("${_command}" " " _msg_text)
+    git_external_message(STATUS "git " ${_msg_text})
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" ${_command}
       RESULT_VARIABLE nok ERROR_VARIABLE error
