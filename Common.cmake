@@ -90,6 +90,7 @@ endif()
 set(LIBRARY_DIR lib)
 
 if(APPLE)
+  cmake_policy(SET CMP0042 NEW)
   list(APPEND CMAKE_PREFIX_PATH /opt/local/ /opt/local/lib
     /opt/local/libexec/qt5-mac) # Macports
   set(ENV{PATH} "/opt/local/bin:$ENV{PATH}") # dito
@@ -99,9 +100,6 @@ if(APPLE)
   endif()
   set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
-  if(NOT CMAKE_INSTALL_NAME_DIR)
-    set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-  endif()
 endif()
 
 if($ENV{TRAVIS})
