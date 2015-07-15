@@ -14,6 +14,9 @@
 #    of common_package_post()
 #  - sets include_directories() and link_directories() accordingly
 #
+# common_package_disable(<list>)
+#   Disables the previous found package(s)
+#
 # common_package_post()
 #  - generates defines.h and options.cmake for found packages.
 #  - prints status message of found and not-found packages
@@ -147,6 +150,22 @@ macro(common_package Package_Name)
   endif()
 endmacro()
 
+macro(common_package_disable)
+  set(__args ${ARGN}) # ARGN is not a list. make one.
+  foreach(Package_Name ${__args})
+    string(TOUPPER ${Package_Name} PACKAGE_NAME)
+    set(${Package_Name}_name)
+    set(${Package_Name}_FOUND)
+    set(${PACKAGE_NAME}_FOUND)
+    set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
+    string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
+    list(REMOVE_ITEM COMMON_PACKAGE_DEFINES ${__use_package_define})
+    string(REPLACE " ${Package_Name}" "" ${PROJECT_NAME}_FIND_PACKAGES_FOUND
+      "${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
+    set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
+      "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND} ${Package_Name}")
+  endforeach()
+endmacro()
 
 macro(common_package_post)
   # Write defines.h and options.cmake
