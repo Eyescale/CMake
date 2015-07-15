@@ -1,5 +1,7 @@
 ### git master
 
+* new targets DIR-rebase and rebase in GitExternal.cmake to update git
+  externals and sub projects
 * common_compiler_flags() macro replaces globally set CMAKE_C[XX]_FLAGS;
   is automatically applied when using common_application, common_library
   and CommonCTest
