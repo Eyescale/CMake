@@ -141,7 +141,7 @@ set(_jekyll_md_file "${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}-${VERSION_MAJOR}.
 file(WRITE ${_jekyll_md_file}
 "---\n"
 "name: ${PROJECT_NAME}\n"
-"version: ${VERSION_MAJOR}.${VERSION_MINOR}\n"
+"version: "${VERSION_MAJOR}.${VERSION_MINOR}"\n"
 "major: ${VERSION_MAJOR}\n"
 "minor: ${VERSION_MINOR}\n"
 "description: ${${UPPER_PROJECT_NAME}_DESCRIPTION}\n"
