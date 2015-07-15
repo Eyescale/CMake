@@ -14,30 +14,25 @@
 #    or in the given absolute path using the given repository and tag
 #    (commit-ish).
 #
-# Options which can be supplied to the function
+# Options which can be supplied to the function:
 #  VERBOSE, when present, this option tells the function to output
-#    information about what operations are being performed by git on 
+#    information about what operations are being performed by git on
 #    the repo.
-#  DISABLE_UPDATE, when present, once the repo has been initially cloned and 
-#    setup then no further git operations will be performed. GitExternal will not 
-#    make any changes to the checked out or modified state of the repo.
-#    The purpose of this is to allow one to set a default branch to be 
-#    checked out, but stop GitExternal from changing back to that branch 
-#    if the user has made local changes or checked out another branch.
 #  SHALLOW, when present, causes a shallow clone of depth 1 to be made
 #    of the specified repo. This may save considerable memory/bandwidth
-#    when only a specific branch of a repo is required and the full history 
+#    when only a specific branch of a repo is required and the full history
 #    is not required. Note that the SHALLOW option will only work for a branch
 #    or tag and cannot be used or an arbitrary SHA.
 #
-# Global Options which control behaviour:
-#  GIT_EXTERNAL_DISABLE_UPDATE
-#    This is a global option which has the same effect as the DISABLE_UPDATE
-#    option, with the difference that it will disable all updates for all external
-#    repos when set.
+# Targets:
+#  * <directory>-rebase: fetches latest updates and rebases the given external
+#    git repository onto it.
+#  * rebase: Rebases all git externals, including sub projects
+#
+# Options which control behaviour:
 #  GIT_EXTERNAL_VERBOSE
 #    This is a global option which has the same effect as the VERBOSE option,
-#    with the difference that output information will be produced for all 
+#    with the difference that output information will be produced for all
 #    external repos when set.
 #
 # CMake variables
@@ -53,7 +48,6 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
-option(GIT_EXTERNAL_DISABLE_UPDATE "Disable update of cloned repositories" OFF)
 option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
 
 set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
@@ -103,27 +97,31 @@ function(GIT_EXTERNAL DIR REPO TAG)
   get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
-  set(FRESH_CLONE 0)
   if(NOT EXISTS "${DIR}")
-    set(FRESH_CLONE 1)
-    if (GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
-      set(_command clone --recursive --depth 1 --branch ${TAG} ${REPO} ${DIR})
-    else()
-      set(_command clone --recursive ${REPO} ${DIR})
+    # clone
+    set(_clone_options --recursive)
+    if(GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+      list(APPEND _clone_options --depth 1 --branch ${TAG})
     endif()
-    JOIN("${_command}" " " _msg_text)
-    git_external_message(STATUS "git " ${_msg_text})
+    JOIN("${_clone_options}" " " _msg_text)
+    message(STATUS "git clone ${_clone_options} ${REPO} ${DIR}")
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" ${_command}
+      COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
     if(nok)
-      message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
+      message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
     endif()
-    # for a shallow repo, after the intial clone, 
-    # we can exit as we are already on the required branch
-    if(FRESH_CLONE AND GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
-      return()
+
+    # checkout requested tag
+    if(NOT GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+        RESULT_VARIABLE nok ERROR_VARIABLE error
+        WORKING_DIRECTORY "${DIR}")
+      if(nok)
+        message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed: ${error}\n")
+      endif()
     endif()
   endif()
 
@@ -137,69 +135,72 @@ function(GIT_EXTERNAL DIR REPO TAG)
       WORKING_DIRECTORY "${DIR}")
   endif()
 
-  if(NOT IS_DIRECTORY "${DIR}/.git")
-    message(STATUS "Can't update git external ${DIR}: Not a git repository")
-    return()
-  endif()
+  file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
+  string(REGEX REPLACE "[:/]" "-" __target "${__dir}")
+  set(__rebase_cmake "${CMAKE_CURRENT_BINARY_DIR}/${__target}-rebase.cmake")
+  file(WRITE ${__rebase_cmake}
+    "if(NOT IS_DIRECTORY ${DIR}/.git)\n"
+    "  message(FATAL_ERROR \"Can't update git external ${__dir}: Not a git repository\")\n"
+    "endif()\n"
+    # check if we are already on the requested tag
+    "execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD\n"
+    "  OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
+    "  WORKING_DIRECTORY ${DIR})\n"
+    "if(currentref STREQUAL ${TAG}) # nothing to do\n"
+    "  return()\n"
+    "endif()\n"
+    "\n"
+    # reset generated files
+    "foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})\n"
+    "  execute_process(\n"
+    "    COMMAND \"${GIT_EXECUTABLE}\" reset -q \"\${GIT_EXTERNAL_RESET_FILE}\"\n"
+    "    ERROR_QUIET OUTPUT_QUIET\n"
+    "    WORKING_DIRECTORY \"${DIR}\")\n"
+    "  execute_process(\n"
+    "    COMMAND \"${GIT_EXECUTABLE}\" checkout -q -- \"${GIT_EXTERNAL_RESET_FILE}\"\n"
+    "    ERROR_QUIET OUTPUT_QUIET\n"
+    "    WORKING_DIRECTORY \"${DIR}\")\n"
+    "endforeach()\n"
+    "\n"
+    # fetch latest update
+    "execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q\n"
+    "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
+    "  WORKING_DIRECTORY \"${DIR}\")\n"
+    "if(nok)\n"
+    "  message(FATAL_ERROR \"Fetch for ${__dir} failed:\n   \${error}\")\n"
+    "endif()\n"
+    "\n"
+    # update tag
+    "execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD\n"
+    "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
+    "  WORKING_DIRECTORY \"${DIR}\")\n"
+    "if(nok)\n"
+    "  execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort\n"
+    "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
+    "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
+    "endif()\n"
+    "\n"
+    # checkout requested tag
+    "execute_process(\n"
+    "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
+    "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
+    "  WORKING_DIRECTORY \"${DIR}\")\n"
+    "if(nok)\n"
+    "  message(FATAL_ERROR \"git checkout ${TAG} in ${__dir} failed: ${error}\n\")\n"
+    "endif()\n"
+    )
 
-  # if a fresh clone of a repo is underway, proceed, otherwise we may 
-  # get the default branch/sha instead of the one we asked for
-  if((GIT_EXTERNAL_DISABLE_UPDATE OR GIT_EXTERNAL_LOCAL_OPTION_DISABLE_UPDATE) AND (NOT FRESH_CLONE))
-    git_external_message("git update of ${REPO} disabled by user")
-    return()
+  add_custom_target(${__target}-rebase
+    COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
+    COMMENT "Rebasing ${__dir}")
+  set_target_properties(${__target}-rebase PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "git")
+  if(NOT TARGET rebase)
+    add_custom_target(rebase)
+    set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON
+      FOLDER "git")
   endif()
-
-  # update to given tag
-  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-    OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
-    WORKING_DIRECTORY ${DIR})
-  git_external_message(
-    "current ref is \"${currentref}\" and tag is \"${TAG}\"")
-  if(currentref STREQUAL TAG) # nothing to do
-    return()
-  endif()
-
-  # reset generated files
-  foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_LOCAL_OPTION_RESET})
-    git_external_message("git reset -q ${GIT_EXTERNAL_RESET_FILE}")
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}")
-    git_external_message("git checkout -q -- ${GIT_EXTERNAL_RESET_FILE}")
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}")
-  endforeach()
-
-  # fetch latest update
-  execute_process(COMMAND "${GIT_EXECUTABLE}" fetch origin -q
-    RESULT_VARIABLE nok ERROR_VARIABLE error
-    WORKING_DIRECTORY "${DIR}")
-  if(nok)
-    message(STATUS "Update of ${DIR} failed:\n   ${error}")
-  endif()
-
-  # update tag
-  git_external_message("git rebase FETCH_HEAD")
-  execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
-    RESULT_VARIABLE RESULT ERROR_QUIET OUTPUT_QUIET
-    WORKING_DIRECTORY "${DIR}")
-  if(RESULT)
-    message(STATUS "git rebase failed, aborting ${DIR} merge")
-    execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
-      WORKING_DIRECTORY "${DIR}" ERROR_QUIET OUTPUT_QUIET)
-  endif()
-
-  # checkout requested tag
-  execute_process(
-    COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
-    RESULT_VARIABLE nok ERROR_VARIABLE error
-    WORKING_DIRECTORY "${DIR}")
-  if(nok)
-    message(STATUS "git checkout ${TAG} in ${DIR} failed: ${error}\n")
-  endif()
+  add_dependencies(rebase ${__target}-rebase)
 endfunction()
 
 set(GIT_EXTERNALS ${GIT_EXTERNALS_FILE})
