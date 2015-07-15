@@ -49,6 +49,9 @@ The following CMake modules can be included in your project:
     * [clangcheckTargets](clangcheckTargets.cmake): *clangcheck* target for
       clang-check code analysis. Adds all clangcheck targets to *tests* if
       ENABLE_CLANGCHECK_TESTS is set.
+* [PackageConfig](PackageConfig.cmake) generates cmake package information files
+  for the project. These files let other CMake-based projects locate it through
+  find_package (in config mode, without the need for a finder script).
 * [DoxygenRule](DoxygenRule.cmake): *doxygen* target to build documentation into
   PROJECT_BINARY_DIR/doc. Optional *doxycopy* target to copy the results to
   ../GITHUB_ORGANIZATION/Project-M.m/. Must be included after all other targets.
