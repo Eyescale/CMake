@@ -111,6 +111,10 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
   string(REGEX REPLACE "[:/]" "-" __target "${__dir}")
+  if(TARGET ${__target}-rebase)
+    return()
+  endif()
+
   set(__rebase_cmake "${CMAKE_CURRENT_BINARY_DIR}/${__target}-rebase.cmake")
   file(WRITE ${__rebase_cmake}
     "if(NOT IS_DIRECTORY ${DIR}/.git)\n"
