@@ -37,7 +37,7 @@ endif()
 include(CMakeParseArguments)
 option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
 
-if(NOT GITHUB_USER AND $ENV{GITHUB_USER})
+if(NOT GITHUB_USER AND "$ENV{GITHUB_USER}")
   set(GITHUB_USER $ENV{GITHUB_USER} CACHE STRING
     "Github user name used to setup remote for 'user' forks")
 endif()
