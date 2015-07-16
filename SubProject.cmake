@@ -48,7 +48,7 @@ if(TARGET git_subproject_${PROJECT_NAME}_done)
 endif()
 add_custom_target(git_subproject_${PROJECT_NAME}_done)
 set_target_properties(git_subproject_${PROJECT_NAME}_done PROPERTIES
-  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "zzphony")
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
 
 set(COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH
   "Location of common directory of all sources")
@@ -136,7 +136,7 @@ function(add_subproject name)
     get_property(__targets GLOBAL PROPERTY ${name}_ALL_DEP_TARGETS)
     if(__targets)
       add_custom_target(${name}-all DEPENDS ${__targets})
-      set_target_properties(${name}-all PROPERTIES FOLDER "${name}")
+      set_target_properties(${name}-all PROPERTIES FOLDER ${name})
     endif()
   endif()
 endfunction()
@@ -213,7 +213,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     set_target_properties(update_git_subprojects_${PROJECT_NAME} PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "${PROJECT_NAME}")
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
 
     if(NOT TARGET update)
       add_custom_target(update)

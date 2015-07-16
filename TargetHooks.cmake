@@ -23,7 +23,7 @@ if(NOT ADD_EXE_DEFINED)
       EXCLUDE_QT_MOC_FILES)
     add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams
       EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
-    set_target_properties(${_target} PROPERTIES FOLDER "${PROJECT_NAME}")
+    set_target_properties(${_target} PROPERTIES FOLDER ${PROJECT_NAME})
 
     # ignore IMPORTED add_library from finders (e.g. Qt)
     cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
@@ -75,7 +75,7 @@ if(NOT ADD_LIBRARY_DEFINED)
         ${_TARGET}_SHARED ${_TARGET}_DSO_NAME=\"${_libraryname}\")
 
       set_target_properties(${_target} PROPERTIES
-        COMPILE_DEFINITIONS "${THIS_DEFINITIONS}" FOLDER "${PROJECT_NAME}")
+        COMPILE_DEFINITIONS "${THIS_DEFINITIONS}" FOLDER ${PROJECT_NAME})
 
       set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS
         ${_target})
