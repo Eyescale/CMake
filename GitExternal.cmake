@@ -23,10 +23,9 @@
 #  GIT_EXTERNAL_VERBOSE
 #    When set, displays information about git commands that are executed
 #
-# CMake variables
-#  GIT_EXTERNAL_USER_FORK If set, a remote called 'user' is set up for github
-#    repositories, pointing to github.com/<user>/<project>. Defaults to user
-#    name or GIT_EXTERNAL_USER environment variable.
+# CMake or environment variables:
+#  GITHUB_USER If set, a remote called 'user' is set up for github
+#    repositories, pointing to github.com/<user>/<project>.
 
 if(NOT GIT_FOUND)
   find_package(Git QUIET)
@@ -38,16 +37,10 @@ endif()
 include(CMakeParseArguments)
 option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
 
-set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
-if(NOT GIT_EXTERNAL_USER)
-  if(MSVC)
-    set(GIT_EXTERNAL_USER $ENV{USERNAME})
-  else()
-    set(GIT_EXTERNAL_USER $ENV{USER})
-  endif()
+if(NOT GITHUB_USER AND $ENV{GITHUB_USER})
+  set(GITHUB_USER $ENV{GITHUB_USER} CACHE STRING
+    "Github user name used to setup remote for 'user' forks")
 endif()
-set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
-  "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
   if(GIT_EXTERNAL_VERBOSE)
@@ -100,13 +93,12 @@ function(GIT_EXTERNAL DIR REPO TAG)
   endif()
 
   # set up "user" remote for github forks
-  if(GIT_EXTERNAL_USER_FORK AND REPO MATCHES ".*github.com.*")
-    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)"
-      "\\1${GIT_EXTERNAL_USER_FORK}\\2" GIT_EXTERNAL_USER_REPO ${REPO})
+  if(GITHUB_USER AND REPO MATCHES ".*github.com.*")
+    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)" "\\1${GITHUB_USER}\\2"
+      GIT_EXTERNAL_USER_REPO ${REPO})
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" remote add user ${GIT_EXTERNAL_USER_REPO}
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}")
+      OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
   endif()
 
   file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
