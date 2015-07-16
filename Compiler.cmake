@@ -114,22 +114,23 @@ elseif(CMAKE_COMPILER_IS_INTEL)
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
-  # default: Maintain code semantics Fix to link dynamically. On the
-  # next pass should add an if statement: 'if shared ...'.  Overriding
-  # default release flags since the default were '-O -NDEBUG'. By
-  # default, set flags for backend since this is the most common use
+  # By default, set flags for backend since this is the most common use
   # case
   option(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
     ON)
   if(XLC_BACKEND)
+  # A higher level of optimization could be achieved by adding -qipa=level=2
     set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink -DNDEBUG")
+      "-O3 -qtune=qp -qarch=qp -q64 -qhot -qsimd=auto -qsmp -qthreaded -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   else()
     set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
+      "-O3 -q64  -qtune=qp -qarch=qp -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
+
+  set(CMAKE_C_FLAGS_RELEASE ${COMMON_C_FLAGS_RELEASE})
+  set(CMAKE_CXX_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
 
   set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
   set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
