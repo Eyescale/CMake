@@ -154,10 +154,12 @@ macro(git_subproject name url tag)
         find_package(${name} QUIET REQUIRED CONFIG
           HINTS ${CMAKE_BINARY_DIR}/${NAME})
       else()
-        # Always try first using Config mode, then Module mode.
-        find_package(${name} QUIET CONFIG)
-        if(NOT ${name}_FOUND)
-          find_package(${name} QUIET MODULE)
+        if(NOT EXISTS ${__common_source_dir}/${name})
+          # Always try first using Config mode, then Module mode.
+          find_package(${name} QUIET CONFIG)
+          if(NOT ${name}_FOUND)
+            find_package(${name} QUIET MODULE)
+          endif()
         endif()
         if(NOT ${NAME}_FOUND OR ${NAME}_FOUND_SUBPROJECT)
           # not found externally, add as sub project
