@@ -144,13 +144,13 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   set(__rebase_cmake "${CMAKE_CURRENT_BINARY_DIR}/${__target}-rebase.cmake")
   file(WRITE ${__rebase_cmake}
-    "if(NOT IS_DIRECTORY ${DIR}/.git)\n"
+    "if(NOT IS_DIRECTORY \"${DIR}/.git\")\n"
     "  message(FATAL_ERROR \"Can't update git external ${__dir}: Not a git repository\")\n"
     "endif()\n"
     # check if we are already on the requested tag
-    "execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD\n"
+    "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rev-parse --short HEAD\n"
     "  OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
-    "  WORKING_DIRECTORY ${DIR})\n"
+    "  WORKING_DIRECTORY \"${DIR}\")\n"
     "if(currentref STREQUAL ${TAG}) # nothing to do\n"
     "  return()\n"
     "endif()\n"
@@ -176,11 +176,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "endif()\n"
     "\n"
     # update tag
-    "execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD\n"
+    "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase FETCH_HEAD\n"
     "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
     "  WORKING_DIRECTORY \"${DIR}\")\n"
     "if(nok)\n"
-    "  execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort\n"
+    "  execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase --abort\n"
     "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
     "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
     "endif()\n"
@@ -199,11 +199,10 @@ function(GIT_EXTERNAL DIR REPO TAG)
     COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
     COMMENT "Rebasing ${__dir}")
   set_target_properties(${__target}-rebase PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
   if(NOT TARGET rebase)
     add_custom_target(rebase)
-    set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON
-      FOLDER ${PROJECT_NAME}/git)
+    set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
   endif()
   add_dependencies(rebase ${__target}-rebase)
 endfunction()
@@ -259,7 +258,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
             file(WRITE "${GIT_EXTERNAL_SCRIPT}"
               "file(WRITE ${GIT_EXTERNALS} \"# -*- mode: cmake -*-\n\")\n")
             add_custom_target(${GIT_EXTERNAL_TARGET}
-              COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
+              COMMAND "${CMAKE_COMMAND}" -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
               COMMENT "Recreate ${GIT_EXTERNALS_BASE}"
               WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           endif()
@@ -267,21 +266,21 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
           set(GIT_EXTERNAL_SCRIPT
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
-include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
-execute_process(COMMAND ${GIT_EXECUTABLE} fetch origin -q
-  WORKING_DIRECTORY ${DIR})
+include(\"${CMAKE_CURRENT_LIST_DIR}\"/GitExternal.cmake)
+execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q
+  WORKING_DIRECTORY \"${DIR}\")
 execute_process(
-  COMMAND ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master
+  COMMAND \"${GIT_EXECUTABLE}\" show-ref --hash=7 refs/remotes/origin/master
   OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE
-  WORKING_DIRECTORY ${DIR})
+  WORKING_DIRECTORY \"${DIR}\")
 if(newref)
-  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\\n\")
-  git_external(${DIR} ${REPO} \${newref})
+  file(APPEND ${GIT_EXTERNALS} \"# \"${DIR}\" \"${REPO}\" \${newref}\\n\")
+  git_external(\"${DIR}\" \"${REPO}\" \${newref})
 else()
-  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
+  file(APPEND ${GIT_EXTERNALS} \"# \"${DIR}\" \"${REPO}\" ${TAG}\n\")
 endif()")
           add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
-            COMMAND ${CMAKE_COMMAND} -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
+            COMMAND "${CMAKE_COMMAND}" -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
             COMMENT "Update ${REPO} in ${GIT_EXTERNALS_BASE}"
             DEPENDS ${GIT_EXTERNAL_TARGET}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -295,11 +294,11 @@ endif()")
           # * Commit with flattened repo and tag info
           # - Depend on release branch checked out
           add_custom_target(flatten_git_external_${GIT_EXTERNAL_NAME}
-            COMMAND ${GIT_EXECUTABLE} clean -dfx
-            COMMAND ${CMAKE_COMMAND} -E remove_directory .git
-            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
-            COMMAND ${GIT_EXECUTABLE} add -f .
-            COMMAND ${GIT_EXECUTABLE} commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
+            COMMAND "${GIT_EXECUTABLE}" clean -dfx
+            COMMAND "${CMAKE_COMMAND}" -E remove_directory .git
+            COMMAND "${CMAKE_COMMAND}" -E remove -f "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals"
+            COMMAND "${GIT_EXECUTABLE}" add -f .
+            COMMAND "${GIT_EXECUTABLE}" commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals"
             COMMENT "Flatten ${REPO} into ${DIR}"
             DEPENDS make_branch_${PROJECT_NAME}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
@@ -308,7 +307,7 @@ endif()")
 
           foreach(_target flatten_git_external_${GIT_EXTERNAL_NAME} flatten_git_external update_git_external_${GIT_EXTERNAL_NAME} ${GIT_EXTERNAL_TARGET} update_git_external update)
             set_target_properties(${_target} PROPERTIES
-              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
+              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
           endforeach()
         endif()
       endif()

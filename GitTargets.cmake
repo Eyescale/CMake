@@ -48,7 +48,7 @@ else()
 endif()
 
 add_custom_target(make_branch_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} checkout ${BRANCH_VERSION} || ${GIT_EXECUTABLE} checkout -b ${BRANCH_VERSION}
+  COMMAND "${GIT_EXECUTABLE}" checkout ${BRANCH_VERSION} || "${GIT_EXECUTABLE}" checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
@@ -60,7 +60,7 @@ else()
 endif()
 
 add_custom_target(branch_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
+  COMMAND "${GIT_EXECUTABLE}" push origin ${BRANCH_VERSION}
   COMMENT "Add remote branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS ${BRANCH_DEP}
@@ -73,8 +73,8 @@ add_dependencies(branch branch_${PROJECT_NAME})
 
 # remove branch
 add_custom_target(cut_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} branch -d ${BRANCH_VERSION}
-  COMMAND ${GIT_EXECUTABLE} push origin --delete ${BRANCH_VERSION}
+  COMMAND "${GIT_EXECUTABLE}" branch -d ${BRANCH_VERSION}
+  COMMAND "${GIT_EXECUTABLE}" push origin --delete ${BRANCH_VERSION}
   COMMENT "Remove branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
@@ -90,28 +90,28 @@ file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
    if(\"${GITTARGETS_RELEASE_BRANCH}\" STREQUAL current)
      set(TAG_BRANCH)
    else()
-     execute_process(COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
+     execute_process(COMMAND \"${GIT_EXECUTABLE}\" branch ${BRANCH_VERSION}
        RESULT_VARIABLE hadbranch ERROR_VARIABLE error
        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
      if(NOT hadbranch)
-       execute_process(COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+       execute_process(COMMAND \"${GIT_EXECUTABLE}\" push origin ${BRANCH_VERSION}
+        WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\")
      endif()
      set(TAG_BRANCH ${BRANCH_VERSION})
    endif()
 
    # Create or move tag
    execute_process(
-     COMMAND ${GIT_EXECUTABLE} tag -f ${VERSION} ${TAG_BRANCH}
-     COMMAND ${GIT_EXECUTABLE} push --tags
-     RESULT_VARIABLE notdone WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+     COMMAND \"${GIT_EXECUTABLE}\" tag -f ${VERSION} ${TAG_BRANCH}
+     COMMAND \"${GIT_EXECUTABLE}\" push --tags
+     RESULT_VARIABLE notdone WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\")
    if(notdone)
      message(FATAL_ERROR
         \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
 add_custom_target(tag_${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
+  COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
@@ -123,8 +123,8 @@ add_dependencies(tag tag_${PROJECT_NAME})
 
 # remove tag
 add_custom_target(erase_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} tag -d ${VERSION}
-  COMMAND ${GIT_EXECUTABLE} push origin :${VERSION}
+  COMMAND "${GIT_EXECUTABLE}" tag -d ${VERSION}
+  COMMAND "${GIT_EXECUTABLE}" push origin :${VERSION}
   COMMENT "Remove tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
@@ -136,7 +136,7 @@ add_dependencies(erase erase_${PROJECT_NAME})
 
 # move tag
 add_custom_target(retag_${PROJECT_NAME}
-  COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
+  COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS erase_${PROJECT_NAME})
@@ -150,7 +150,7 @@ add_dependencies(retag retag_${PROJECT_NAME})
 set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${VERSION}.tar")
 
 add_custom_target(tarball-create_${PROJECT_NAME}
-  COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
+  COMMAND "${GIT_EXECUTABLE}" archive --worktree-attributes
     --prefix ${PROJECT_NAME}-${VERSION}/ -o ${TARBALL}
     ${VERSION}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
@@ -164,8 +164,8 @@ add_dependencies(tarball-create tarball-create_${PROJECT_NAME})
 
 if(GZIP_EXECUTABLE)
   add_custom_target(tarball_${PROJECT_NAME}
-    COMMAND ${CMAKE_COMMAND} -E remove ${TARBALL}.gz
-    COMMAND ${GZIP_EXECUTABLE} ${TARBALL}
+    COMMAND "${CMAKE_COMMAND}" -E remove ${TARBALL}.gz
+    COMMAND "${GZIP_EXECUTABLE}" ${TARBALL}
     DEPENDS tarball-create_${PROJECT_NAME}
     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
     COMMENT "Compressing ${TARBALL}.gz"
@@ -183,5 +183,5 @@ add_dependencies(tarball tarball_${PROJECT_NAME})
 set(_gittargets_TARGETS branch_${PROJECT_NAME} make_branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} retag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME})
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
 endforeach()

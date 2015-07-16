@@ -8,6 +8,7 @@
 
 function(PURPLE_INSTALL_PDB TARGET)
   if(MSVC)
+    cmake_policy(SET CMP0026 OLD)
     get_target_property(THIS_LOCATION ${TARGET} LOCATION)
     if(NOT CMAKE_CFG_INTDIR STREQUAL ".")	
       string(REPLACE "${CMAKE_CFG_INTDIR}" "\${BUILD_TYPE}" THIS_LOCATION ${THIS_LOCATION})
