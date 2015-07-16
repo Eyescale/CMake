@@ -164,11 +164,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
     COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
     COMMENT "Rebasing ${__dir}")
   set_target_properties(${__target}-rebase PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "git")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
   if(NOT TARGET rebase)
     add_custom_target(rebase)
     set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON
-      FOLDER "git")
+      FOLDER ${PROJECT_NAME}/git)
   endif()
   add_dependencies(rebase ${__target}-rebase)
 endfunction()
@@ -273,7 +273,7 @@ endif()")
 
           foreach(_target flatten_git_external_${GIT_EXTERNAL_NAME} flatten_git_external update_git_external_${GIT_EXTERNAL_NAME} ${GIT_EXTERNAL_TARGET} update_git_external update)
             set_target_properties(${_target} PROPERTIES
-              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "git")
+              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
           endforeach()
         endif()
       endif()

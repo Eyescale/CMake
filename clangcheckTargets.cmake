@@ -19,7 +19,7 @@ if(NOT CLANGCHECK)
   if(NOT TARGET clangcheck)
     add_custom_target(clangcheck COMMENT "clang-check executable not found")
     set_target_properties(clangcheck PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+      EXCLUDE_FROM_DEFAULT_BUILD ON)
   endif()
 endif()
 
@@ -77,5 +77,5 @@ function(add_clangcheck _name)
     VERBATIM)
   add_dependencies(clangcheck ${_name}_clangcheck)
     set_target_properties(${_name}_clangcheck PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 endfunction()

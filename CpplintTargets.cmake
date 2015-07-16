@@ -26,13 +26,13 @@ endif(NOT CPPLINT_FOUND)
 if(NOT CPPLINT_FOUND)
   add_custom_target(cpplint_${PROJECT_NAME} COMMENT "${CPPLINT_NOT_FOUND_MSG}")
   set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cpplint")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cpplint)
 endif(NOT CPPLINT_FOUND)
 
 if(NOT TARGET cpplint)
   add_custom_target(cpplint)
   set_target_properties(cpplint PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+    EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
 function(add_cpplint _name)
@@ -116,12 +116,12 @@ function(add_cpplint _name)
     COMMAND ${CPPLINT_SCRIPT} ${_cpplint_args} ${_files}
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
   set_target_properties(cpplint_run_${_name} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cpplint")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cpplint)
 
   if(NOT TARGET cpplint_${PROJECT_NAME})
     add_custom_target(cpplint_${PROJECT_NAME})
     set_target_properties(cpplint_${PROJECT_NAME} PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests/${PROJECT_NAME}/cpplint")
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cpplint)
   endif()
   add_dependencies(cpplint_${PROJECT_NAME} cpplint_run_${_name})
   add_dependencies(cpplint cpplint_${PROJECT_NAME})

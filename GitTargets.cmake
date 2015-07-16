@@ -180,8 +180,8 @@ if(NOT TARGET tarball)
 endif()
 add_dependencies(tarball tarball_${PROJECT_NAME})
 
-set(_gittargets_TARGETS branch_${PROJECT_NAME} make_branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} retag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME} branch cut tag retag erase tarball tarball-create)
+set(_gittargets_TARGETS branch_${PROJECT_NAME} make_branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} retag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME})
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "git")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/git)
 endforeach()

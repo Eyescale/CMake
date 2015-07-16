@@ -175,6 +175,7 @@ if(MSVC)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   endif()
 
+  set(COMMON_C_FLAGS) # reset, GCC flags not applicable
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
   set(COMMON_CXX_FLAGS_RELEASE "${COMMON_CXX_FLAGS_RELEASE} /WX")

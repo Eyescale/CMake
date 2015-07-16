@@ -52,7 +52,7 @@ macro(common_add_cpp_test NAME FILE)
   endif()
 
   add_executable(${TEST_NAME} ${FILE})
-  set_target_properties(${TEST_NAME} PROPERTIES FOLDER "Tests/${PROJECT_NAME}"
+  set_target_properties(${TEST_NAME} PROPERTIES FOLDER ${PROJECT_NAME}/tests
     OUTPUT_NAME ${NAME})
 
   # Per target INCLUDE_DIRECTORIES if supported
@@ -83,9 +83,9 @@ macro(common_add_cpp_test NAME FILE)
       -R '^${TEST_NAME}$$' -C $<CONFIGURATION> \${ARGS}
     DEPENDS ${TEST_NAME}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Running ${TEST_NAME} cpp test")
+    COMMENT "Running ${TEST_NAME} ctest")
   set_target_properties(ctest_${TEST_NAME} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/ctest)
 
   if(NAME MATCHES "^perf.*")
     list(APPEND ALL_CPP_PERF_TESTS ctest_${TEST_NAME})
@@ -119,9 +119,9 @@ if(NOT TARGET ${PROJECT_NAME}-perftests)
   add_custom_target(${PROJECT_NAME}-perftests)
 endif()
 set_target_properties(${PROJECT_NAME}-cpptests PROPERTIES
-  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 set_target_properties(${PROJECT_NAME}-perftests PROPERTIES
-  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 
 add_dependencies(${PROJECT_NAME}-cpptests ${ALL_CPP_TESTS})
 if(ALL_CPP_PERF_TESTS)
