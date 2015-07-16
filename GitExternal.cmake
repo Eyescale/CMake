@@ -8,7 +8,7 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#      git_external(<directory> <giturl> <gittag> [DISABLE_UPDATE,VERBOSE,SHALLOW]
+#      git_external(<directory> <giturl> <gittag> [VERBOSE,SHALLOW]
 #        [RESET <files>])
 #    which will check out directory in CMAKE_SOURCE_DIR (if relative)
 #    or in the given absolute path using the given repository and tag
@@ -29,7 +29,7 @@
 #    git repository onto it.
 #  * rebase: Rebases all git externals, including sub projects
 #
-# Options which control behaviour:
+# Options (global) which control behaviour:
 #  GIT_EXTERNAL_VERBOSE
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all
@@ -75,7 +75,7 @@ function(JOIN VALUES GLUE OUTPUT)
 endfunction()
 
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "DISABLE_UPDATE;VERBOSE;SHALLOW" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW" "" "RESET" ${ARGN})
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
