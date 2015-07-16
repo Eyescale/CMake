@@ -62,8 +62,8 @@ set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
   "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
-  if(GIT_EXTERNAL_VERBOSE OR GIT_EXTERNAL_LOCAL_OPTION_VERBOSE)
-    message(STATUS "${NAME} : ${msg}")
+  if(GIT_EXTERNAL_VERBOSE OR GIT_EXTERNAL_LOCAL_VERBOSE)
+    message(STATUS "${NAME}: ${msg}")
   endif()
 endmacro()
 
@@ -75,7 +75,7 @@ function(JOIN VALUES GLUE OUTPUT)
 endfunction()
 
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL_LOCAL_OPTION "DISABLE_UPDATE;VERBOSE;SHALLOW" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "DISABLE_UPDATE;VERBOSE;SHALLOW" "" "RESET" ${ARGN})
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
@@ -100,7 +100,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   if(NOT EXISTS "${DIR}")
     # clone
     set(_clone_options --recursive)
-    if(GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+    if(GIT_EXTERNAL_LOCAL_SHALLOW)
       list(APPEND _clone_options --depth 1 --branch ${TAG})
     endif()
     JOIN("${_clone_options}" " " _msg_text)
@@ -114,7 +114,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
     endif()
 
     # checkout requested tag
-    if(NOT GIT_EXTERNAL_LOCAL_OPTION_SHALLOW)
+    if(NOT GIT_EXTERNAL_LOCAL_SHALLOW)
       execute_process(
         COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
