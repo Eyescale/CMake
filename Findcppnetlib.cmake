@@ -68,6 +68,7 @@ if(CPPNETLIB_PATH)
     foreach(__library ${__libraries})
     if(TARGET ${__library})
       list(APPEND CPPNETLIB_LIBRARIES ${__library})
+      set(CPPNETLIB_FOUND_SUBPROJECT ON)
     else()
       find_library(${__library} NAMES ${__library}
         HINTS ${CPPNETLIB_ROOT} $ENV{CPPNETLIB_ROOT}

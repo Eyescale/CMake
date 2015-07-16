@@ -36,6 +36,7 @@ endif()
 
 if(TARGET Tuvok)
   set(TUVOK_LIBRARY Tuvok)
+  set(TUVOK_FOUND_SUBPROJECT ON)
 else()
   find_library(TUVOK_LIBRARY Tuvok
     HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
