@@ -120,13 +120,11 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
     ON)
   if(XLC_BACKEND)
   # A higher level of optimization could be achieved by adding -qipa=level=2
-    set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -qtune=qp -qarch=qp -q64 -qhot -qsimd=auto -qsmp -qthreaded -DNDEBUG")
-    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+    set(COMMON_CXX_FLAGS_RELEASE "-O3 -qtune=qp -qarch=qp -q64 -qhot -qsimd=auto -qsmp -qthreaded -DNDEBUG")
+    set(COMMON_C_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
   else()
-    set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -q64  -qtune=qp -qarch=qp -DNDEBUG")
-    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+    set(COMMON_CXX_FLAGS_RELEASE "-O3 -q64  -qtune=qp -qarch=qp -DNDEBUG")
+    set(COMMON_C_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
   endif()
 
   set(CMAKE_C_FLAGS_RELEASE ${COMMON_C_FLAGS_RELEASE})
