@@ -150,18 +150,20 @@ macro(git_subproject name url tag)
     endif()
     if(NOT ${NAME}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(NOT EXISTS ${__common_source_dir}/${name})
+      if(__included) # already used as a sub project, just find it:
+        find_package(${name} QUIET REQUIRED CONFIG
+          HINTS ${CMAKE_BINARY_DIR}/${NAME})
+      else()
         # Always try first using Config mode, then Module mode.
         find_package(${name} QUIET CONFIG)
         if(NOT ${name}_FOUND)
           find_package(${name} QUIET MODULE)
         endif()
-      elseif(__included) # already used as a sub project, just find it:
-        find_package(${name} QUIET CONFIG HINTS ${CMAKE_BINARY_DIR}/${NAME})
-      endif()
-      if(NOT ${NAME}_FOUND)
-        git_external(${__common_source_dir}/${name} ${url} ${TAG})
-        add_subproject(${name})
+        if(NOT ${NAME}_FOUND OR ${NAME}_FOUND_SUBPROJECT)
+          # not found externally, add as sub project
+          git_external(${__common_source_dir}/${name} ${url} ${TAG})
+          add_subproject(${name})
+        endif()
       endif()
     endif()
     get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
