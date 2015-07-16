@@ -51,7 +51,7 @@ set(CPPNETLIB_PATH)
 # Find headers
 find_path(CPPNETLIB_INCLUDE_DIR boost/network.hpp
   HINTS ${CPPNETLIB_ROOT}/include $ENV{CPPNETLIB_ROOT}/include
-  ${CMAKE_SOURCE_DIR}/cppnetlib
+  ${COMMON_SOURCE_DIR}/cppnetlib ${CMAKE_SOURCE_DIR}/cppnetlib
   /usr/local/include
   /usr/include)
 

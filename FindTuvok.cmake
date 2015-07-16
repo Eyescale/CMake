@@ -21,7 +21,7 @@ endif()
 
 find_path(_TUVOK_INCLUDE_DIR NAMES Tuvok/StdTuvokDefines.h
   HINTS ${PROJECT_SOURCE_DIR}/../../.. $ENV{TUVOK_ROOT} ${TUVOK_ROOT}
-  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR} ${COMMON_SOURCE_DIR}
   PATH_SUFFIXES include
   PATHS /usr/local /usr /opt )
 
