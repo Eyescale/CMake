@@ -1,5 +1,6 @@
-### git master
+# git master
 
+* Added SHALLOW and VERBOSE options to git_external
 * Removed legacy RELEASE_VERSION magic
 * new targets DIR-rebase and rebase in GitExternal.cmake to update git
   externals and sub projects
@@ -14,7 +15,7 @@
   at the end)
 * Fix RHEL library path to be lib64, not lib anymore
 
-### 2015.06
+# 2015.06
 
 * New SubProject module based on GitExternal
 * Subprojects share a single copy of CMake/common
@@ -53,7 +54,7 @@
       a .dmg (if macdeployqt is available)
     * Use C++11 std and stdlib on OSX >= 10.9, C++03 on <= 10.8
 
-### 2014.6
+# 2014.6
 
 * Flatten git externals in release branches
     Needed for some build services which do not allow to pull in git

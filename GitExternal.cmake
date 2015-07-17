@@ -8,20 +8,32 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#      git_external(<directory> <giturl> <gittag> [VERBOSE]
+#      git_external(<directory> <giturl> <gittag> [VERBOSE,SHALLOW]
 #        [RESET <files>])
 #    which will check out directory in CMAKE_SOURCE_DIR (if relative)
 #    or in the given absolute path using the given repository and tag
 #    (commit-ish).
+#
+# Options which can be supplied to the function:
+#  VERBOSE, when present, this option tells the function to output
+#    information about what operations are being performed by git on
+#    the repo.
+#  SHALLOW, when present, causes a shallow clone of depth 1 to be made
+#    of the specified repo. This may save considerable memory/bandwidth
+#    when only a specific branch of a repo is required and the full history
+#    is not required. Note that the SHALLOW option will only work for a branch
+#    or tag and cannot be used for an arbitrary SHA.
 #
 # Targets:
 #  * <directory>-rebase: fetches latest updates and rebases the given external
 #    git repository onto it.
 #  * rebase: Rebases all git externals, including sub projects
 #
-# Options which control behaviour:
+# Options (global) which control behaviour:
 #  GIT_EXTERNAL_VERBOSE
-#    When set, displays information about git commands that are executed
+#    This is a global option which has the same effect as the VERBOSE option,
+#    with the difference that output information will be produced for all
+#    external repos when set.
 #
 # CMake or environment variables:
 #  GITHUB_USER If set, a remote called 'user' is set up for github
@@ -43,13 +55,20 @@ if(NOT GITHUB_USER AND DEFINED ENV{GITHUB_USER})
 endif()
 
 macro(GIT_EXTERNAL_MESSAGE msg)
-  if(GIT_EXTERNAL_VERBOSE)
-    message(STATUS "${NAME} : ${msg}")
+  if(GIT_EXTERNAL_VERBOSE OR GIT_EXTERNAL_LOCAL_VERBOSE)
+    message(STATUS "${NAME}: ${msg}")
   endif()
 endmacro()
 
+# utility function for printing a list with custom separator
+function(JOIN VALUES GLUE OUTPUT)
+  string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
+  string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW" "" "RESET" ${ARGN})
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
@@ -73,13 +92,29 @@ function(GIT_EXTERNAL DIR REPO TAG)
 
   if(NOT EXISTS "${DIR}")
     # clone
-    message(STATUS "git clone ${REPO} ${DIR}")
+    set(_clone_options --recursive)
+    if(GIT_EXTERNAL_LOCAL_SHALLOW)
+      list(APPEND _clone_options --depth 1 --branch ${TAG})
+    endif()
+    JOIN("${_clone_options}" " " _msg_text)
+    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR}")
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" clone --recursive "${REPO}" "${DIR}"
+      COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
     if(nok)
-      message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
+      message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
+    endif()
+
+    # checkout requested tag
+    if(NOT GIT_EXTERNAL_LOCAL_SHALLOW)
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+        RESULT_VARIABLE nok ERROR_VARIABLE error
+        WORKING_DIRECTORY "${DIR}")
+      if(nok)
+        message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed: ${error}\n")
+      endif()
     endif()
 
     # checkout requested tag
