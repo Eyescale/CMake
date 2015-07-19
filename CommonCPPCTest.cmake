@@ -47,7 +47,7 @@ set(ALL_CPP_PERF_TESTS)
 
 macro(common_add_cpp_test NAME FILE)
   set(TEST_NAME ${PROJECT_NAME}_${NAME})
-  if(NOT TARGET ${NAME}) # Create target without project prefix if possible
+  if(NOT TARGET ${NAME} AND NOT MSVC) # Create target without project prefix if possible
     set(TEST_NAME ${NAME})
   endif()
 

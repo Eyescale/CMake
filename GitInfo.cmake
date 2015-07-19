@@ -23,19 +23,19 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
     find_package(Git QUIET)
   endif()
   if(GIT_FOUND)
-    execute_process( COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+    execute_process( COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process( COMMAND ${GIT_EXECUTABLE} describe --long --tags --dirty
+    execute_process( COMMAND "${GIT_EXECUTABLE}" describe --long --tags --dirty
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_STATE OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-    execute_process( COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
+    execute_process( COMMAND "${GIT_EXECUTABLE}" config --get remote.origin.url
       OUTPUT_VARIABLE GIT_ORIGIN_URL OUTPUT_STRIP_TRAILING_WHITESPACE
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    execute_process( COMMAND ${GIT_EXECUTABLE} config --get remote.root.url
+    execute_process( COMMAND "${GIT_EXECUTABLE}" config --get remote.root.url
       OUTPUT_VARIABLE GIT_ROOT_URL OUTPUT_STRIP_TRAILING_WHITESPACE
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    execute_process( COMMAND ${GIT_EXECUTABLE} branch --contains HEAD
+    execute_process( COMMAND "${GIT_EXECUTABLE}" branch --contains HEAD
       OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 

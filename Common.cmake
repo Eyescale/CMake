@@ -86,6 +86,10 @@ if(APPLE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
 endif()
+if(MSVC)
+  # http://www.cmake.org/cmake/help/v3.0/policy/CMP0020.html
+  cmake_policy(SET CMP0020 NEW)
+endif()
 
 if($ENV{TRAVIS})
   set(TRAVIS ON)
