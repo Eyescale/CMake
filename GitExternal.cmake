@@ -195,16 +195,18 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "endif()\n"
     )
 
-  add_custom_target(${__target}-rebase
-    COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
-    COMMENT "Rebasing ${__dir}")
-  set_target_properties(${__target}-rebase PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
-  if(NOT TARGET rebase)
-    add_custom_target(rebase)
-    set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
+  if(NOT GIT_EXTERNAL_SCRIPT_MODE)
+    add_custom_target(${__target}-rebase
+      COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
+      COMMENT "Rebasing ${__dir}")
+    set_target_properties(${__target}-rebase PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
+    if(NOT TARGET rebase)
+      add_custom_target(rebase)
+      set_target_properties(rebase PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
+    endif()
+    add_dependencies(rebase ${__target}-rebase)
   endif()
-  add_dependencies(rebase ${__target}-rebase)
 endfunction()
 
 set(GIT_EXTERNALS ${GIT_EXTERNALS_FILE})
@@ -266,7 +268,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
           set(GIT_EXTERNAL_SCRIPT
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
-include(\"${CMAKE_CURRENT_LIST_DIR}\"/GitExternal.cmake)
+include(\"${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake\")
 execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q
   WORKING_DIRECTORY \"${DIR}\")
 execute_process(
@@ -274,10 +276,10 @@ execute_process(
   OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE
   WORKING_DIRECTORY \"${DIR}\")
 if(newref)
-  file(APPEND ${GIT_EXTERNALS} \"# \"${DIR}\" \"${REPO}\" \${newref}\\n\")
-  git_external(\"${DIR}\" \"${REPO}\" \${newref})
+  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\\n\")
+  git_external(${DIR} ${REPO} \${newref})
 else()
-  file(APPEND ${GIT_EXTERNALS} \"# \"${DIR}\" \"${REPO}\" ${TAG}\n\")
+  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
 endif()")
           add_custom_target(update_git_external_${GIT_EXTERNAL_NAME}
             COMMAND "${CMAKE_COMMAND}" -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
