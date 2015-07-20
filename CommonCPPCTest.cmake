@@ -87,7 +87,7 @@ macro(common_add_cpp_test NAME FILE)
   set_target_properties(ctest_${TEST_NAME} PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/ctest)
 
-  if(NAME MATCHES "^perf.*")
+  if("${NAME}" MATCHES "^perf.*")
     list(APPEND ALL_CPP_PERF_TESTS ctest_${TEST_NAME})
   else()
     list(APPEND ALL_CPP_TESTS ctest_${TEST_NAME})
