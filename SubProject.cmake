@@ -199,7 +199,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
         "execute_process(COMMAND \n"
         "  \"${GIT_EXECUTABLE}\" show-ref --hash=7 refs/remotes/origin/master\n"
         "  OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
-        "  WORKING_DIRECTORY \"${__subproject_dir})\n\""
+        "  WORKING_DIRECTORY \"${__subproject_dir}\")\n"
         "if(newref)\n"
         "  file(APPEND .gitsubprojects\n"
         "    \"git_subproject(${__subproject_name} ${__subproject_repo} \${newref})\\n\")\n"
