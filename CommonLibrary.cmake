@@ -29,6 +29,11 @@
 # Builds libName and installs it. Installs the public headers to include/name.
 # Generates a NAME_INCLUDE_NAME/{BASE_NAME of NAME_INCLUDE_NAME}.h
 # including all public headers.
+#
+# Options 
+# By default on windows platforms "_D" is appended to libraries
+# if COMMON_LIBRARY_DEBUG_POSTFIX is ON then "_debug" is added on other platforms
+#
 
 include(InstallFiles)
 include(CommonQtSupport)
@@ -62,6 +67,19 @@ macro(generate_library_header NAME)
   # configure only touches file if changed, saves compilation after reconfigure
   configure_file( ${__generated_header_in} ${__generated_header} COPYONLY)
   list(APPEND PUBLIC_HEADERS ${__generated_header})
+endmacro()
+
+#-------------------------------------------------------------------------------
+# set debug postfix 
+#-------------------------------------------------------------------------------
+macro(COMMON_SET_LIB_NAME_POSTFIX)
+  if (WIN32)
+    set(CMAKE_DEBUG_POSTFIX "_D")
+  elseif(COMMON_LIBRARY_DEBUG_POSTFIX)
+    set(CMAKE_DEBUG_POSTFIX "_debug")
+  else()
+    set(CMAKE_DEBUG_POSTFIX "")
+  endif()
 endmacro()
 
 # applying CMAKE_C(XX)_FLAGS to add_library only works from parent scope, hence
@@ -142,6 +160,8 @@ function(_common_library Name)
     add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
     set_target_properties(${LIBNAME}
       PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
+    # append a debug suffix to library name on windows or if user requests it
+    common_set_lib_name_postfix()
     target_link_libraries(${LIBNAME} ${LINK_LIBRARIES})
     install(TARGETS ${LIBNAME}
       ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
