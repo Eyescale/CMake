@@ -1,5 +1,6 @@
 # git master
 
+* Requires cmake 2.8.9 or later
 * Added SHALLOW and VERBOSE options to git_external
 * Removed legacy RELEASE_VERSION magic
 * new targets DIR-rebase and rebase in GitExternal.cmake to update git

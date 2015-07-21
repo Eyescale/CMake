@@ -15,8 +15,7 @@ if(CMAKE_INSTALL_PREFIX STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "Cannot install into build directory")
 endif()
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-include(CMakeCompatibility)
+cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 
 string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${PROJECT_NAME} LOWER_PROJECT_NAME)

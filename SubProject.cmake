@@ -41,7 +41,6 @@
 #  neato -Goverlap=prism -Goutputorder=edgesfirst graph2.dot -Tpdf -o graph.pdf
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/CMakeCompatibility.cmake)
 
 if(TARGET git_subproject_${PROJECT_NAME}_done)
   return()
@@ -57,12 +56,21 @@ get_filename_component(__common_source_dir ${__common_source_dir} ABSOLUTE)
 file(MAKE_DIRECTORY ${__common_source_dir})
 
 function(subproject_install_packages file name)
-  if(NOT EXISTS ${file} OR NOT INSTALL_PACKAGES)
+  if(NOT INSTALL_PACKAGES)
     return()
   endif()
 
-  include(${file})
+  if(EXISTS ${file})
+    include(${file})
+  endif()
+
   string(TOUPPER ${name} NAME)
+  list(APPEND ${NAME}_DEB_DEPENDS pkg-config git subversion cmake autoconf
+    automake git-review doxygen ${OPTIONAL_DEBS})
+  set(${NAME}_BUILD_DEBS ${NAME}_DEB_DEPENDS)
+  list(APPEND ${NAME}_DEB_DEPENDS ninja-build lcov cppcheck git-svn clang
+    clang-format-3.5) # optional deb packages, not added to build spec
+  list(APPEND ${NAME}_PORT_DEPENDS cppcheck)
 
   if(${NAME}_DEB_DEPENDS AND CMAKE_SYSTEM_NAME MATCHES "Linux" )
     list(SORT ${NAME}_DEB_DEPENDS)
