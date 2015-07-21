@@ -134,11 +134,8 @@ function(add_subproject name)
     add_subdirectory("${__common_source_dir}/${path}"
                      "${CMAKE_BINARY_DIR}/${name}")
     if(NOT ${name}_SKIP_FIND)
-      # find subproject "package"       
-      find_package(${name} REQUIRED QUIET
-        HINTS "${CMAKE_BINARY_DIR}/${name}"
-              "${CMAKE_BINARY_DIR}/${name}/lib/cmake/${name}"
-      )
+      # find subproject "package"
+      find_package(${name} REQUIRED QUIET)
       include_directories(${${NAME}_INCLUDE_DIRS})
     endif()
     set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
