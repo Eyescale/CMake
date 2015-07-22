@@ -123,6 +123,9 @@ function(add_subproject name)
     if(NOT ${name}_DIR)
       set(${name}_DIR "${CMAKE_BINARY_DIR}/${name}" CACHE PATH
         "Location of ${name} project" FORCE)
+      # update CMAKE_PREFIX_PATH with path of package in this scope and parent scope
+      set(CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/${name}" ${CMAKE_PREFIX_PATH})
+      set(CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}/${name}" ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
     endif()
 
     subproject_install_packages(
