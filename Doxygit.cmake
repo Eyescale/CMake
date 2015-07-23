@@ -210,7 +210,11 @@ if(DOXYGIT_GENERATE_INDEX)
 
 endif()
 
+if(IS_DIRECTORY _projects)
+  set(PROJECTS "_projects/*.md")
+endif()
+
 execute_process(
   COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries} ${RemovedEntries}
-  css/github.css index.html _projects/*.md
+  css/github.css index.html ${PROJECTS}
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
