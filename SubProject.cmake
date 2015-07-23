@@ -26,7 +26,16 @@
 # - CMAKE_BINARY_DIR should be changed to PROJECT_BINARY_DIR
 # - CMAKE_SOURCE_DIR should be changed to PROJECT_SOURCE_DIR
 #
-# Respects the following variables:
+# They must also be locatable by CMake's find_package(name), which can be
+# achieved in any of the following ways:
+# - include(PackageConfig) at the end of the top-level CMakeLists.txt
+# - include(CommonCPack), which indirectly includes PackageConfig
+# - Provide a compatible Find<Name>.cmake script (not recommended)
+#
+# If the project needs to do anything special when configured as a sub project
+# then it can check the variable ${PROJECT_NAME}_IS_SUBPROJECT.
+#
+# SubProject.cmake respects the following variables:
 # - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
 #   example for continuous integration builds
 # - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
@@ -115,8 +124,8 @@ function(add_subproject name)
 
   option(SUBPROJECT_${name} "Build ${name} " ON)
   if(SUBPROJECT_${name})
-    # if the project needs to do anything special when configured as a
-    # sub project then it can check the variable ${PROJECT}_IS_SUBPROJECT
+    # Hint for the sub project, in case it needs to do anything special when
+    # configured as a sub project
     set(${name}_IS_SUBPROJECT ON)
 
     # set ${PROJECT}_DIR to the location of the new build dir for the project

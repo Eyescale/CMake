@@ -6,6 +6,14 @@
 # files. Those files are used in the config-mode of find_package which
 # supersedes the Find${PROJECT_NAME}.cmake file.
 #
+# Two sets of the abovementioned files are generated:
+# * One in the install directory, so that the project can be found once it has
+#   been depoloyed.
+# * One in the build directory, so that a super project can find this project
+#   when it is being configured as a sub project.
+# Note: the installed ${PROJECT_NAME}Config.cmake contains only relative paths,
+# so the project is guaranteed to be relocatable.
+#
 # Input variables
 #   CPACK_PACKAGE_NAME - The package name
 #   ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link
@@ -18,7 +26,7 @@
 #     preference to CMake's BasicConfigVersion-SameMajorVersion.cmake.in.
 #     The CVF_PACKAGE_VERSION variable is set before performing the instantiation.
 #
-# Output variables
+# Output variables of the Config files after a find_package(${PROJECT_NAME})
 #   ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified
 #     components found?
 #   ${PROJECT_NAME}_FOUND - Same as above
@@ -50,11 +58,11 @@ set(PACKAGECONFIG_DONE ON)
 include(CMakePackageConfigHelpers)
 include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
-# Write the ProjectConfig.cmake.in file for configure_package_config_file
-# this will be copied eventually into the install directory
+# Write the ProjectConfig.cmake.in file for configure_package_config_file().
+# The configured file will eventually be copied into the install directory.
 set(_config_file_prefix
   "\n"
-# add helper stuff from CMakePackageConfigHelpers
+# @PACKAGE_INIT@ will be replaced by CMakePackageConfigHelpers macros
   "@PACKAGE_INIT@\n"
   "\n"
   "set(${PROJECT_NAME}_PREFIX_DIR \${PACKAGE_PREFIX_DIR})\n"
