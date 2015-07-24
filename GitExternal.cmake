@@ -34,6 +34,7 @@
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all
 #    external repos when set.
+#  GIT_EXTERNAL_SHALLOW: See SHALLOW option above.
 #
 # CMake or environment variables:
 #  GITHUB_USER If set, a remote called 'user' is set up for github
@@ -48,6 +49,7 @@ endif()
 
 include(CMakeParseArguments)
 option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
+option(GIT_EXTERNAL_SHALLOW "Use shallow git clones" OFF)
 
 if(NOT GITHUB_USER AND DEFINED ENV{GITHUB_USER})
   set(GITHUB_USER $ENV{GITHUB_USER} CACHE STRING
@@ -93,7 +95,8 @@ function(GIT_EXTERNAL DIR REPO TAG)
   if(NOT EXISTS "${DIR}")
     # clone
     set(_clone_options --recursive)
-    if(GIT_EXTERNAL_LOCAL_SHALLOW)
+    if(GIT_EXTERNAL_LOCAL_SHALLOW OR GIT_EXTERNAL_SHALLOW)
+      set(GIT_EXTERNAL_LOCAL_SHALLOW ON)
       list(APPEND _clone_options --depth 1 --branch ${TAG})
     endif()
     JOIN("${_clone_options}" " " _msg_text)
