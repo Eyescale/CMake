@@ -166,7 +166,7 @@ macro(git_subproject name url tag)
     if(SUBPROJECT_TAG AND "${tag}" MATCHES "^[0-9a-f]+$")
       set(TAG ${SUBPROJECT_TAG})
     endif()
-    if(NOT ${NAME}_FOUND)
+    if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
       if(__included) # already used as a sub project, just find it:
         find_package(${name} QUIET REQUIRED CONFIG
@@ -175,11 +175,12 @@ macro(git_subproject name url tag)
         if(NOT EXISTS ${__common_source_dir}/${name})
           # Always try first using Config mode, then Module mode.
           find_package(${name} QUIET CONFIG)
-          if(NOT ${name}_FOUND)
+          if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
             find_package(${name} QUIET MODULE)
           endif()
         endif()
-        if(NOT ${NAME}_FOUND OR ${NAME}_FOUND_SUBPROJECT)
+        if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
+            ${NAME}_FOUND_SUBPROJECT)
           # not found externally, add as sub project
           git_external(${__common_source_dir}/${name} ${url} ${TAG})
           add_subproject(${name})
