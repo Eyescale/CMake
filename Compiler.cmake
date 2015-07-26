@@ -15,9 +15,11 @@
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
 # * COMMON_C_FLAGS The common flags for C compiler
+# * COMMON_C_FLAGS_DEBUG The common flags for C compiler in Debug build
 # * COMMON_C_FLAGS_RELWITHDEBINFO The common flags for C compiler in RelWithDebInfo build
 # * COMMON_C_FLAGS_RELEASE The common flags for C compiler in Release build
 # * COMMON_CXX_FLAGS The common flags for C++ compiler
+# * COMMON_CXX_FLAGS_DEBUG The common flags for C++ compiler in Debug build
 # * COMMON_CXX_FLAGS_RELWITHDEBINFO The common flags for C++ compiler in RelWithDebInfo build
 # * COMMON_CXX_FLAGS_RELEASE The common flags for C++ compiler in Release build
 # * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
@@ -178,7 +180,7 @@ if(MSVC)
   set(COMMON_C_FLAGS) # reset, GCC flags not applicable
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
-  set(COMMON_CXX_FLAGS_RELEASE "${COMMON_CXX_FLAGS_RELEASE} /WX")
+  set(COMMON_CXX_FLAGS_DEBUG "${COMMON_CXX_FLAGS_RELEASE} /WX")
 endif()
 
 set(COMMON_C_FLAGS_RELWITHDEBINFO "${COMMON_C_FLAGS_RELWITHDEBINFO} -DNDEBUG")
@@ -193,9 +195,11 @@ endif()
 
 macro(common_compiler_flags)
   set(CMAKE_C_FLAGS "${COMMON_C_FLAGS} ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS_DEBUG "${COMMON_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS_DEBUG}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "${COMMON_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELEASE "${COMMON_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS_RELEASE}")
   set(CMAKE_CXX_FLAGS "${COMMON_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS_DEBUG "${COMMON_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_DEBUG}")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${COMMON_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS_RELEASE}")
 endmacro()

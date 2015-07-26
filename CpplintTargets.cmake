@@ -108,6 +108,8 @@ function(add_cpplint _name)
   if(CPPLINT_ADD_TESTS)
     if(NOT TARGET ${PROJECT_NAME}-tests)
       add_custom_target(${PROJECT_NAME}-tests)
+      set_target_properties(${PROJECT_NAME}-tests PROPERTIES
+        EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
     endif()
     add_dependencies(${PROJECT_NAME}-tests cpplint_run_${_name})
   endif()

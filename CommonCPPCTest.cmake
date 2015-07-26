@@ -26,7 +26,7 @@
 #   ${NAME}_TEST_LABEL specifies an additional label.
 # * UNIT_AND_PERF_TESTS a list with files which should be compiled
 #   also as performance tests. The unit test will be named 'file',
-#   whereas the performance test will be named 'perf_file'.
+#   whereas the performance test will be named 'perf-file'.
 
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath support
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -46,7 +46,7 @@ set(ALL_CPP_TESTS)
 set(ALL_CPP_PERF_TESTS)
 
 macro(common_add_cpp_test NAME FILE)
-  set(TEST_NAME ${PROJECT_NAME}_${NAME})
+  set(TEST_NAME ${PROJECT_NAME}-${NAME})
   if(NOT TARGET ${NAME} AND NOT MSVC) # Create target without project prefix if possible
     set(TEST_NAME ${NAME})
   endif()
@@ -105,10 +105,17 @@ foreach(FILE ${TEST_FILES})
   string(REGEX REPLACE "[./]" "_" NAME ${NAME})
   source_group(\\ FILES ${FILE})
 
-  common_add_cpp_test(${NAME} ${FILE})
+  if(MSVC)
+    # need unique target name:
+    # - case insensitivity can result to duplicated targets
+    # - PDB files of library and test executable could overwrite each other
+    common_add_cpp_test(test-${NAME} ${FILE})
+  else()
+    common_add_cpp_test(${NAME} ${FILE})
+  endif()
   list(FIND UNIT_AND_PERF_TESTS ${FILE} ADD_PERF_TEST)
   if(ADD_PERF_TEST GREATER -1)
-    common_add_cpp_test(perf_${NAME} ${FILE})
+    common_add_cpp_test(perf-${NAME} ${FILE})
   endif()
 endforeach()
 
@@ -130,6 +137,7 @@ endif()
 
 add_dependencies(${PROJECT_NAME}-tests ${PROJECT_NAME}-cpptests)
 add_dependencies(tests ${PROJECT_NAME}-tests)
+add_dependencies(cpptests ${PROJECT_NAME}-cpptests)
 add_dependencies(perftests ${PROJECT_NAME}-perftests)
 
 if(ENABLE_COVERAGE)

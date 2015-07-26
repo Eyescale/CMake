@@ -99,7 +99,7 @@ if(APPLE)
     PATH_SUFFIXES lib PATHS ${_dnssd_lib_paths}
     )
 elseif(WIN32)
-  if("${CMAKE_GENERATOR}" MATCHES "Win64")
+  if("${CMAKE_SHARED_LINKER_FLAGS}" MATCHES "x64")
     set(_dnssd_lib_postfix "x64")
   else()
     set(_dnssd_lib_postfix "Win32")
