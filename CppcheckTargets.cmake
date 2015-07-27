@@ -35,7 +35,7 @@ if(NOT CPPCHECK_FOUND)
   add_custom_target(cppcheck_${PROJECT_NAME}
     COMMENT "cppcheck executable not found")
   set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER {PROJECT_NAME}/tests/cppcheck)
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cppcheck)
 endif()
 
 if(NOT TARGET cppcheck)
@@ -122,6 +122,8 @@ function(add_cppcheck _name)
   endif()
   if(NOT TARGET ${PROJECT_NAME}-tests)
     add_custom_target(${PROJECT_NAME}-tests)
+    set_target_properties(${PROJECT_NAME}-tests PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
   endif()
 
   add_dependencies(cppcheck_${PROJECT_NAME} cppcheck_run_${_name})

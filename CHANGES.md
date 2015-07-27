@@ -14,7 +14,6 @@
 * FindPackages.cmake should no longer be used; use common_package() for each
   dependency and common_package_post() at the end (will write defines.h, hence
   at the end)
-* Fix RHEL library path to be lib64, not lib anymore
 
 # 2015.06
 
