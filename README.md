@@ -17,8 +17,8 @@ and use it in your top-level CMakeLists.txt as follows:
 
 This will clone the latest version of this repository into your project at
 the beginning of the CMake run, and make all its features available. Run the 
-update target after the first successful cmake run to pin the git external to
-a SHA instead of a moving master tag.
+'update' target after the first successful cmake run to pin the git external to
+a SHA1 tag instead of a moving master tag.
 
 ## Documentation
 
