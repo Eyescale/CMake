@@ -95,9 +95,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
     set(_clone_options --recursive)
     if(GIT_EXTERNAL_LOCAL_SHALLOW)
       list(APPEND _clone_options --depth 1 --branch ${TAG})
+    else()
+      set(_msg_tag "[${TAG}]")
     endif()
     JOIN("${_clone_options}" " " _msg_text)
-    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR}")
+    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR} ${_msg_tag}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
       RESULT_VARIABLE nok ERROR_VARIABLE error
