@@ -48,6 +48,7 @@ macro(common_package Package_Name)
   set(__args ${ARGN}) # ARGN is not a list. make one.
 
   # SYSTEM specified?
+  set(__is_system_package)
   if(__args)
     string(REGEX MATCH "SYSTEM?" __is_system_package ${__args})
     list(REMOVE_ITEM __args "SYSTEM")
@@ -58,54 +59,41 @@ macro(common_package Package_Name)
     set(__is_system_package ON)
   endif()
 
-  # COMPONENTS specified?
+  # Get (optional) version from argument
+  set(__package_version)
   if(__args)
-    string(REGEX MATCH "COMPONENTS?" __has_components ${__args})
-    if(__has_components)
-      set(__has_components ON)
-    else()
-      set(__has_components)
+    list(GET __args 0 __package_version)
+    if(__package_version MATCHES "^[0-9.]+$") # is a version
+      set(__package_version ">=${__package_version}")
     endif()
   endif()
 
-  # OPT: only forward to find_package if not found or component find (tbd
-  # implement found_components check)
-  if((NOT ${Package_Name}_FOUND AND NOT ${PACKAGE_NAME}_FOUND) OR __has_components)
-    set(__package_version)
-    if(__args)
-      list(GET __args 0 __package_version)
-      if(__package_version MATCHES "^[0-9.]+$") # is a version
-        set(__package_version ">=${__package_version}")
-      else()
-        set(__package_version)
-      endif()
-    endif()
-
-    if(COMMON_PACKAGE_USE_QUIET)
+  # QUIET either via as global option or as argument
+  set(__find_quiet)
+  if(COMMON_PACKAGE_USE_QUIET)
+    set(__find_quiet "QUIET")
+  else()
+    list(FIND __args "QUIET" __quiet_pos)
+    if(NOT __quiet_pos EQUAL -1)
       set(__find_quiet "QUIET")
-    else()
-      list(FIND __args "QUIET" __quiet_pos)
-      if(__quiet_pos EQUAL -1)
-        set(__find_quiet)
-      else()
-        set(__find_quiet "QUIET")
-      endif()
     endif()
+  endif()
 
-    list(FIND __args "REQUIRED" __is_required)
-    if(__is_required EQUAL -1) # Optional find
-      find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
-      if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-        pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
-          ${__find_quiet}) # try pkg_config way
-      endif()
-    else() # required find
-      list(REMOVE_AT __args ${__is_required})
-      find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
-      if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-        pkg_check_modules(${Package_Name} REQUIRED ${Package_Name}${__package_version}
-          ${__find_quiet}) # try pkg_config way (and fail if needed)
-      endif()
+  list(FIND __args "REQUIRED" __is_required)
+  # Optional find
+  if(__is_required EQUAL -1)
+    find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
+    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
+      pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
+        ${__find_quiet}) # try pkg_config way
+    endif()
+  # required find
+  else()
+    list(REMOVE_AT __args ${__is_required})
+    find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
+    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
+      pkg_check_modules(${Package_Name} REQUIRED ${Package_Name}${__package_version}
+        ${__find_quiet}) # try pkg_config way (and fail if needed)
     endif()
   endif()
 
@@ -120,21 +108,28 @@ macro(common_package Package_Name)
     set(${Package_Name}_name ${Package_Name})
     set(${PACKAGE_NAME}_FOUND TRUE)
   else()
+    # for common_package_post()
     set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
       "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND} ${Package_Name}")
   endif()
   if(${Package_Name}_name)
+    # for common_package_post()
+    set(${PROJECT_NAME}_FIND_PACKAGES_FOUND
+      "${${PROJECT_NAME}_FIND_PACKAGES_FOUND} ${Package_Name}")
+      
+    # for defines.h
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
     string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
     list(APPEND COMMON_PACKAGE_DEFINES ${__use_package_define})
+    
+    # for PackageConfig.cmake
     if(NOT COMMON_LIBRARY_TYPE MATCHES "SHARED")
       list(APPEND ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES ${Package_Name})
     endif()
-    set(${PROJECT_NAME}_FIND_PACKAGES_FOUND
-      "${${PROJECT_NAME}_FIND_PACKAGES_FOUND} ${Package_Name}")
+    
+    # setup link_ and include_directories
     set(__library_dirs ${Package_Name}_LIBRARY_DIRS ${PACKAGE_NAME}_LIBRARY_DIRS)
-    link_directories( ${__library_dirs} )
-    set(__include_dirs)
+    link_directories(${__library_dirs})
     if(NOT "${${Package_Name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
       list(APPEND __include_dirs ${${Package_Name}_INCLUDE_DIRS})
     endif()
