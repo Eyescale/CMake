@@ -116,19 +116,20 @@ macro(common_package Package_Name)
     # for common_package_post()
     set(${PROJECT_NAME}_FIND_PACKAGES_FOUND
       "${${PROJECT_NAME}_FIND_PACKAGES_FOUND} ${Package_Name}")
-      
+
     # for defines.h
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
     string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
     list(APPEND COMMON_PACKAGE_DEFINES ${__use_package_define})
-    
+
     # for PackageConfig.cmake
     if(NOT COMMON_LIBRARY_TYPE MATCHES "SHARED")
       list(APPEND ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES ${Package_Name})
     endif()
-    
+
     # setup link_ and include_directories
-    set(__library_dirs ${Package_Name}_LIBRARY_DIRS ${PACKAGE_NAME}_LIBRARY_DIRS)
+    set(__library_dirs ${${Package_Name}_LIBRARY_DIRS}
+      ${${PACKAGE_NAME}_LIBRARY_DIRS})
     link_directories(${__library_dirs})
     if(NOT "${${Package_Name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
       list(APPEND __include_dirs ${${Package_Name}_INCLUDE_DIRS})
@@ -137,10 +138,10 @@ macro(common_package Package_Name)
       list(APPEND __include_dirs ${${PACKAGE_NAME}_INCLUDE_DIRS})
     endif()
     if(NOT "${${Package_Name}_INCLUDE_DIR}" MATCHES "-NOTFOUND")
-      list(APPEND __include_dirs ${${Package_Name}_INCLUDE_DIR}) 
+      list(APPEND __include_dirs ${${Package_Name}_INCLUDE_DIR})
     endif()
     if(NOT "${${PACKAGE_NAME}_INCLUDE_DIR}" MATCHES "-NOTFOUND")
-      list(APPEND __include_dirs ${${PACKAGE_NAME}_INCLUDE_DIR}) 
+      list(APPEND __include_dirs ${${PACKAGE_NAME}_INCLUDE_DIR})
     endif()
     if(__is_system_package)
       include_directories(BEFORE SYSTEM ${__include_dirs})
