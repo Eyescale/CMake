@@ -23,6 +23,7 @@
 #
 # Builds Name application and installs it.
 
+include(AppleCheckOpenGL)
 include(CommonQtSupport)
 
 # applying CMAKE_C(XX)_FLAGS to add_executable only works from parent scope, hence
@@ -45,6 +46,7 @@ function(_common_application Name)
   add_executable(${Name} ${ARGN} ${HEADERS} ${SOURCES})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
+  apple_check_opengl(${Name})
 endfunction()
 
 # applying CMAKE_C(XX)_FLAGS to add_executable only works from parent scope, hence
