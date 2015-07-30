@@ -36,8 +36,10 @@
 #    external repos when set.
 #
 # CMake or environment variables:
-#  GITHUB_USER If set, a remote called 'user' is set up for github
-#    repositories, pointing to github.com/<user>/<project>.
+#  GITHUB_USER
+#    If set, a remote called 'user' is set up for github repositories, pointing
+#    to git@github.com:<user>/<project>. Also, this remote is used by default
+#    for 'git push'.
 
 if(NOT GIT_FOUND)
   find_package(Git QUIET)
@@ -129,12 +131,15 @@ function(GIT_EXTERNAL DIR REPO TAG)
     endif()
   endif()
 
-  # set up "user" remote for github forks
+  # set up "user" remote for github forks and make it default for 'git push'
   if(GITHUB_USER AND REPO MATCHES ".*github.com.*")
-    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)" "\\1${GITHUB_USER}\\2"
+    string(REGEX REPLACE ".*(github.com)[\\/:]().*(\\/.*)" "git@\\1:\\2${GITHUB_USER}\\3"
       GIT_EXTERNAL_USER_REPO ${REPO})
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" remote add user ${GIT_EXTERNAL_USER_REPO}
+      OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" config remote.pushdefault user
       OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
   endif()
 
