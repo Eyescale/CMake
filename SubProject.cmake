@@ -38,6 +38,7 @@
 # SubProject.cmake respects the following variables:
 # - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
 #   example for continuous integration builds
+# - SUBPROJECT_${name}: If set to OFF, the subproject is not added.
 # - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
 #   "port install" the known system packages. Will be unset after installation.
 # - COMMON_SOURCE_DIR: When set, the source code of subprojects will be
@@ -122,7 +123,12 @@ function(add_subproject name)
       "Sub project ${path} not found in ${__common_source_dir}")
   endif()
 
-  option(SUBPROJECT_${name} "Build ${name} " ON)
+  # allow exclusion of subproject via set(SUBPROJECT_${name} OFF)
+  if(DEFINED SUBPROJECT_${name} AND NOT SUBPROJECT_${name})
+    option(SUBPROJECT_${name} "Build ${name} " OFF)
+  else()
+    option(SUBPROJECT_${name} "Build ${name} " ON)
+  endif()
   if(SUBPROJECT_${name})
     # Hint for the sub project, in case it needs to do anything special when
     # configured as a sub project
