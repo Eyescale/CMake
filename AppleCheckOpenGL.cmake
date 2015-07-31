@@ -1,6 +1,8 @@
 
-# test that only one OpenGL (X11 lib or OpenGL framework) is linked to
-# a given target on OS X
+# Provides the following function:
+# * apple_check_opengl(<target>): Adds a test to ${PROJECT_NAME}-tests to check
+#   that only one OpenGL (X11 lib or OpenGL framework) is linked to the given
+#   <target> on OS X
 
 function(apple_check_opengl Target)
   if(NOT APPLE)
@@ -8,10 +10,18 @@ function(apple_check_opengl Target)
   endif()
 
   add_test(NAME ${Target}-AppleCheckOpenGL
-    COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>" -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake)
+    COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>"
+            -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake)
   add_custom_target(${Target}-AppleCheckOpenGL
-    COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>" -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake
+    COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>"
+            -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake
     COMMENT "Verifying OpenGL link libraries of ${Target}")
+
+  if(NOT TARGET ${PROJECT_NAME}-tests)
+    add_custom_target(${PROJECT_NAME}-tests)
+    set_target_properties(${PROJECT_NAME}-tests PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
+  endif()
   add_dependencies(${PROJECT_NAME}-tests ${Target}-AppleCheckOpenGL)
 endfunction()
 
