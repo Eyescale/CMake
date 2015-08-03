@@ -45,7 +45,7 @@ add_definitions(-D${UPPER_PROJECT_NAME}_VERSION=${VERSION})
 # - ABI version matches MAJOR version (ABI only changes with MAJOR releases)
 # - MINOR and PATCH releases preserve backward ABI compatibility
 # - PATCH releases preseve forward+backward API compatibility (no new features)
-if(NOT VERSION_ABI)
+if(NOT DEFINED VERSION_ABI)
   set(VERSION_ABI ${VERSION_MAJOR})
   message(STATUS "VERSION_ABI not set for ${PROJECT_NAME}. Using VERSION_MAJOR=${VERSION_MAJOR} as the ABI version.")
 endif()
