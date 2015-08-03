@@ -52,35 +52,35 @@ namespace @namespace@
       (@NAMESPACE@_VERSION_MAJOR==MAJOR && (@NAMESPACE@_VERSION_MINOR<MINOR || \
         (@NAMESPACE@_VERSION_MINOR==MINOR && @NAMESPACE@_VERSION_PATCH<=PATCH))))
 
-/** Information about the current @NAME@ version. */
+/** Information about the current @Name@ version. */
 class @NAMESPACE@_API Version
 {
 public:
-    /** @return the current major version of @NAME@. */
+    /** @return the current major version of @Name@. */
     static int getMajor();
 
-    /** @return the current minor version of @NAME@. */
+    /** @return the current minor version of @Name@. */
     static int getMinor();
 
-    /** @return the current patch level of @NAME@. */
+    /** @return the current patch level of @Name@. */
     static int getPatch();
 
-    /** @return the current @NAME@ version (MM.mm.pp). */
+    /** @return the current @Name@ version (MM.mm.pp). */
     static std::string getString();
 
     /** @return the SCM revision. */
     static int getRevision();
 
-    /** @return the current binary interface version of @NAME@. */
+    /** @return the current binary interface version of @Name@. */
     static int getABI();
 
-    /** @return the current @NAME@ version plus the git SHA hash (MM.mm.pp.rev). */
+    /** @return the current @Name@ version plus the git SHA hash (MM.mm.pp.rev). */
     static std::string getRevString();
 
     /**
      * Runtime check for ABI compatibility.
      *
-     * Call from code using @NAME@. Will fail if the executable
+     * Call from code using @Name@. Will fail if the executable
      * was compiled against a version incompatible with the runtime version.
      *
      * @return true if the link-time and compile-time DSO are compatible.
