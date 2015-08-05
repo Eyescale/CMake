@@ -30,13 +30,14 @@
 # Generates a NAME_INCLUDE_NAME/{BASE_NAME of NAME_INCLUDE_NAME}.h
 # including all public headers.
 #
-# Options 
+# Options
 # By default on windows platforms "_D" is appended to libraries
 # if COMMON_LIBRARY_DEBUG_POSTFIX is ON then "_debug" is added on other platforms
 #
 
-include(InstallFiles)
+include(CommonCheckTargets)
 include(CommonQtSupport)
+include(InstallFiles)
 
 set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
@@ -70,7 +71,7 @@ macro(generate_library_header NAME)
 endmacro()
 
 #-------------------------------------------------------------------------------
-# set debug postfix 
+# set debug postfix
 #-------------------------------------------------------------------------------
 macro(COMMON_SET_LIB_NAME_POSTFIX)
   if (WIN32)
@@ -158,6 +159,7 @@ function(_common_library Name)
       set(LIBNAME "${Name}_${LIBRARY_TYPE}")
     endif()
     add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+    common_check_targets(${LIBNAME})
     set_target_properties(${LIBNAME}
       PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
     # append a debug suffix to library name on windows or if user requests it
