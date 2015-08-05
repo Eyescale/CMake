@@ -6,10 +6,9 @@
 #    Create a target to check a target's sources with clang-check and the
 #    indicated options
 
-if(__add_clangcheck)
+if(TARGET ${_name}_clangcheck)
   return()
 endif()
-set(__add_clangcheck YES)
 
 if(NOT CLANGCHECK)
   find_program(CLANGCHECK clang-check)

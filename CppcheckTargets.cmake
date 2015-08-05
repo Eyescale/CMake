@@ -22,10 +22,9 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-if(__add_cppcheck)
+if(TARGET cppcheck_${PROJECT_NAME})
   return()
 endif()
-set(__add_cppcheck YES)
 
 if(NOT CPPCHECK_FOUND)
   find_package(cppcheck 1.66 QUIET)

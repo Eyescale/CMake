@@ -11,13 +11,11 @@
 # Input variables:
 # * CPPLINT_ADD_TESTS: When set to ON, add cpplint targets to tests
 
-include(CMakeParseArguments)
-
-if(__add_cpplint)
+if(TARGET cpplint_${PROJECT_NAME})
   return()
-endif(__add_cpplint)
+endif()
 
-set(__add_cpplint YES)
+include(CMakeParseArguments)
 
 if(NOT CPPLINT_FOUND)
   find_package(cpplint QUIET)

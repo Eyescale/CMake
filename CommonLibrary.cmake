@@ -14,6 +14,7 @@
 # * NAME_OMIT_LIBRARY_HEADER when set, no library header (name.h) is generated.
 # * NAME_INCLUDE_NAME for the include directory and library header
 # * NAME_NAMESPACE for api.h and version.h
+# * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
 # * Optional Qt support:
@@ -159,7 +160,9 @@ function(_common_library Name)
       set(LIBNAME "${Name}_${LIBRARY_TYPE}")
     endif()
     add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
-    common_check_targets(${LIBNAME})
+    if(NOT ${NAME}_OMIT_CHECK_TARGETS)
+      common_check_targets(${LIBNAME})
+    endif()
     set_target_properties(${LIBNAME}
       PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
     # append a debug suffix to library name on windows or if user requests it
