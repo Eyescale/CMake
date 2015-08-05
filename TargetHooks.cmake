@@ -5,9 +5,6 @@
 # single go, the properties are unique per project
 
 include(CMakeParseArguments)
-include(clangcheckTargets)
-include(CppcheckTargets)
-include(CpplintTargets)
 
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
@@ -18,11 +15,6 @@ if(NOT ADD_EXE_DEFINED)
   set_property(GLOBAL PROPERTY ADD_EXE_MACRO_DEFINED "1")
   macro(add_executable _target)
     _add_executable(${_target} ${ARGN})
-    add_clangcheck(${_target})
-    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS
-      EXCLUDE_QT_MOC_FILES)
-    add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams
-      EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
     set_target_properties(${_target} PROPERTIES FOLDER ${PROJECT_NAME})
 
     # ignore IMPORTED add_library from finders (e.g. Qt)
@@ -41,11 +33,6 @@ if(NOT ADD_LIBRARY_DEFINED)
   set_property(GLOBAL PROPERTY ADD_LIBRARY_MACRO_DEFINED "1")
   macro(add_library _target)
     _add_library(${_target} ${ARGN})
-    add_clangcheck(${_target})
-    add_cppcheck(${_target} POSSIBLE_ERROR FAIL_ON_WARNINGS
-      EXCLUDE_QT_MOC_FILES)
-    add_cpplint(${_target} CATEGORY_FILTER_OUT readability/streams
-      EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
 
     # ignore IMPORTED add_library from finders (e.g. Qt)
     cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})

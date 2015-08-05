@@ -28,6 +28,8 @@
 #   also as performance tests. The unit test will be named 'file',
 #   whereas the performance test will be named 'perf-file'.
 
+include(CommonCheckTargets)
+
 if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath support
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
@@ -52,6 +54,7 @@ macro(common_add_cpp_test NAME FILE)
   endif()
 
   add_executable(${TEST_NAME} ${FILE})
+  common_check_targets(${TEST_NAME})
   set_target_properties(${TEST_NAME} PROPERTIES FOLDER ${PROJECT_NAME}/tests
     OUTPUT_NAME ${NAME})
 

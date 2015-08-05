@@ -7,6 +7,9 @@
     * Added SHALLOW and VERBOSE options
     * new targets *DIR-rebase* and *rebase* to update git externals and sub
       projects
+* common_check_targets() now adds cppcheck, cpplint and clangcheck targets
+  to targets added by common_application() and common_library() instead of
+  adding them via add_executable() and add_library().
 * Removed legacy RELEASE_VERSION magic
 * common_compiler_flags() macro replaces globally set CMAKE_C[XX]_FLAGS; is
   automatically applied when using common_application, common_library and
