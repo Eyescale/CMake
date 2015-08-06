@@ -90,7 +90,6 @@ function(add_cpplint _name)
 
   get_target_property(_cpplint_sources "${_name}" SOURCES)
   set(_files)
-  #set(_exclude_pattern ".*moc_.*\\.cxx|Buildyard/Build")
   foreach(_source ${_cpplint_sources})
     get_source_file_property(_cpplint_lang "${_source}" LANGUAGE)
     get_source_file_property(_cpplint_loc "${_source}" LOCATION)
