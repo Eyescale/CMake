@@ -79,25 +79,19 @@ macro(common_add_cpp_test NAME FILE)
   endif()
 
   add_test(NAME ${TEST_NAME}
-    COMMAND ${RUN_PREFIX} $<TARGET_FILE:${TEST_NAME}> ${RUN_ARGS})
-
-  add_custom_target(ctest_${TEST_NAME}
-    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
-      -R '^${TEST_NAME}$$' -C $<CONFIGURATION> \${ARGS}
-    DEPENDS ${TEST_NAME}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Running ${TEST_NAME} ctest")
-  set_target_properties(ctest_${TEST_NAME} PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/ctest)
+    COMMAND ${RUN_PREFIX} $<TARGET_FILE:${TEST_NAME}> ${RUN_ARGS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   if("${NAME}" MATCHES "^perf.*")
-    list(APPEND ALL_CPP_PERF_TESTS ctest_${TEST_NAME})
+    list(APPEND ALL_CPP_PERF_TESTS ${TEST_NAME})
+    set(TEST_LABELS ${PROJECT_NAME}-perf)
   else()
-    list(APPEND ALL_CPP_TESTS ctest_${TEST_NAME})
+    list(APPEND ALL_CPP_TESTS ${TEST_NAME})
+    set(TEST_LABELS ${PROJECT_NAME}-unit)
   endif()
 
   # Add test labels
-  set(TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
+  list(APPEND TEST_LABELS ${TEST_LABEL} ${${NAME}_TEST_LABEL})
   if(TEST_LABELS)
     set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${TEST_LABELS}")
   endif()
@@ -123,13 +117,22 @@ foreach(FILE ${TEST_FILES})
 endforeach()
 
 if(NOT TARGET ${PROJECT_NAME}-cpptests)
-  add_custom_target(${PROJECT_NAME}-cpptests)
-endif()
-if(NOT TARGET ${PROJECT_NAME}-perftests)
-  add_custom_target(${PROJECT_NAME}-perftests)
+  add_custom_target(${PROJECT_NAME}-cpptests
+    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+    --output-on-failure -L ${PROJECT_NAME}-unit -C $<CONFIGURATION> \${ARGS}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    COMMENT "Running ${PROJECT_NAME} unit tests")
 endif()
 set_target_properties(${PROJECT_NAME}-cpptests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
+
+if(NOT TARGET ${PROJECT_NAME}-perftests)
+  add_custom_target(${PROJECT_NAME}-perftests
+    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+    --output-on-failure -L ${PROJECT_NAME}-perf -C $<CONFIGURATION> \${ARGS}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    COMMENT "Running ${PROJECT_NAME} performance tests")
+endif()
 set_target_properties(${PROJECT_NAME}-perftests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 

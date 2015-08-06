@@ -22,7 +22,7 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-if(TARGET cppcheck_${PROJECT_NAME})
+if(TARGET ${PROJECT_NAME}-cppcheck)
   return()
 endif()
 
@@ -31,9 +31,9 @@ if(NOT CPPCHECK_FOUND)
 endif()
 
 if(NOT CPPCHECK_FOUND)
-  add_custom_target(cppcheck_${PROJECT_NAME}
+  add_custom_target(${PROJECT_NAME}-cppcheck
     COMMENT "cppcheck executable not found")
-  set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES
+  set_target_properties(${PROJECT_NAME}-cppcheck PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cppcheck)
 endif()
 
@@ -107,25 +107,24 @@ function(add_cppcheck _name)
     return()
   endif()
 
-  add_custom_target(cppcheck_run_${_name}
+  add_test(NAME ${_name}-cppcheck
     COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG}
       ${CPPCHECK_TEMPLATE_ARG} ${_cppcheck_args} ${_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-  set_target_properties(cppcheck_run_${_name} PROPERTIES
+  set_tests_properties(${_name}-cppcheck PROPERTIES LABELS ${PROJECT_NAME}-unit)
+
+  add_custom_target(${_name}-runcppcheck
+    COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_QUIET_ARG}
+      ${CPPCHECK_TEMPLATE_ARG} ${_cppcheck_args} ${_files}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  set_target_properties(${_name}-runcppcheck PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cppcheck)
 
-  if(NOT TARGET cppcheck_${PROJECT_NAME})
-    add_custom_target(cppcheck_${PROJECT_NAME})
-    set_target_properties(cppcheck_${PROJECT_NAME} PROPERTIES
+  if(NOT TARGET ${PROJECT_NAME}-cppcheck)
+    add_custom_target(${PROJECT_NAME}-cppcheck)
+    set_target_properties(${PROJECT_NAME}-cppcheck PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests/cppcheck)
   endif()
-  if(NOT TARGET ${PROJECT_NAME}-tests)
-    add_custom_target(${PROJECT_NAME}-tests)
-    set_target_properties(${PROJECT_NAME}-tests PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
-  endif()
-
-  add_dependencies(cppcheck_${PROJECT_NAME} cppcheck_run_${_name})
-  add_dependencies(${PROJECT_NAME}-tests cppcheck_run_${_name})
-  add_dependencies(cppcheck cppcheck_${PROJECT_NAME})
+  add_dependencies(${PROJECT_NAME}-cppcheck ${_name}-runcppcheck)
+  add_dependencies(cppcheck ${PROJECT_NAME}-cppcheck)
 endfunction()
