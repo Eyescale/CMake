@@ -154,7 +154,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "if(NOT IS_DIRECTORY \"${DIR}/.git\")\n"
     "  message(FATAL_ERROR \"Can't update git external ${__dir}: Not a git repository\")\n"
     "endif()\n"
-    # check if we are already on the requested tag
+    # check if we are already on the requested tag (nothing to do)
     "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rev-parse --short HEAD\n"
     "  OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
     "  WORKING_DIRECTORY \"${DIR}\")\n"
@@ -174,7 +174,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "    WORKING_DIRECTORY \"${DIR}\")\n"
     "endforeach()\n"
     "\n"
-    # fetch latest update
+    # fetch updates
     "execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q\n"
     "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
     "  WORKING_DIRECTORY \"${DIR}\")\n"
@@ -182,30 +182,42 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "  message(FATAL_ERROR \"Fetch for ${__dir} failed:\n   \${error}\")\n"
     "endif()\n"
     "\n"
-    # update tag
-    "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase FETCH_HEAD\n"
-    "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
-    "  WORKING_DIRECTORY \"${DIR}\")\n"
-    "if(nok)\n"
-    "  execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase --abort\n"
-    "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
-    "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
-    "endif()\n"
-    "\n"
-    # checkout requested tag
-    "execute_process(\n"
-    "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
-    "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
-    "  WORKING_DIRECTORY \"${DIR}\")\n"
-    "if(nok)\n"
-    "  message(FATAL_ERROR \"git checkout ${TAG} in ${__dir} failed: ${error}\n\")\n"
-    "endif()\n"
+  )
+  if("${TAG}" MATCHES "^[0-9a-f]+$")
+    # requested TAG is a SHA1, just switch to it
+    file(APPEND ${__rebase_cmake}
+      # checkout requested tag
+      "execute_process(\n"
+      "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
+      "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
+      "  WORKING_DIRECTORY \"${DIR}\")\n"
+      "if(nok)\n"
+      "  message(FATAL_ERROR \"git checkout ${TAG} in ${__dir} failed: ${error}\n\")\n"
+      "endif()\n"
     )
+  else()
+    # requested TAG is a branch
+    file(APPEND ${__rebase_cmake}
+      # switch to requested branch
+      "execute_process(\n"
+      "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
+      "  OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY \"${DIR}\")\n"
+      # try to rebase it
+      "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase FETCH_HEAD\n"
+      "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
+      "  WORKING_DIRECTORY \"${DIR}\")\n"
+      "if(nok)\n"
+      "  execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase --abort\n"
+      "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
+      "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
+      "endif()\n"
+    )
+  endif()
 
   if(NOT GIT_EXTERNAL_SCRIPT_MODE)
     add_custom_target(${__target}-rebase
       COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
-      COMMENT "Rebasing ${__dir}")
+      COMMENT "Rebasing ${__dir} [${TAG}]")
     set_target_properties(${__target}-rebase PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
     if(NOT TARGET rebase)
