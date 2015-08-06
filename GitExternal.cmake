@@ -34,12 +34,16 @@
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all
 #    external repos when set.
+#  GIT_EXTERNAL_TAG
+#    If set, git external tags referring to a SHA1 (not a branch) will be
+#    overwritten by this value.
 #
 # CMake or environment variables:
 #  GITHUB_USER
 #    If set, a remote called 'user' is set up for github repositories, pointing
 #    to git@github.com:<user>/<project>. Also, this remote is used by default
 #    for 'git push'.
+
 
 if(NOT GIT_FOUND)
   find_package(Git QUIET)
@@ -69,8 +73,12 @@ function(JOIN VALUES GLUE OUTPUT)
   set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
 endfunction()
 
-function(GIT_EXTERNAL DIR REPO TAG)
+function(GIT_EXTERNAL DIR REPO tag)
   cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW" "" "RESET" ${ARGN})
+  set(TAG ${tag})
+  if(GIT_EXTERNAL_TAG AND "${tag}" MATCHES "^[0-9a-f]+$")
+    set(TAG ${GIT_EXTERNAL_TAG})
+  endif()
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
