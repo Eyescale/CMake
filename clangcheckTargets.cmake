@@ -2,13 +2,15 @@
 #
 #  include(clangcheckTargets)
 #  add_clangcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
-#                               [FAIL_ON_WARNINGS] [EXCLUDE_QT_MOC_FILES]) -
+#                               [FAIL_ON_WARNINGS] [EXCLUDE_PATTERN]) -
 #    Create a target to check a target's sources with clang-check and the
 #    indicated options
 
 if(TARGET ${_name}_clangcheck)
   return()
 endif()
+
+include(CMakeParseArguments)
 
 if(NOT CLANGCHECK)
   find_program(CLANGCHECK clang-check)
@@ -37,12 +39,13 @@ function(add_clangcheck _name)
   set(_clangcheck_args -p "${PROJECT_BINARY_DIR}" -analyze -fixit
     -fatal-assembler-warnings -extra-arg=-Qunused-arguments
     ${CLANGCHECK_EXTRA_ARGS})
-  set(_exclude_pattern ".*moc_.*\\.cxx$") # Qt moc files
 
   get_target_property(_imported_target "${_name}" IMPORTED)
   if(_imported_target)
     return()
   endif()
+
+  cmake_parse_arguments(add_clangcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
 
   get_target_property(_clangcheck_sources "${_name}" SOURCES)
   set(_files)
@@ -50,7 +53,7 @@ function(add_clangcheck _name)
     get_source_file_property(_clangcheck_lang "${_source}" LANGUAGE)
     get_source_file_property(_clangcheck_loc "${_source}" LOCATION)
     if("${_clangcheck_lang}" MATCHES "CXX" AND
-        NOT ${_clangcheck_loc} MATCHES ${_exclude_pattern} AND
+        NOT ${_clangcheck_loc} MATCHES ${add_clangcheck_EXCLUDE_PATTERN} AND
         ${_clangcheck_loc} MATCHES "\\.(cpp|cxx)$")
       list(APPEND _files "${_clangcheck_loc}")
     endif()

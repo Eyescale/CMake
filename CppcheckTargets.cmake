@@ -2,7 +2,7 @@
 #
 #  include(CppcheckTargets)
 #  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
-#                             [FAIL_ON_WARNINGS] [EXCLUDE_QT_MOC_FILES]) -
+#                             [FAIL_ON_WARNINGS] [EXCLUDE_PATTERN]) -
 #    Create a target to check a target's sources with cppcheck and the
 #    indicated options
 #
@@ -25,6 +25,8 @@
 if(TARGET ${PROJECT_NAME}-cppcheck)
   return()
 endif()
+
+include(CMakeParseArguments)
 
 if(NOT CPPCHECK_FOUND)
   find_package(cppcheck 1.66 QUIET)
@@ -83,22 +85,19 @@ function(add_cppcheck _name)
       ${CPPCHECK_WARN_REGULAR_EXPRESSION})
   endif()
 
-  list(FIND ARGN EXCLUDE_QT_MOC_FILES _exclude_moc_files)
-  if("${_exclude_moc_files}" GREATER "-1")
-    SET(_exclude_pattern ".*moc_.*\\.cxx$")
-  endif()
-
   get_target_property(_imported_target "${_name}" IMPORTED)
   if(_imported_target)
     return()
   endif()
+
+  cmake_parse_arguments(add_cppcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
 
   get_target_property(_cppcheck_sources "${_name}" SOURCES)
   set(_files)
   foreach(_source ${_cppcheck_sources})
     get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
     get_source_file_property(_cppcheck_loc "${_source}" LOCATION)
-    if("${_cppcheck_lang}" MATCHES "CXX" AND NOT ${_cppcheck_loc} MATCHES ${_exclude_pattern})
+    if("${_cppcheck_lang}" MATCHES "CXX" AND NOT ${_cppcheck_loc} MATCHES ${add_cppcheck_EXCLUDE_PATTERN})
       list(APPEND _files "${_cppcheck_loc}")
     endif()
   endforeach()

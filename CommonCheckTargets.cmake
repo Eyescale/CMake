@@ -8,9 +8,10 @@ include(CppcheckTargets)
 include(CpplintTargets)
 
 function(common_check_targets _name)
-  add_clangcheck(${_name})
+  set(_exclude_pattern ".*moc_|.*qrc_.*\\.c.*$") # Qt moc and qrc files
+  add_clangcheck(${_name} EXCLUDE_PATTERN ${_exclude_pattern})
   add_cppcheck(${_name} POSSIBLE_ERROR FAIL_ON_WARNINGS
-    EXCLUDE_QT_MOC_FILES)
+    EXCLUDE_PATTERN ${_exclude_pattern})
   add_cpplint(${_name} CATEGORY_FILTER_OUT readability/streams
-    EXCLUDE_PATTERN ".*moc_.*\\.cxx|Buildyard/Build")
+    EXCLUDE_PATTERN ${_exclude_pattern})
 endfunction()
