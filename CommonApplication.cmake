@@ -8,6 +8,7 @@
 # * NAME_SOURCES for all compilation units
 # * NAME_HEADERS for all internal header files
 # * NAME_LINK_LIBRARIES for dependencies of name
+# * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * ARGN for optional add_executable parameters
 # * Optional Qt support:
 # ** NAME_MOC_HEADERS list of all moc input headers
@@ -45,7 +46,9 @@ function(_common_application Name)
   list(APPEND SOURCES ${COMMON_QT_SUPPORT_SOURCES})
 
   add_executable(${Name} ${ARGN} ${HEADERS} ${SOURCES})
-  common_check_targets(${Name})
+  if(NOT ${NAME}_OMIT_CHECK_TARGETS)
+    common_check_targets(${Name})
+  endif()
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
   apple_check_opengl(${Name})
