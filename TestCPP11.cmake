@@ -7,6 +7,11 @@ if(TESTS_CPP11_DONE)
 endif()
 set(TESTS_CPP11_DONE ON)
 
+if(NOT PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  message(WARNING "For better performance, include TestCPP11 in the top-level "
+    "project so that it is run only once.")
+endif()
+
 set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map
   template_alias)
 
