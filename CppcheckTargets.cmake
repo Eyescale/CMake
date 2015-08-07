@@ -91,6 +91,9 @@ function(add_cppcheck _name)
   endif()
 
   cmake_parse_arguments(add_cppcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
+  if(NOT add_cppcheck_EXCLUDE_PATTERN)
+    set(add_cppcheck_EXCLUDE_PATTERN "^$") # Empty string regex
+  endif()
 
   get_target_property(_cppcheck_sources "${_name}" SOURCES)
   set(_files)
