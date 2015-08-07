@@ -7,18 +7,23 @@
 #      each minor version
 #
 # Targets:
-# * branch: Create a new branch for developing the current version and
-#   push it to origin. The branch name is MAJOR.MINOR, where the minor
-#   version is rounded up to the next even version. Odd minor numbers
+# * ${PROJECT_NAME}-branch: Create a new branch for developing the current
+#   version and push it to origin. The branch name is MAJOR.MINOR, where the
+#   minor version is rounded up to the next even version. Odd minor numbers
 #   are considered development versions, and might still be used when
 #   releasing a pre-release version (e.g., 1.3.9 used for 1.4-beta).
-# * cut: Delete the current version branch locally and remote.
-# * tag: Create the version branch if needed, and create a tag
+# * ${PROJECT_NAME}-cut: Delete the current version branch locally and remote.
+# * ${PROJECT_NAME}-tag: Create the version branch if needed, and create a tag
 #   release-VERSION on the version branch HEAD. Pushes the tag to the
 #   origin repository.
-# * erase: Delete the current tag locally and remote
-# * retag: Move an existing tag to HEAD
-# * tarball: Create an archive of VERSION
+# * ${PROJECT_NAME}-untag: Delete the current tag locally and remote
+# * ${PROJECT_NAME}-retag: Move an existing tag to HEAD
+# * tarball: Run ${PROJECT_NAME}-tarball for all projects
+# * ${PROJECT_NAME}-tarball: Create an archive of the source code at VERSION
+# Targets for internal use:
+# * ${PROJECT_NAME}-make-branch: Used by ${PROJECT_NAME}-branch to create a new
+#   local branch
+# * ${PROJECT_NAME}-create-tarball: Used by ${PROJECT_NAME}-tarball
 
 if(GITTARGETS_FOUND)
   return()
@@ -47,7 +52,7 @@ else()
   set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 endif()
 
-add_custom_target(make_branch_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-make-branch
   COMMAND "${GIT_EXECUTABLE}" checkout ${BRANCH_VERSION} || "${GIT_EXECUTABLE}" checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
@@ -56,33 +61,23 @@ add_custom_target(make_branch_${PROJECT_NAME}
 if(TARGET flatten_git_external)
   set(BRANCH_DEP flatten_git_external)
 else()
-  set(BRANCH_DEP make_branch_${PROJECT_NAME})
+  set(BRANCH_DEP ${PROJECT_NAME}-make-branch)
 endif()
 
-add_custom_target(branch_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-branch
   COMMAND "${GIT_EXECUTABLE}" push origin ${BRANCH_VERSION}
   COMMENT "Add remote branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS ${BRANCH_DEP}
   )
 
-if(NOT TARGET branch)
-  add_custom_target(branch)
-endif()
-add_dependencies(branch branch_${PROJECT_NAME})
-
 # remove branch
-add_custom_target(cut_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-cut
   COMMAND "${GIT_EXECUTABLE}" branch -d ${BRANCH_VERSION}
   COMMAND "${GIT_EXECUTABLE}" push origin --delete ${BRANCH_VERSION}
   COMMENT "Remove branch ${BRANCH_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
-
-if(NOT TARGET cut)
-  add_custom_target(cut)
-endif()
-add_dependencies(cut cut_${PROJECT_NAME})
 
 # tag on branch
 file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
@@ -110,46 +105,31 @@ file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
         \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
-add_custom_target(tag_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-tag
   COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
-if(NOT TARGET tag)
-  add_custom_target(tag)
-endif()
-add_dependencies(tag tag_${PROJECT_NAME})
-
 # remove tag
-add_custom_target(erase_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-untag
   COMMAND "${GIT_EXECUTABLE}" tag -d ${VERSION}
   COMMAND "${GIT_EXECUTABLE}" push origin :${VERSION}
   COMMENT "Remove tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
-if(NOT TARGET erase)
-  add_custom_target(erase)
-endif()
-add_dependencies(erase erase_${PROJECT_NAME})
-
 # move tag
-add_custom_target(retag_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-retag
   COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
   COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-  DEPENDS erase_${PROJECT_NAME})
-
-if(NOT TARGET retag)
-  add_custom_target(retag)
-endif()
-add_dependencies(retag retag_${PROJECT_NAME})
+  DEPENDS ${PROJECT_NAME}-untag)
 
 # tarball
 set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${VERSION}.tar")
 
-add_custom_target(tarball-create_${PROJECT_NAME}
+add_custom_target(${PROJECT_NAME}-create-tarball
   COMMAND "${GIT_EXECUTABLE}" archive --worktree-attributes
     --prefix ${PROJECT_NAME}-${VERSION}/ -o ${TARBALL}
     ${VERSION}
@@ -157,30 +137,27 @@ add_custom_target(tarball-create_${PROJECT_NAME}
   COMMENT "Creating ${TARBALL}"
   )
 
-if(NOT TARGET tarball-create)
-  add_custom_target(tarball-create)
-endif()
-add_dependencies(tarball-create tarball-create_${PROJECT_NAME})
-
 if(GZIP_EXECUTABLE)
-  add_custom_target(tarball_${PROJECT_NAME}
-    COMMAND "${CMAKE_COMMAND}" -E remove ${TARBALL}.gz
-    COMMAND "${GZIP_EXECUTABLE}" ${TARBALL}
-    DEPENDS tarball-create_${PROJECT_NAME}
-    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-    COMMENT "Compressing ${TARBALL}.gz"
-  )
   set(TARBALL_GZ "${TARBALL}.gz")
+  add_custom_target(${PROJECT_NAME}-tarball
+    COMMAND "${CMAKE_COMMAND}" -E remove ${TARBALL_GZ}
+    COMMAND "${GZIP_EXECUTABLE}" ${TARBALL}
+    DEPENDS ${PROJECT_NAME}-create-tarball
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+    COMMENT "Compressing ${TARBALL_GZ}"
+  )
 else()
-  add_custom_target(tarball_${PROJECT_NAME} DEPENDS tarball-create_${PROJECT_NAME})
+  add_custom_target(${PROJECT_NAME}-tarball DEPENDS ${PROJECT_NAME}-create-tarball)
 endif()
 
 if(NOT TARGET tarball)
   add_custom_target(tarball)
 endif()
-add_dependencies(tarball tarball_${PROJECT_NAME})
+add_dependencies(tarball ${PROJECT_NAME}-tarball)
 
-set(_gittargets_TARGETS branch_${PROJECT_NAME} make_branch_${PROJECT_NAME} cut_${PROJECT_NAME} tag_${PROJECT_NAME} retag_${PROJECT_NAME} erase_${PROJECT_NAME} tarball_${PROJECT_NAME} tarball-create_${PROJECT_NAME})
+set(_gittargets_TARGETS ${PROJECT_NAME}-branch ${PROJECT_NAME}-make-branch
+  ${PROJECT_NAME}-cut ${PROJECT_NAME}-tag ${PROJECT_NAME}-untag tarball
+  ${PROJECT_NAME}-retag ${PROJECT_NAME}-tarball ${PROJECT_NAME}-create-tarball)
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
