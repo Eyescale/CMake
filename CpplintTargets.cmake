@@ -83,6 +83,11 @@ function(add_cpplint _name)
     list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
   endif()
 
+  # handles exclude pattern
+  if(NOT add_cpplint_EXCLUDE_PATTERN)
+    set(add_cpplint_EXCLUDE_PATTERN "^$") # Empty string regex
+  endif()
+
   get_target_property(_imported_target "${_name}" IMPORTED)
   if(_imported_target)
     return()

@@ -46,6 +46,9 @@ function(add_clangcheck _name)
   endif()
 
   cmake_parse_arguments(add_clangcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
+  if(NOT add_clangcheck_EXCLUDE_PATTERN)
+    set(add_clangcheck_EXCLUDE_PATTERN "^$") # Empty string regex
+  endif()
 
   get_target_property(_clangcheck_sources "${_name}" SOURCES)
   set(_files)
