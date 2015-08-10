@@ -155,23 +155,61 @@ function(_common_library Name)
     endif()
   endif()
   foreach(LIBRARY_TYPE ${${NAME}_LIBRARY_TYPE})
-    set(LIBNAME ${Name})
+    set(LibName ${Name})
     if(TARGET ${Name})
-      set(LIBNAME "${Name}_${LIBRARY_TYPE}")
+      set(LibName "${Name}_${LIBRARY_TYPE}")
     endif()
-    add_library(${LIBNAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
-    if(NOT ${NAME}_OMIT_CHECK_TARGETS)
-      common_check_targets(${LIBNAME})
-    endif()
-    set_target_properties(${LIBNAME}
-      PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI} OUTPUT_NAME ${Name})
+    add_library(${LibName} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+    set_target_properties(${LibName} PROPERTIES
+      VERSION ${VERSION} SOVERSION ${VERSION_ABI}
+      OUTPUT_NAME ${Name} FOLDER ${PROJECT_NAME})
     # append a debug suffix to library name on windows or if user requests it
     common_set_lib_name_postfix()
-    target_link_libraries(${LIBNAME} ${LINK_LIBRARIES})
-    install(TARGETS ${LIBNAME}
+    target_link_libraries(${LibName} ${LINK_LIBRARIES})
+    install(TARGETS ${LibName}
       ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
       RUNTIME DESTINATION bin COMPONENT lib
       LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib)
+
+    if(NOT ${NAME}_OMIT_CHECK_TARGETS)
+      common_check_targets(${LibName})
+    endif()
+
+    # ignore user-specified targets, e.g. language bindings
+    list(FIND IGNORE_LIB_TARGETS ${LibName} _ignore_target)
+
+    if(_ignore_target EQUAL -1)
+      # add defines TARGET_DSO_NAME and TARGET_SHARED for dlopen() usage
+      get_target_property(_compile_definitions ${LibName} COMPILE_DEFINITIONS)
+      if(NOT _compile_definitions)
+        set(_compile_definitions) # clear _compile_definitions-NOTFOUND
+      endif()
+
+      if(MSVC OR XCODE_VERSION)
+        set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${LibName}${CMAKE_SHARED_LIBRARY_SUFFIX})
+      else()
+        if(APPLE)
+          set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${LibName}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        else()
+          set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${LibName}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI})
+        endif()
+      endif()
+
+      string(TOUPPER ${LibName} LIBNAME)
+      list(APPEND _compile_definitions
+        ${LIBNAME}_SHARED ${LIBNAME}_DSO_NAME=\"${_libraryname}\")
+
+      set_target_properties(${LibName} PROPERTIES
+        COMPILE_DEFINITIONS "${_compile_definitions}")
+
+      # for DoxygenRule.cmake and SubProject.cmake
+      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS
+        ${LibName})
+
+      # for PackageConfig.cmake
+      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_LIB_TARGETS
+        ${LibName})
+    endif()
   endforeach()
 
   if(MSVC AND "${${NAME}_LIBRARY_TYPE}" MATCHES "SHARED")
