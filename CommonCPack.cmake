@@ -2,6 +2,12 @@
 # Copyright (c) 2012-2013 Stefan Eilemann <eile@eyescale.ch>
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
+# No support for subproject packaging
+if(NOT PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  include(PackageConfig)
+  return()
+endif()
+
 if(NOT CPACK_PACKAGE_LICENSE)
   message(FATAL_ERROR "Missing CPACK_PACKAGE_LICENSE")
 endif()

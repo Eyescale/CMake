@@ -58,6 +58,9 @@ macro(common_add_cpp_test NAME FILE)
   set_target_properties(${TEST_NAME} PROPERTIES FOLDER ${PROJECT_NAME}/tests
     OUTPUT_NAME ${NAME})
 
+  # for DoxygenRule.cmake and SubProject.cmake
+  set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${TEST_NAME})
+
   # Per target INCLUDE_DIRECTORIES if supported
   if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
     set_target_properties(${TEST_NAME} PROPERTIES

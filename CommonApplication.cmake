@@ -46,11 +46,16 @@ function(_common_application Name)
   list(APPEND SOURCES ${COMMON_QT_SUPPORT_SOURCES})
 
   add_executable(${Name} ${ARGN} ${HEADERS} ${SOURCES})
+  set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
+  target_link_libraries(${Name} ${LINK_LIBRARIES})
+  install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
+
+  # for DoxygenRule.cmake and SubProject.cmake
+  set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${Name})
+
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)
     common_check_targets(${Name})
   endif()
-  target_link_libraries(${Name} ${LINK_LIBRARIES})
-  install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
   apple_check_opengl(${Name})
 endfunction()
 

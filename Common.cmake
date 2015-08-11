@@ -114,7 +114,6 @@ include(GitInfo)
 include(GitTargets)
 include(Maturity)
 include(ProjectInfo)
-include(TargetHooks)
 include(TestCPP11)
 include(UpdateGitExternal)
 
