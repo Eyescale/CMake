@@ -88,6 +88,8 @@ macro(common_add_cpp_test NAME FILE)
   if("${NAME}" MATCHES "^perf" OR "${NAME}" MATCHES "perf-")
     list(APPEND ALL_CPP_PERF_TESTS ${TEST_NAME})
     set(TEST_LABELS ${PROJECT_NAME}-perf)
+    install(TARGETS ${TEST_NAME} DESTINATION share/${PROJECT_NAME}/benchmarks
+      COMPONENT apps)
   else()
     list(APPEND ALL_CPP_TESTS ${TEST_NAME})
     set(TEST_LABELS ${PROJECT_NAME}-unit)
@@ -102,7 +104,7 @@ endmacro()
 
 foreach(FILE ${TEST_FILES})
   string(REGEX REPLACE "\\.(c|cpp)$" "" NAME ${FILE})
-  string(REGEX REPLACE "[./]" "_" NAME ${NAME})
+  string(REGEX REPLACE "[./]" "-" NAME ${NAME})
   source_group(\\ FILES ${FILE})
 
   if(MSVC)
