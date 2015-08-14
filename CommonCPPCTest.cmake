@@ -121,9 +121,14 @@ foreach(FILE ${TEST_FILES})
   endif()
 endforeach()
 
+set(__CONSOLE)
+if(CMAKE_VERSION VERSION_GREATER 3.1.99)
+  set(__CONSOLE USES_TERMINAL)
+endif()
+
 if(NOT TARGET ${PROJECT_NAME}-cpptests)
-  add_custom_target(${PROJECT_NAME}-cpptests
-    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+  add_custom_target(${PROJECT_NAME}-cpptests ${__CONSOLE}
+    COMMAND ${CMAKE_CTEST_COMMAND} -T test --no-compress-output
     --output-on-failure -L ${PROJECT_NAME}-unit -C $<CONFIGURATION> \${ARGS}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     COMMENT "Running ${PROJECT_NAME} unit tests")
@@ -132,8 +137,8 @@ set_target_properties(${PROJECT_NAME}-cpptests PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 
 if(NOT TARGET ${PROJECT_NAME}-perftests)
-  add_custom_target(${PROJECT_NAME}-perftests
-    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+  add_custom_target(${PROJECT_NAME}-perftests ${__CONSOLE}
+    COMMAND ${CMAKE_CTEST_COMMAND} -T test --no-compress-output
     --output-on-failure -L ${PROJECT_NAME}-perf -C $<CONFIGURATION> \${ARGS}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     COMMENT "Running ${PROJECT_NAME} performance tests")
