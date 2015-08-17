@@ -122,7 +122,7 @@ macro(common_package Package_Name)
     string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
     list(APPEND COMMON_PACKAGE_DEFINES ${__use_package_define})
 
-    # for PackageConfig.cmake
+    # for CommonPackageConfig.cmake
     if(NOT COMMON_LIBRARY_TYPE MATCHES "SHARED")
       list(APPEND ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES ${Package_Name})
     endif()

@@ -28,8 +28,8 @@
 #
 # They must also be locatable by CMake's find_package(name), which can be
 # achieved in any of the following ways:
-# - include(PackageConfig) at the end of the top-level CMakeLists.txt
-# - include(CommonCPack), which indirectly includes PackageConfig
+# - include(CommonPackageConfig) at the end of the top-level CMakeLists.txt
+# - include(CommonCPack), which indirectly includes CommonPackageConfig
 # - Provide a compatible Find<Name>.cmake script (not recommended)
 #
 # If the project needs to do anything special when configured as a sub project
