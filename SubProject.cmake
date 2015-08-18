@@ -51,6 +51,7 @@
 #  neato -Goverlap=prism -Goutputorder=edgesfirst graph2.dot -Tpdf -o graph.pdf
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CommonGraph.cmake)
 
 if(TARGET git_subproject_${PROJECT_NAME}_done)
   return()
@@ -97,8 +98,7 @@ function(subproject_install_packages file name)
     endforeach()
     message(
       "Running 'sudo port install ${${NAME}_PORT_DEPENDS} (+universal)'")
-    execute_process(COMMAND sudo port install -p
-      ${${NAME}_PORT_DEPENDS_UNI})
+    execute_process(COMMAND sudo port install -p ${${NAME}_PORT_DEPENDS_UNI})
   endif()
 endfunction()
 
@@ -120,8 +120,10 @@ function(add_subproject name)
 
   if(NOT EXISTS "${__common_source_dir}/${path}/")
     message(FATAL_ERROR
-      "Sub project ${path} not found in ${__common_source_dir}")
+      "Subproject ${path} not found in ${__common_source_dir}")
   endif()
+  # enter again to catch direct add_subproject() calls
+  common_graph_dep(${PROJECT_NAME} ${name} TRUE)
 
   # allow exclusion of subproject via set(SUBPROJECT_${name} OFF)
   if(DEFINED SUBPROJECT_${name} AND NOT SUBPROJECT_${name})
@@ -129,43 +131,47 @@ function(add_subproject name)
   else()
     option(SUBPROJECT_${name} "Build ${name} " ON)
   endif()
-  if(SUBPROJECT_${name})
-    # Hint for the sub project, in case it needs to do anything special when
-    # configured as a sub project
-    set(${name}_IS_SUBPROJECT ON)
+  if(NOT SUBPROJECT_${name})
+    return()
+  endif()
 
-    # set ${PROJECT}_DIR to the location of the new build dir for the project
-    if(NOT ${name}_DIR)
-      set(${name}_DIR "${CMAKE_BINARY_DIR}/${name}" CACHE PATH
-        "Location of ${name} project" FORCE)
-    endif()
+  # Hint for the sub project, in case it needs to do anything special when
+  # configured as a sub project
+  set(${name}_IS_SUBPROJECT ON)
 
-    subproject_install_packages(
-      "${__common_source_dir}/${path}/CMake/${name}.cmake" ${name})
+  # set ${PROJECT}_DIR to the location of the new build dir for the project
+  if(NOT ${name}_DIR)
+    set(${name}_DIR "${CMAKE_BINARY_DIR}/${name}" CACHE PATH
+      "Location of ${name} project" FORCE)
+  endif()
 
-    # add the source sub directory to our build and set the binary dir
-    # to the build tree
+  subproject_install_packages(
+    "${__common_source_dir}/${path}/CMake/${name}.cmake" ${name})
 
-    add_subdirectory("${__common_source_dir}/${path}"
-                     "${CMAKE_BINARY_DIR}/${name}")
-    if(NOT ${name}_SKIP_FIND)
-      # find subproject "package"
-      find_package(${name} REQUIRED QUIET)
-      include_directories(${${NAME}_INCLUDE_DIRS})
-    endif()
-    set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
-    # Mark globally that we've already used name as a sub project
-    set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
-    # Create <project>-all target
-    get_property(__targets GLOBAL PROPERTY ${name}_ALL_DEP_TARGETS)
-    if(__targets)
-      add_custom_target(${name}-all DEPENDS ${__targets})
-      set_target_properties(${name}-all PROPERTIES FOLDER ${name})
-    endif()
+  # add the source sub directory to our build and set the binary dir
+  # to the build tree
+
+  add_subdirectory("${__common_source_dir}/${path}"
+    "${CMAKE_BINARY_DIR}/${name}")
+  if(NOT ${name}_SKIP_FIND)
+    # find subproject "package"
+    find_package(${name} REQUIRED QUIET)
+    include_directories(${${NAME}_INCLUDE_DIRS})
+  endif()
+  set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
+  # Mark globally that we've already used name as a sub project
+  set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
+  # Create <project>-all target
+  get_property(__targets GLOBAL PROPERTY ${name}_ALL_DEP_TARGETS)
+  if(__targets)
+    add_custom_target(${name}-all DEPENDS ${__targets})
+    set_target_properties(${name}-all PROPERTIES FOLDER ${name})
   endif()
 endfunction()
 
 macro(git_subproject name url tag)
+  # enter early to catch all dependencies
+  common_graph_dep(${PROJECT_NAME} ${name} TRUE)
   if(NOT BUILDYARD AND NOT DISABLE_SUBPROJECTS)
     string(TOUPPER ${name} NAME)
     if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
