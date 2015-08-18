@@ -133,7 +133,7 @@ function(_common_library Name)
 
     if(NOT ${NAME}_SOURCES)
       # fake add_library(${LibName} INTERFACE) from CMake 3
-      add_library(${LibName} ${PUBLIC_HEADERS})
+      add_library(${LibName} ${PUBLIC_HEADERS} ${HEADERS})
       set_target_properties(${LibName} PROPERTIES
         LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
 
