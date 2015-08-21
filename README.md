@@ -16,7 +16,7 @@ and use it in your top-level CMakeLists.txt as follows:
     include(Common)
 
 This will clone the latest version of this repository into your project at
-the beginning of the CMake run, and make all its features available. Run the 
+the beginning of the CMake run, and make all its features available. Run the
 'update' target after the first successful cmake run to pin the git external to
 a SHA1 tag instead of a moving master tag.
 
@@ -51,19 +51,20 @@ The following CMake modules can be included in your project:
     * [clangcheckTargets](clangcheckTargets.cmake): *clangcheck* target for
       clang-check code analysis. Adds all clangcheck targets to *tests* if
       ENABLE_CLANGCHECK_TESTS is set.
-* [PackageConfig](PackageConfig.cmake) generates cmake package information files
-  for the project. These files let other CMake-based projects locate it through
-  find_package (in config mode, without the need for a finder script). Must be
-  included at the end of the CMakeLists.txt, after all targets have been added.
+* [CommonPackageConfig](CommonPackageConfig.cmake) generates cmake package
+  information files for the project. These files let other CMake-based projects
+  locate it through find_package (in config mode, without the need for a finder
+  script). Must be included at the end of the CMakeLists.txt, after all targets
+  have been added via common_library().
 * [CommonCPack](CommonCPack.cmake) Configures the CPack package generator to
   redistribute the project as an installable package. Also includes
-  PackageConfig.
+  CommonPackageConfig.
 * [DoxygenRule](DoxygenRule.cmake): *doxygen* target to build documentation into
   PROJECT_BINARY_DIR/doc. Optional *doxycopy* target to copy the results to
   ../GITHUB_ORGANIZATION/Project-M.m/. Must be included after all other targets.
-* [SubProject](SubProject.cmake): Include this module right after GitExternal in
-  your top-level CMakeLists to build several CMake subprojects (which may depend
-  on each other).
+* [SubProject](SubProject.cmake): This module is automatically included in
+  Common.cmake to build several CMake subprojects (which may depend on each
+  other), which are declared in a .gitsubprojects file.
   To be compatible with the SubProject feature, (sub)projects might need to
   adapt their CMake scripts. Generally, CMAKE_BINARY_DIR should be changed to
   PROJECT_BINARY_DIR and CMAKE_SOURCE_DIR should be changed to
