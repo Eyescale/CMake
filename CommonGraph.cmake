@@ -4,10 +4,10 @@
 # common_graph(): Write .dot from the global properties and add Name-graph rule
 
 include(CommonTarget)
-if(COMMON_TARGET_DONE)
+if(COMMON_GRAPH_DONE)
   return()
 endif()
-set(COMMON_TARGET_DONE ON)
+set(COMMON_GRAPH_DONE ON)
 
 find_program(DOT_EXECUTABLE dot)
 find_program(TRED_EXECUTABLE tred)
