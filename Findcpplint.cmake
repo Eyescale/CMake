@@ -22,11 +22,11 @@ if(NOT PYTHON_EXECUTABLE)
   find_package(PythonInterp QUIET)
 endif()
 
-if(NOT PYTHON_FOUND)
+if(NOT PYTHONLIBS_FOUND)
  find_package(PythonLibs QUIET)
 endif()
 
-if(PYTHON_EXECUTABLE AND PYTHON_FOUND)
+if(PYTHON_EXECUTABLE AND PYTHONLIBS_FOUND)
   set(_python_found true)
 endif()
 
@@ -70,7 +70,7 @@ else(_python_found)
   set(CPPLINT_NOT_FOUND_MSG "Could NOT find python needed to run cpplint.py. Please check both executable and libraries are installed.")
 endif(_python_found)
 
-find_package_handle_standard_args(cpplint "${CPPLINT_NOT_FOUND_MSG}" PYTHON_EXECUTABLE PYTHON_FOUND CPPLINT_SCRIPT)
+find_package_handle_standard_args(cpplint "${CPPLINT_NOT_FOUND_MSG}" PYTHON_EXECUTABLE PYTHONLIBS_FOUND CPPLINT_SCRIPT)
 
 if(CPPLINT_FOUND OR CPPLINT_MARK_AS_ADVANCED)
   mark_as_advanced(CPPLINT_ROOT_DIR)

@@ -2,7 +2,7 @@
 #
 #  include(clangcheckTargets)
 #  add_clangcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
-#                               [FAIL_ON_WARNINGS] [EXCLUDE_PATTERN]) -
+#                               [FAIL_ON_WARNINGS]) -
 #    Create a target to check a target's sources with clang-check and the
 #    indicated options
 
@@ -28,10 +28,7 @@ if(NOT TARGET clangcheck)
   add_custom_target(clangcheck)
 endif()
 
-function(add_clangcheck _name)
-  if(NOT TARGET ${_name})
-    message(FATAL_ERROR "add_clangcheck given non-existing target '${_name}'")
-  endif()
+function(add_clangcheck _name _files)
   if(NOT CLANGCHECK)
     return()
   endif()
@@ -39,32 +36,6 @@ function(add_clangcheck _name)
   set(_clangcheck_args -p "${PROJECT_BINARY_DIR}" -analyze -fixit
     -fatal-assembler-warnings -extra-arg=-Qunused-arguments
     ${CLANGCHECK_EXTRA_ARGS})
-
-  get_target_property(_imported_target "${_name}" IMPORTED)
-  if(_imported_target)
-    return()
-  endif()
-
-  cmake_parse_arguments(add_clangcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
-  if(NOT add_clangcheck_EXCLUDE_PATTERN)
-    set(add_clangcheck_EXCLUDE_PATTERN "^$") # Empty string regex
-  endif()
-
-  get_target_property(_clangcheck_sources "${_name}" SOURCES)
-  set(_files)
-  foreach(_source ${_clangcheck_sources})
-    get_source_file_property(_clangcheck_lang "${_source}" LANGUAGE)
-    get_source_file_property(_clangcheck_loc "${_source}" LOCATION)
-    if("${_clangcheck_lang}" MATCHES "CXX" AND
-        NOT ${_clangcheck_loc} MATCHES ${add_clangcheck_EXCLUDE_PATTERN} AND
-        ${_clangcheck_loc} MATCHES "\\.(cpp|cxx)$")
-      list(APPEND _files "${_clangcheck_loc}")
-    endif()
-  endforeach()
-
-  if(NOT _files) # nothing to check
-    return()
-  endif()
 
   if(ENABLE_CLANGCHECK_TESTS)
     add_test(NAME ${_name}_clangcheck_test

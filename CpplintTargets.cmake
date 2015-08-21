@@ -3,8 +3,7 @@
 #  include(CpplintTargets)
 #  add_cpplint(TARGET target [CATEGORY_FILTER_OUT category ...]
 #              [EXTENSIONS extension ...] [VERBOSE level]
-#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits]
-#              [EXCLUDE_PATTERN pattern ...])
+#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits])
 #  Create a target to check a target's sources with cpplint and the indicated
 #  options
 #
@@ -19,7 +18,7 @@ include(CMakeParseArguments)
 
 if(NOT CPPLINT_FOUND)
   find_package(cpplint QUIET)
-endif(NOT CPPLINT_FOUND)
+endif()
 
 if(NOT CPPLINT_FOUND)
   add_custom_target(${PROJECT_NAME}-cpplint COMMENT "${CPPLINT_NOT_FOUND_MSG}")
@@ -33,17 +32,14 @@ if(NOT TARGET cpplint)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cpplint _name)
-  set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
-  set(multiValueArgs CATEGORY_FILTER_OUT EXTENSIONS)
-  cmake_parse_arguments(add_cpplint "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-  if(NOT TARGET ${_name})
-    message(FATAL_ERROR
-      "add_cpplint is given a target name that does not exist: '${_name}' !")
-  endif()
+function(add_cpplint _name _files)
   if(NOT CPPLINT_FOUND)
     return()
-  endif( )
+  endif()
+
+  set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH)
+  set(multiValueArgs CATEGORY_FILTER_OUT EXTENSIONS)
+  cmake_parse_arguments(add_cpplint "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   set(_cpplint_args)
 
@@ -53,7 +49,7 @@ function(add_cpplint _name)
   if (add_cpplint_CATEGORY_FILTER_OUT)
     string(REPLACE ";" ",-" add_cpplint_CATEGORY_FILTER_OUT "${add_cpplint_CATEGORY_FILTER_OUT}")
     set(_category_filter "--filter=${_category_filter_in},-${add_cpplint_CATEGORY_FILTER_OUT}")
-  endif(add_cpplint_CATEGORY_FILTER_OUT)
+  endif()
   list(APPEND _cpplint_args ${_category_filter})
 
   # handles allowed extensions
@@ -83,30 +79,6 @@ function(add_cpplint _name)
     list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
   endif()
 
-  # handles exclude pattern
-  if(NOT add_cpplint_EXCLUDE_PATTERN)
-    set(add_cpplint_EXCLUDE_PATTERN "^$") # Empty string regex
-  endif()
-
-  get_target_property(_imported_target "${_name}" IMPORTED)
-  if(_imported_target)
-    return()
-  endif()
-
-  get_target_property(_cpplint_sources "${_name}" SOURCES)
-  set(_files)
-  foreach(_source ${_cpplint_sources})
-    get_source_file_property(_cpplint_lang "${_source}" LANGUAGE)
-    get_source_file_property(_cpplint_loc "${_source}" LOCATION)
-    if("${_cpplint_lang}" MATCHES "CXX" AND NOT ${_cpplint_loc} MATCHES ${add_cpplint_EXCLUDE_PATTERN})
-      list(APPEND _files "${_cpplint_loc}")
-    endif()
-  endforeach()
-
-  if(NOT _files) # nothing to check
-    return()
-  endif(NOT _files)
-
   if(CPPLINT_ADD_TESTS)
     if(NOT TARGET ${PROJECT_NAME}-tests)
       add_custom_target(${PROJECT_NAME}-tests)
@@ -129,4 +101,4 @@ function(add_cpplint _name)
   endif()
   add_dependencies(${PROJECT_NAME}-cpplint cpplint_run_${_name})
   add_dependencies(cpplint ${PROJECT_NAME}-cpplint)
-endfunction(add_cpplint)
+endfunction()

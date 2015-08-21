@@ -2,7 +2,7 @@
 #
 #  include(CppcheckTargets)
 #  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
-#                             [FAIL_ON_WARNINGS] [EXCLUDE_PATTERN]) -
+#                             [FAIL_ON_WARNINGS]) -
 #    Create a target to check a target's sources with cppcheck and the
 #    indicated options
 #
@@ -28,11 +28,11 @@ endif()
 
 include(CMakeParseArguments)
 
-if(NOT CPPCHECK_FOUND)
+if(NOT CPPCHECK_EXECUTABLE)
   find_package(cppcheck 1.66 QUIET)
 endif()
 
-if(NOT CPPCHECK_FOUND)
+if(NOT CPPCHECK_EXECUTABLE)
   add_custom_target(${PROJECT_NAME}-cppcheck
     COMMENT "cppcheck executable not found")
   set_target_properties(${PROJECT_NAME}-cppcheck PROPERTIES
@@ -45,19 +45,15 @@ if(NOT TARGET cppcheck)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cppcheck _name)
-  if(NOT TARGET ${_name})
-    message(FATAL_ERROR
-      "add_cppcheck given a target name that does not exist: '${_name}' !")
-  endif()
-  if(NOT CPPCHECK_FOUND)
+function(add_cppcheck _name _files)
+  if(NOT CPPCHECK_EXECUTABLE)
     return()
   endif()
 
-  if (CPPCHECK_IGNORED_PATHS)
+  if(CPPCHECK_IGNORED_PATHS)
     string(REPLACE " " " -i" _ignored_paths ${CPPCHECK_IGNORED_PATHS})
     set(CPPCHECK_IGNORED_PATHS -i${_ignored_paths})
-  endif(CPPCHECK_IGNORED_PATHS)
+  endif()
 
   set(_cppcheck_args ${CPPCHECK_IGNORED_PATHS} --error-exitcode=2
     --inline-suppr --suppress=unusedFunction --suppress=unmatchedSuppression
@@ -83,30 +79,6 @@ function(add_cppcheck _name)
   if("${_fail_on_warn}" GREATER "-1")
     list(APPEND CPPCHECK_FAIL_REGULAR_EXPRESSION
       ${CPPCHECK_WARN_REGULAR_EXPRESSION})
-  endif()
-
-  get_target_property(_imported_target "${_name}" IMPORTED)
-  if(_imported_target)
-    return()
-  endif()
-
-  cmake_parse_arguments(add_cppcheck "" "EXCLUDE_PATTERN" "" ${ARGN})
-  if(NOT add_cppcheck_EXCLUDE_PATTERN)
-    set(add_cppcheck_EXCLUDE_PATTERN "^$") # Empty string regex
-  endif()
-
-  get_target_property(_cppcheck_sources "${_name}" SOURCES)
-  set(_files)
-  foreach(_source ${_cppcheck_sources})
-    get_source_file_property(_cppcheck_lang "${_source}" LANGUAGE)
-    get_source_file_property(_cppcheck_loc "${_source}" LOCATION)
-    if("${_cppcheck_lang}" MATCHES "CXX" AND NOT ${_cppcheck_loc} MATCHES ${add_cppcheck_EXCLUDE_PATTERN})
-      list(APPEND _files "${_cppcheck_loc}")
-    endif()
-  endforeach()
-
-  if(NOT _files) # nothing to check
-    return()
   endif()
 
   add_test(NAME ${_name}-cppcheck
