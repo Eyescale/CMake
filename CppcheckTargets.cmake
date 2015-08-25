@@ -28,11 +28,11 @@ endif()
 
 include(CMakeParseArguments)
 
-if(NOT CPPCHECK_EXECUTABLE)
+if(NOT CPPCHECK_FOUND)
   find_package(cppcheck 1.66 QUIET)
 endif()
 
-if(NOT CPPCHECK_EXECUTABLE)
+if(NOT CPPCHECK_FOUND)
   add_custom_target(${PROJECT_NAME}-cppcheck
     COMMENT "cppcheck executable not found")
   set_target_properties(${PROJECT_NAME}-cppcheck PROPERTIES
@@ -46,7 +46,7 @@ if(NOT TARGET cppcheck)
 endif()
 
 function(add_cppcheck _name _files)
-  if(NOT CPPCHECK_EXECUTABLE)
+  if(NOT CPPCHECK_FOUND)
     return()
   endif()
 
