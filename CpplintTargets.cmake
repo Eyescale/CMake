@@ -1,9 +1,10 @@
 # - Run cpplint on c++ source files as a custom target and a test
 #
 #  include(CpplintTargets)
-#  add_cpplint(TARGET target [CATEGORY_FILTER_OUT category ...]
+#  add_cpplint(<target-name> [FILES files] [CATEGORY_FILTER_OUT category ...]
 #              [EXTENSIONS extension ...] [VERBOSE level]
-#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits])
+#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits]
+#              [EXCLUDE_PATTERN pattern ...])
 #  Create a target to check a target's sources with cpplint and the indicated
 #  options
 #
@@ -15,6 +16,7 @@ if(TARGET ${PROJECT_NAME}-cpplint)
 endif()
 
 include(CMakeParseArguments)
+include(GetSourceFilesFromTarget)
 
 if(NOT CPPLINT_FOUND)
   find_package(cpplint QUIET)
@@ -32,14 +34,18 @@ if(NOT TARGET cpplint)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cpplint _name _files)
+function(add_cpplint _name)
   if(NOT CPPLINT_FOUND)
     return()
   endif()
 
-  set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH)
-  set(multiValueArgs CATEGORY_FILTER_OUT EXTENSIONS)
+  set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
+  set(multiValueArgs FILES CATEGORY_FILTER_OUT EXTENSIONS)
   cmake_parse_arguments(add_cpplint "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  if(NOT TARGET ${_name})
+    message(FATAL_ERROR
+      "add_cpplint is given a target name that does not exist: '${_name}' !")
+  endif()
 
   set(_cpplint_args)
 
@@ -77,6 +83,20 @@ function(add_cpplint _name _files)
   # handles line length
   if (add_cpplint_LINELENGTH)
     list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
+  endif()
+
+  set(_files ${add_cpplint_FILES})
+  if(NOT _files)
+    # handles exclude pattern
+    if(NOT add_cpplint_EXCLUDE_PATTERN)
+      set(add_cpplint_EXCLUDE_PATTERN "^$") # Empty string regex
+    endif()
+
+    get_source_files(${_name} ${add_cpplint_EXCLUDE_PATTERN})
+    if(NOT ${_name}_FILES) # nothing to check
+      return()
+    endif()
+    set(_files ${${_name}_FILES})
   endif()
 
   if(CPPLINT_ADD_TESTS)

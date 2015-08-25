@@ -1,8 +1,9 @@
 # - Run cppcheck on c++ source files as a custom target and a test
 #
 #  include(CppcheckTargets)
-#  add_cppcheck(<target-name> [UNUSED_FUNCTIONS] [STYLE] [POSSIBLE_ERROR]
-#                             [FAIL_ON_WARNINGS]) -
+#  add_cppcheck(<target-name> [FILES] [UNUSED_FUNCTIONS] [STYLE]
+#                             [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]
+#                             [EXCLUDE_PATTERN]) -
 #    Create a target to check a target's sources with cppcheck and the
 #    indicated options
 #
@@ -27,6 +28,7 @@ if(TARGET ${PROJECT_NAME}-cppcheck)
 endif()
 
 include(CMakeParseArguments)
+include(GetSourceFilesFromTarget)
 
 if(NOT CPPCHECK_FOUND)
   find_package(cppcheck 1.66 QUIET)
@@ -45,7 +47,7 @@ if(NOT TARGET cppcheck)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cppcheck _name _files)
+function(add_cppcheck _name)
   if(NOT CPPCHECK_FOUND)
     return()
   endif()
@@ -60,25 +62,37 @@ function(add_cppcheck _name _files)
     --suppress=missingInclude --suppress=preprocessorErrorDirective
     ${CPPCHECK_EXTRA_ARGS})
 
-  list(FIND ARGN UNUSED_FUNCTIONS _unused_func)
-  if("${_unused_func}" GREATER "-1")
+  set(oneValueArgs UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_PATTERN)
+  set(multiValueArgs FILES)
+  cmake_parse_arguments(add_cppcheck "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  if(NOT add_cppcheck_EXCLUDE_PATTERN)
+    set(add_cppcheck_EXCLUDE_PATTERN "^$") # Empty string regex
+  endif()
+
+  if(add_cppcheck_UNUSED_FUNCTIONS)
     list(APPEND _cppcheck_args ${CPPCHECK_UNUSEDFUNC_ARG})
   endif()
 
-  list(FIND ARGN STYLE _style)
-  if("${_style}" GREATER "-1")
+  if(add_cppcheck_STYLE)
     list(APPEND _cppcheck_args ${CPPCHECK_STYLE_ARG})
   endif()
 
-  list(FIND ARGN POSSIBLE_ERROR _poss_err)
-  if("${_poss_err}" GREATER "-1")
+  if(add_cppcheck_POSSIBLE_ERROR)
     list(APPEND _cppcheck_args ${CPPCHECK_POSSIBLEERROR_ARG})
   endif()
 
-  list(FIND _input FAIL_ON_WARNINGS _fail_on_warn)
-  if("${_fail_on_warn}" GREATER "-1")
+  if(add_cppcheck_FAIL_ON_WARNINGS)
     list(APPEND CPPCHECK_FAIL_REGULAR_EXPRESSION
       ${CPPCHECK_WARN_REGULAR_EXPRESSION})
+  endif()
+
+  set(_files ${add_cppcheck_FILES})
+  if(NOT _files)
+    get_source_files(${_name} ${add_cppcheck_EXCLUDE_PATTERN})
+    if(NOT ${_name}_FILES) # nothing to check
+      return()
+    endif()
+    set(_files ${${_name}_FILES})
   endif()
 
   add_test(NAME ${_name}-cppcheck
