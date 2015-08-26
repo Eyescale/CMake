@@ -168,11 +168,11 @@ function(_common_library Name)
       endif()
 
       common_enable_dlopen_usage(${LibName})
-
-      # for DoxygenRule.cmake and SubProject.cmake
-      set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS
-        ${LibName})
     endif()
+
+    # for DoxygenRule.cmake and SubProject.cmake
+    set_property(GLOBAL APPEND PROPERTY
+                 ${PROJECT_NAME}_ALL_DEP_TARGETS ${LibName})
 
     # add an alias with PROJECT_NAME to the target to ease detection of
     # subproject inclusion in CommonConfig.cmake
