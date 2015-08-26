@@ -58,8 +58,8 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
 )
 
-# No export(EXPORT) in CMake 2
-if(CMAKE_MAJOR_VERSION LESS 3 OR NOT TARGET ${PROJECT_NAME})
+# No export(EXPORT) in CMake 2 or if common_library has not been used.
+if(CMAKE_MAJOR_VERSION LESS 3 OR NOT TARGET ${PROJECT_NAME}_ALIAS)
   return()
 endif()
 
