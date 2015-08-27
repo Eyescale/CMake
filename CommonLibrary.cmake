@@ -8,6 +8,8 @@
 # * NAME_SOURCES for all compilation units
 # * NAME_HEADERS for all internal header files
 # * NAME_PUBLIC_HEADERS for public, installed header files
+# * NAME_PUBLIC_INCLUDE_DIRECTORIES for transient dependencies of name which are
+#   not targets (e.g. Boost_INCLUDE_DIRS).
 # * NAME_LINK_LIBRARIES for dependencies of name. Use targets rather than
 #   NAME_LIBRARIES variable. Also use PUBLIC and PRIVATE for declaring transient
 #   dependencies for export target generation.
@@ -137,13 +139,7 @@ function(_common_library Name)
       set_target_properties(${LibName} PROPERTIES
         LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
 
-      # declare include directories for this target when using it in the build
-      # tree; the install tree include directory is declared via install()
-      target_include_directories(${LibName} INTERFACE
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-        "$<BUILD_INTERFACE:${OUTPUT_INCLUDE_DIR}>"
-        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
-      )
+      _target_include_directories(INTERFACE)
     else()
       # append a debug suffix to library name on windows or if user requests it
       common_set_lib_name_postfix()
@@ -154,14 +150,7 @@ function(_common_library Name)
         OUTPUT_NAME ${Name} FOLDER ${PROJECT_NAME})
       target_link_libraries(${LibName} ${LINK_LIBRARIES})
 
-      # declare include directories for this target when using it in the build
-      # tree; the install tree include directory is declared via install()
-      target_include_directories(
-          ${LibName} PUBLIC
-          "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-          "$<BUILD_INTERFACE:${OUTPUT_INCLUDE_DIR}>"
-          "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
-      )
+      _target_include_directories(PUBLIC)
 
       if(NOT ${NAME}_OMIT_CHECK_TARGETS)
         common_check_targets(${LibName})
@@ -268,3 +257,22 @@ function(common_enable_dlopen_usage Target)
   set_target_properties(${Target} PROPERTIES
     COMPILE_DEFINITIONS "${_compile_definitions}")
 endfunction()
+
+# declare include directories for this target when using it in the build
+# tree; the install tree include directory is declared via install()
+# @param type: must be PUBLIC or INTERFACE
+macro(_target_include_directories _type)
+  target_include_directories(
+      ${LibName} ${_type}
+      "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+      "$<BUILD_INTERFACE:${OUTPUT_INCLUDE_DIR}>"
+      "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
+  )
+  if(${NAME}_PUBLIC_INCLUDE_DIRECTORIES)
+    target_include_directories(
+      ${LibName} SYSTEM ${_type}
+      "$<BUILD_INTERFACE:${${NAME}_PUBLIC_INCLUDE_DIRECTORIES}>"
+      "$<INSTALL_INTERFACE:${${NAME}_PUBLIC_INCLUDE_DIRECTORIES}>"
+    )
+  endif()
+endmacro()
