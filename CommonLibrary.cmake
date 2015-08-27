@@ -134,10 +134,14 @@ function(_common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-      # fake add_library(${LibName} INTERFACE) from CMake 3
-      add_library(${LibName} ${PUBLIC_HEADERS})
-      set_target_properties(${LibName} PROPERTIES
-        LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
+      if(CMAKE_MAJOR_VERSION GREATER 2)
+        add_library(${LibName} INTERFACE)
+      else()
+        add_library(${LibName} ${PUBLIC_HEADERS}
+                               ${CMAKE_SOURCE_DIR}/CMake/common/cpp/dummy.cpp)
+        set_target_properties(${LibName} PROPERTIES
+          LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
+      endif()
 
       _target_include_directories(INTERFACE)
     else()
