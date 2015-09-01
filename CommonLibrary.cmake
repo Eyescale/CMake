@@ -8,11 +8,11 @@
 # * NAME_SOURCES for all compilation units
 # * NAME_HEADERS for all internal header files
 # * NAME_PUBLIC_HEADERS for public, installed header files
-# * NAME_PUBLIC_INCLUDE_DIRECTORIES for transient dependencies of name which are
-#   not targets (e.g. Boost_INCLUDE_DIRS).
+# * NAME_PUBLIC_INCLUDE_DIRECTORIES for transitive dependencies of name which
+#   are not targets (e.g. Boost_INCLUDE_DIRS).
 # * NAME_LINK_LIBRARIES for dependencies of name. Use targets rather than
-#   NAME_LIBRARIES variable. Also use PUBLIC and PRIVATE for declaring transient
-#   dependencies for export target generation.
+#   NAME_LIBRARIES variable. Also use PUBLIC and PRIVATE for declaring
+#   transitive dependencies for export target generation.
 # * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library, with
 #   COMMON_LIBRARY_TYPE being an option stored in the CMakeCache.
 # * NAME_OMIT_LIBRARY_HEADER when set, no library header (name.h) is generated.
