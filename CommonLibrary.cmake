@@ -192,7 +192,7 @@ function(_common_library Name)
   endforeach()
 
   if(MSVC AND "${${NAME}_LIBRARY_TYPE}" MATCHES "SHARED")
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${Name}.pdb
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${Name}${CMAKE_DEBUG_POSTFIX}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
     install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/${Name}.pdb
       DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
