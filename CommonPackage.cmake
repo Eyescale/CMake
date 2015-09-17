@@ -88,7 +88,7 @@ macro(common_package Package_Name)
       pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
         ${__find_quiet}) # try pkg_config way
     endif()
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE)
+    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
   # required find
   else()
     list(REMOVE_AT __args ${__is_required})
@@ -97,7 +97,7 @@ macro(common_package Package_Name)
       pkg_check_modules(${Package_Name} REQUIRED ${Package_Name}${__package_version}
         ${__find_quiet}) # try pkg_config way (and fail if needed)
     endif()
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE)
+    common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE FALSE)
   endif()
 
   if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
