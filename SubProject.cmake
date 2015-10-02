@@ -123,7 +123,7 @@ function(add_subproject name)
       "Subproject ${path} not found in ${__common_source_dir}")
   endif()
   # enter again to catch direct add_subproject() calls
-  common_graph_dep(${PROJECT_NAME} ${name} TRUE)
+  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
 
   # allow exclusion of subproject via set(SUBPROJECT_${name} OFF)
   if(DEFINED SUBPROJECT_${name} AND NOT SUBPROJECT_${name})
@@ -171,7 +171,7 @@ endfunction()
 
 macro(git_subproject name url tag)
   # enter early to catch all dependencies
-  common_graph_dep(${PROJECT_NAME} ${name} TRUE)
+  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
   if(NOT BUILDYARD AND NOT DISABLE_SUBPROJECTS)
     string(TOUPPER ${name} NAME)
     if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)

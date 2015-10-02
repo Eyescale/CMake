@@ -13,20 +13,28 @@ find_program(DOT_EXECUTABLE dot)
 find_program(TRED_EXECUTABLE tred)
 common_target(graphs doxygen)
 
-function(common_graph_dep From To Required)
+function(common_graph_dep From To Required Source)
   string(REPLACE "-" "_" Title ${From})
   string(REPLACE "-" "_" Dep ${To})
 
+  if(Source)
+    set(style "style=bold")
+  elseif(Required)
+    set(style "style=solid")
+  else()
+    set(style "style=dashed")
+  endif()
+
   set_property(GLOBAL APPEND_STRING PROPERTY ${From}_COMMON_GRAPH
-    "${Title} [style=solid, label=\"${From}\"]\n")
+    "${Title} [label=\"${From}\"]\n")
   if(Required)
     set_property(GLOBAL APPEND_STRING PROPERTY ${From}_COMMON_GRAPH
-      "${Dep} [style=solid, label=\"${To}\"]\n"
-      "\"${Dep}\" -> \"${Title}\" [style = solid]\n" )
+      "${Dep} [${style}, label=\"${To}\"]\n"
+      "\"${Dep}\" -> \"${Title}\" [${style}]\n" )
   else()
     set_property(GLOBAL APPEND_STRING PROPERTY ${From}_COMMON_GRAPH
-      "${Dep} [style=dashed, label=\"${To}\", fontsize=10]\n"
-      "\"${Dep}\" -> \"${Title}\" [style = dashed]\n" )
+      "${Dep} [${style}, label=\"${To}\", fontsize=10]\n"
+      "\"${Dep}\" -> \"${Title}\" [${style}]\n" )
   endif()
   set_property(GLOBAL APPEND PROPERTY ${From}_COMMON_GRAPH_DEPENDS ${To})
 endfunction()

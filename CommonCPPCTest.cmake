@@ -85,7 +85,7 @@ macro(common_add_cpp_test NAME FILE)
     COMMAND ${RUN_PREFIX} $<TARGET_FILE:${TEST_NAME}> ${RUN_ARGS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-  if("${NAME}" MATCHES "^perf" OR "${NAME}" MATCHES "perf-")
+  if(NAME MATCHES "^perf" OR NAME MATCHES "perf-")
     list(APPEND ALL_CPP_PERF_TESTS ${TEST_NAME})
     set(TEST_LABELS ${PROJECT_NAME}-perf)
     install(TARGETS ${TEST_NAME} DESTINATION share/${PROJECT_NAME}/benchmarks
