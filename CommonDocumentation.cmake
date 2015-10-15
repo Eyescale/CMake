@@ -29,7 +29,7 @@ function(COMMON_DOCUMENTATION)
     -DDOXYGIT_TOC_POST:STRING="${DOXYGIT_TOC_POST}"
     -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
     -P "${CMAKE_SOURCE_DIR}/CMake/common/Doxygit.cmake"
-    COMMENT "Updating documentation in ${PROJECT_SOURCE_DIR}"
+    COMMENT "Updating ${PROJECT_NAME} pages in ${PROJECT_SOURCE_DIR}"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
   # For meta project, separate doxygit and ${PROJECT_NAME}_doxygit
