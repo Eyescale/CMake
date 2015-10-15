@@ -6,6 +6,7 @@
 # CI_ROOT_URL: The travis-ci.org URL for the root remote
 # CI_ROOT_PNG: The travis-ci.org status png for the root remote
 # ${UPPER_PROJECT_NAME}_ISSUES_URL: The URL for tickets on the root remote
+# ${UPPER_PROJECT_NAME}_URL: The URL for the project, unless set already
 
 include(GitInfo)
 
@@ -40,5 +41,9 @@ if(GIT_ROOT_URL MATCHES ".*github.com.*")
   if(NOT ${UPPER_PROJECT_NAME}_ISSUES_URL)
     string(REPLACE ".git" "/issues"
            ${UPPER_PROJECT_NAME}_ISSUES_URL ${GIT_ROOT_URL})
+  endif()
+  if(NOT ${UPPER_PROJECT_NAME}_URL)
+    string(REGEX REPLACE ".*(github.com[/[a-zA-Z]+).*" "https://\\1"
+      ${UPPER_PROJECT_NAME}_URL ${GIT_ROOT_URL})
   endif()
 endif()

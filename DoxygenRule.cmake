@@ -57,6 +57,7 @@ if(NOT INSTALL_DEPENDS)
   message(FATAL_ERROR "No targets in CMake project, Common.cmake not used?")
 endif()
 
+include(CommonDate)
 if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubInfo)
   set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_org})
@@ -105,7 +106,7 @@ add_dependencies(doxygen_install doxygen_install_${PROJECT_NAME})
 add_custom_target(doxygen_html_${PROJECT_NAME}
   ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc
-  COMMENT "Generating API documentation using doxygen" VERBATIM
+  COMMENT "Generating ${PROJECT_NAME} API documentation using doxygen" VERBATIM
   DEPENDS doxygen_install_${PROJECT_NAME} project_info_${PROJECT_NAME})
 set_target_properties(doxygen_html_${PROJECT_NAME} PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
@@ -136,6 +137,21 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
   DESTINATION ${DOC_DIR}/API
   COMPONENT doc CONFIGURATIONS Release)
 
+set(README)
+set(README_TYPE text/plain)
+if(EXISTS ${PROJECT_SOURCE_DIR}/README.md)
+  file(READ ${PROJECT_SOURCE_DIR}/README.md README)
+  set(README_TYPE text/x-markdown)
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/README.txt)
+  file(READ ${PROJECT_SOURCE_DIR}/README.txt README)
+elseif(EXISTS ${PROJECT_SOURCE_DIR}/README)
+  file(READ ${PROJECT_SOURCE_DIR}/README README)
+endif()
+
+string(REPLACE ";" "; " AUTHORS "${GIT_AUTHORS}")
+string(REPLACE "<" "(" MAINTAINER "${${UPPER_PROJECT_NAME}_MAINTAINER}")
+string(REPLACE ">" ")" MAINTAINER "${MAINTAINER}")
+
 set(_jekyll_md_file "${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}.md")
 file(WRITE ${_jekyll_md_file}
 "---\n"
@@ -143,11 +159,19 @@ file(WRITE ${_jekyll_md_file}
 "version: \"${VERSION_MAJOR}.${VERSION_MINOR}\"\n"
 "major: ${VERSION_MAJOR}\n"
 "minor: ${VERSION_MINOR}\n"
-"description: ${${UPPER_PROJECT_NAME}_DESCRIPTION}\n"
+"description: ${DOXYGEN_PROJECT_BRIEF}\n"
+"updated: ${COMMON_DATE}\n"
+"homepage: ${${UPPER_PROJECT_NAME}_URL}\n"
+"repository: ${GIT_ORIGIN_URL}\n"
 "issuesurl: ${${UPPER_PROJECT_NAME}_ISSUES_URL}\n"
 "packageurl: ${${UPPER_PROJECT_NAME}_PACKAGE_URL}\n"
+"license: ${${UPPER_PROJECT_NAME}_LICENSE}\n"
 "maturity: ${${UPPER_PROJECT_NAME}_MATURITY}\n"
-"---\n")
+"maintainers: ${MAINTAINER}\n"
+"contributors: ${AUTHORS}\n"
+"readmetype: ${README_TYPE}\n"
+"---\n"
+"${README}\n")
 
 if(GIT_DOCUMENTATION_REPO)
   set(_GIT_DOC_SRC_DIR "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
@@ -159,7 +183,7 @@ if(GIT_DOCUMENTATION_REPO)
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
       COMMAND ${CMAKE_COMMAND} -E copy ${_jekyll_md_file} ${_GIT_DOC_SRC_DIR}/_projects
-      COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
+      COMMENT "Copying ${PROJECT_NAME} API documentation to ${GIT_DOCUMENTATION_DIR}"
       DEPENDS ${PROJECT_NAME}-doxygen VERBATIM)
   else()
     add_custom_target(${PROJECT_NAME}-doxycopy

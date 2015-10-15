@@ -111,9 +111,7 @@ endforeach()
 list(REVERSE SubEntries)
 set(Entries ${Entries2} ${SubEntries})
 
-
 if(DOXYGIT_GENERATE_INDEX)
-
   set(_index_html_file "${CMAKE_CURRENT_SOURCE_DIR}/index.html")
 
   set(LAST_Project)
