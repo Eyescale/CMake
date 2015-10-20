@@ -75,7 +75,7 @@ function(add_coverage_targets TEST_TARGET)
   if(NOT TARGET lcov-gather_${PROJECT_NAME})
     add_custom_target(lcov-gather_${PROJECT_NAME}
       COMMAND ${LCOV} -q --capture --directory . --no-external
-        --directory ${PROJECT_SOURCE_DIR}/${PROJECT_INCLUDE_NAME}
+        --directory ${PROJECT_SOURCE_DIR}
         --output-file lcov.info
       COMMENT "Capturing code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
