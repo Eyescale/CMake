@@ -81,21 +81,26 @@ macro(common_package Package_Name)
   endif()
 
   list(FIND __args "REQUIRED" __is_required)
-  # Optional find
-  if(__is_required EQUAL -1)
-    find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
-    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-      pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
-        ${__find_quiet}) # try pkg_config way
-    endif()
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
-  # required find
-  else()
+  if(NOT __is_required EQUAL -1)
     list(REMOVE_AT __args ${__is_required})
-    find_package(${Package_Name} ${__find_quiet} ${__args}) # try standard cmake way
-    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-      pkg_check_modules(${Package_Name} REQUIRED ${Package_Name}${__package_version}
-        ${__find_quiet}) # try pkg_config way (and fail if needed)
+  endif()
+
+  find_package(${Package_Name} ${__find_quiet} ${__args}) # standard cmake way
+  if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
+    pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
+      ${__find_quiet}) # try pkg_config way
+  endif()
+
+  if(__is_required EQUAL -1)   # Optional find
+    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
+  else() # required find
+    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND))
+      if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+        message(FATAL_ERROR "Not configured ${PROJECT_NAME}: Required ${Package_Name} not found")
+      else()
+        message(STATUS "Not configured ${PROJECT_NAME}: Required ${Package_Name} not found")
+      endif()
+      return()
     endif()
     common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE FALSE)
   endif()
