@@ -153,11 +153,6 @@ function(add_subproject name)
 
   add_subdirectory("${__common_source_dir}/${path}"
     "${CMAKE_BINARY_DIR}/${name}")
-  if(NOT ${name}_SKIP_FIND)
-    # find subproject "package"
-    find_package(${name} REQUIRED QUIET)
-    include_directories(${${NAME}_INCLUDE_DIRS})
-  endif()
   set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
   # Mark globally that we've already used name as a sub project
   set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
@@ -176,10 +171,7 @@ macro(git_subproject name url tag)
     string(TOUPPER ${name} NAME)
     if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(__included) # already used as a sub project, just find it:
-        find_package(${name} QUIET REQUIRED CONFIG
-          HINTS ${CMAKE_BINARY_DIR}/${NAME})
-      else()
+      if(NOT __included)
         if(NOT EXISTS ${__common_source_dir}/${name})
           # Always try first using Config mode, then Module mode.
           find_package(${name} QUIET CONFIG)
