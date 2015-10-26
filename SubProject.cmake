@@ -259,8 +259,6 @@ function(subproject_configure)
       list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
       list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
 
-      # Skip find in git_subproject after add_subproject
-      set(${SUBPROJECT_DEPENDS_DIR}_SKIP_FIND ON)
       git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
         ${SUBPROJECT_DEPENDS_TAG})
     endwhile()
