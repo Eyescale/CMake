@@ -22,7 +22,7 @@
 #   regular release build using Buildyard, which can be very time consuming.
 
 function(COMMON_DOCUMENTATION)
-  add_custom_target(${PROJECT_NAME}_doxygit ALL
+  add_custom_target(${PROJECT_NAME}-doxygit ALL
     COMMAND ${CMAKE_COMMAND}
     -DPROJECT_NAME="${PROJECT_NAME}"
     -DDOXYGIT_GENERATE_INDEX="${DOXYGIT_GENERATE_INDEX}"
@@ -31,12 +31,14 @@ function(COMMON_DOCUMENTATION)
     -P "${CMAKE_SOURCE_DIR}/CMake/common/Doxygit.cmake"
     COMMENT "Updating ${PROJECT_NAME} pages in ${PROJECT_SOURCE_DIR}"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+  set_property(GLOBAL APPEND PROPERTY
+    ${PROJECT_NAME}_ALL_DEP_TARGETS ${PROJECT_NAME}-doxygit)
 
-  # For meta project, separate doxygit and ${PROJECT_NAME}_doxygit
+  # For meta project, separate doxygit and ${PROJECT_NAME}-doxygit
   if(NOT TARGET doxygit)
     add_custom_target(doxygit ALL)
   endif()
-  add_dependencies(doxygit ${PROJECT_NAME}_doxygit)
+  add_dependencies(doxygit ${PROJECT_NAME}-doxygit)
 
   if(COMMON_INSTALL_DOCUMENTATION)
     file(GLOB Folders RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *-*)
@@ -52,5 +54,4 @@ function(COMMON_DOCUMENTATION)
     # Buildyard expects an install target for all projects
     install(CODE "MESSAGE(\"Nothing to install, done.\")")
   endif()
-
 endfunction()

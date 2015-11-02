@@ -60,7 +60,7 @@ endif()
 include(CommonDate)
 if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubInfo)
-  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_org})
+  set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_ORG})
 endif()
 
 if(NOT PROJECT_PACKAGE_NAME)
