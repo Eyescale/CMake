@@ -28,18 +28,12 @@ div.badges {
     float: right;
 }
 div.factoid {
+    height: 16px;
     padding: 2px;
     margin: 2px;
     border: 1px solid black;
     background-color: #eeeeee;
     float: left;
-    vertical-align: top;
-}
-div.factoid a {
-    vertical-align: top;
-}
-div.factoid img {
-    height: 16px;
 }
 div.content {
     margin-top: 0px;
