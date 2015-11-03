@@ -10,9 +10,9 @@
 #  * Provides function
 #      git_external(<directory> <giturl> <gittag> [VERBOSE,SHALLOW]
 #        [RESET <files>])
-#    which will check out directory in CMAKE_SOURCE_DIR (if relative)
+#    which will check out directory in COMMON_SOURCE_DIR if relative,
 #    or in the given absolute path using the given repository and tag
-#    (commit-ish).
+#    if commit-ish.
 #
 # Options which can be supplied to the function:
 #  VERBOSE, when present, this option tells the function to output
@@ -43,6 +43,9 @@
 #    If set, a remote called 'user' is set up for github repositories, pointing
 #    to git@github.com:<user>/<project>. Also, this remote is used by default
 #    for 'git push'.
+# COMMON_SOURCE_DIR
+#   Download location of the source code of subprojects and externals.
+#   Defaults to CMAKE_SOURCE_DIR.
 
 
 if(NOT GIT_FOUND)
@@ -53,7 +56,14 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
+
 option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
+
+set(COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH
+  "Location of common directory of all sources")
+set(__common_source_dir ${COMMON_SOURCE_DIR})
+get_filename_component(__common_source_dir ${__common_source_dir} ABSOLUTE)
+file(MAKE_DIRECTORY ${__common_source_dir})
 
 if(NOT GITHUB_USER AND DEFINED ENV{GITHUB_USER})
   set(GITHUB_USER $ENV{GITHUB_USER} CACHE STRING
@@ -95,7 +105,7 @@ function(GIT_EXTERNAL DIR REPO tag)
   endif()
 
   if(NOT IS_ABSOLUTE "${DIR}")
-    set(DIR "${CMAKE_SOURCE_DIR}/${DIR}")
+    set(DIR "${COMMON_SOURCE_DIR}/${DIR}")
   endif()
   get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
@@ -151,11 +161,7 @@ function(GIT_EXTERNAL DIR REPO tag)
       OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
   endif()
 
-  if(COMMON_SOURCE_DIR)
-    file(RELATIVE_PATH __dir ${COMMON_SOURCE_DIR} ${DIR})
-  else()
-    file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
-  endif()
+  file(RELATIVE_PATH __dir ${COMMON_SOURCE_DIR} ${DIR})
   string(REGEX REPLACE "[:/\\.]" "-" __target "${__dir}")
   if(TARGET ${__target}-rebase)
     return()
@@ -301,11 +307,11 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
           file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
 include(\"${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake\")
 execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q
-  WORKING_DIRECTORY \"${DIR}\")
+  WORKING_DIRECTORY \"${COMMON_SOURCE_DIR}/${DIR}\")
 execute_process(
   COMMAND \"${GIT_EXECUTABLE}\" show-ref --hash=7 refs/remotes/origin/master
   OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE
-  WORKING_DIRECTORY \"${DIR}\")
+  WORKING_DIRECTORY \"${COMMON_SOURCE_DIR}/${DIR}\")
 if(newref)
   file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\\n\")
   git_external(${DIR} ${REPO} \${newref})
