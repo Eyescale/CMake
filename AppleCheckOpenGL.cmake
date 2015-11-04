@@ -11,10 +11,10 @@ function(apple_check_opengl Target)
 
   add_test(NAME ${Target}-AppleCheckOpenGL
     COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>"
-            -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake)
+            -P ${COMMON_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake)
   add_custom_target(${Target}-AppleCheckOpenGL
     COMMAND ${CMAKE_COMMAND} -DAPPLE_CHECK_OPENGL_FILE="$<TARGET_FILE:${Target}>"
-            -P ${CMAKE_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake
+            -P ${COMMON_SOURCE_DIR}/CMake/common/AppleCheckOpenGL.cmake
     COMMENT "Verifying OpenGL link libraries of ${Target}")
 
   if(NOT TARGET ${PROJECT_NAME}-tests)

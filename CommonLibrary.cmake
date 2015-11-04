@@ -82,11 +82,11 @@ function(_common_library Name)
 
   # Generate api.h and version.h/cpp for non-interface libraries
   if(${NAME}_SOURCES)
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/api.h
+    configure_file(${COMMON_SOURCE_DIR}/CMake/common/cpp/api.h
       ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/api.h @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.h
+    configure_file(${COMMON_SOURCE_DIR}/CMake/common/cpp/version.h
       ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/version.h @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.cpp
+    configure_file(${COMMON_SOURCE_DIR}/CMake/common/cpp/version.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
 
     # ${NAMESPACE}_API= -> Fix cppcheck error about not including version.h
@@ -138,7 +138,7 @@ function(_common_library Name)
         add_library(${LibName} INTERFACE)
       else()
         add_library(${LibName} ${PUBLIC_HEADERS}
-                               ${CMAKE_SOURCE_DIR}/CMake/common/cpp/dummy.cpp)
+                               ${COMMON_SOURCE_DIR}/CMake/common/cpp/dummy.cpp)
         set_target_properties(${LibName} PROPERTIES
           LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
       endif()
