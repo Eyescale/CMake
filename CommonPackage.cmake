@@ -185,7 +185,7 @@ macro(common_package_post)
     set(__options_cmake_file ${CMAKE_CURRENT_BINARY_DIR}/options.cmake)
   endif()
 
-  configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/defines.h
+  configure_file(${COMMON_SOURCE_DIR}/CMake/common/cpp/defines.h
     ${OUTPUT_INCLUDE_DIR}/${PROJECT_INCLUDE_NAME}/defines.h @ONLY)
   set(__defines_file
     "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines${SYSTEM}.h")

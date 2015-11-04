@@ -11,7 +11,7 @@ Copy [GitExternal](GitExternal.cmake) from this repository to CMake/,
 and use it in your top-level CMakeLists.txt as follows:
 
     list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-                                  ${CMAKE_SOURCE_DIR}/CMake/common)
+                                  ${COMMON_SOURCE_DIR}/CMake/common)
     include(GitExternal)
     include(Common)
 

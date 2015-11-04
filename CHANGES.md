@@ -1,5 +1,8 @@
 # git master
 
+* The option COMMON_SOURCE_DIR now default to CMAKE_SOURCE_DIR. It present,
+  this project itself will be clone at COMMON_SOURCE_DIR for projects that
+  have updated their GitExternal file.
 * cmake 2.8.9 or later is now required
 * GitExternal.cmake:
     * 'user' remote for cloned github repositories (added if GITHUB_USER) is

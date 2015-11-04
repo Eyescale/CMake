@@ -78,7 +78,7 @@ function(_common_gui_application Name)
     set(_BUNDLE_NAME ${Name})
     set(_COPYRIGHT ${${NAME}_COPYRIGHT})
     set(_ICON ${${NAME}_ICON})
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/Info.plist.in
+    configure_file(${COMMON_SOURCE_DIR}/CMake/common/Info.plist.in
       ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
 
     _common_application(${Name} MACOSX_BUNDLE ${${NAME}_ICON} ${ARGN})

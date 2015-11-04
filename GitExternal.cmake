@@ -122,8 +122,7 @@ function(GIT_EXTERNAL DIR REPO tag)
     message(STATUS "git clone ${_msg_text} ${REPO} ${DIR} ${_msg_tag}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
+      RESULT_VARIABLE nok ERROR_VARIABLE error)
     if(nok)
       message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
     endif()
