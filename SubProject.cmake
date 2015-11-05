@@ -41,6 +41,8 @@
 # - SUBPROJECT_${name}: If set to OFF, the subproject is not added.
 # - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
 #   "port install" the known system packages. Will be unset after installation.
+# - COMMON_SOURCE_DIR: When set, the source code of subprojects will be
+#   downloaded in this path instead of CMAKE_SOURCE_DIR.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 #
 # How to create a dependency graph:
@@ -57,6 +59,12 @@ endif()
 add_custom_target(git_subproject_${PROJECT_NAME}_done)
 set_target_properties(git_subproject_${PROJECT_NAME}_done PROPERTIES
   EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
+
+set(COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH
+  "Location of common directory of all sources")
+set(__common_source_dir ${COMMON_SOURCE_DIR})
+get_filename_component(__common_source_dir ${__common_source_dir} ABSOLUTE)
+file(MAKE_DIRECTORY ${__common_source_dir})
 
 function(subproject_install_packages file name)
   if(NOT INSTALL_PACKAGES)

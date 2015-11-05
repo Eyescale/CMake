@@ -2,7 +2,7 @@
 
 This repository contains common CMake modules and a collection of find scripts
 to locate non-CMake dependencies. To use it, create a .gitexternals file in your
-project:
+project with the content:
 
     # -*- mode: cmake -*-
     # CMake/common https://github.com/Eyescale/CMake.git master
@@ -77,3 +77,5 @@ The following CMake modules can be included in your project:
 Additional features:
 * Users can use "cmake -DINSTALL_PACKAGES=1" during the initial configuration to
   install known system packages (Ubuntu and OS X only).
+
+[Detailed Change Log](Changes.md)
