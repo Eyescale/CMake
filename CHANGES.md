@@ -46,7 +46,7 @@
   anymore)
 * Added AppleCheckOpenGL.cmake to check for conflicting OpenGL link
   libraries on OS X
-* Added CommonData.cmake to provide today's date
+* Added CommonDate.cmake to provide today's date
 
 # 2015.06
 
