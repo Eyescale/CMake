@@ -8,7 +8,7 @@
 #
 # Input variables:
 # * LCOV_EXCLUDE Extra files to exclude from the coverage report
-# * COVERAGE_LIMITS Optional genhml flags to tweak the color codes of the report
+# * COVERAGE_LIMITS Optional genhtml flags to tweak the color codes of the report
 #
 # Targets generated:
 # * lcov-clean_${PROJECT_NAME} for internal use - clean before running cpptests
@@ -74,8 +74,7 @@ function(add_coverage_targets TEST_TARGET)
 
   if(NOT TARGET lcov-gather_${PROJECT_NAME})
     add_custom_target(lcov-gather_${PROJECT_NAME}
-      COMMAND ${LCOV} -q --capture --directory . --no-external
-        --directory ${PROJECT_SOURCE_DIR}/${PROJECT_INCLUDE_NAME}
+       COMMAND ${LCOV} --capture --no-external --directory . --directory ${CMAKE_SOURCE_DIR}
         --output-file lcov.info
       COMMENT "Capturing code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
