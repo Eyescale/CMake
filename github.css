@@ -23,6 +23,7 @@ div.toc {
     padding: 5px;
     border-right: 1px solid black;
     background-color: #dddddd;
+    overflow-y: auto;
 }
 div.badges {
     float: right;
