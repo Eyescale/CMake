@@ -178,7 +178,7 @@ if(DOXYGIT_GENERATE_INDEX)
   "  </head>\n"
   "  <body>\n"
   "  <div class=\"toc\">"
-  "    <h2 style=\"text-align: center;\">Projects</h2>")
+  "    <h2 style=>Projects</h2>")
 
   foreach(Entry ${Entries})
     string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
