@@ -49,6 +49,9 @@
 #  cmake --graphviz=graph.dot
 #  tred graph.dot > graph2.dot
 #  neato -Goverlap=prism -Goutputorder=edgesfirst graph2.dot -Tpdf -o graph.pdf
+#
+# Output Variables:
+# - SUBPROJECT_PATHS: list of paths to subprojects, useful for exclusion lists
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CommonGraph.cmake)
@@ -154,6 +157,7 @@ function(add_subproject name)
   add_subdirectory("${__common_source_dir}/${path}"
     "${CMAKE_BINARY_DIR}/${name}")
   set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
+
   # Mark globally that we've already used name as a sub project
   set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
   # Create <project>-all target
@@ -225,7 +229,12 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
         "else()\n"
         "  file(APPEND .gitsubprojects \"git_subproject(${__subproject})\n\")\n"
         "endif()\n")
+     set(SUBPROJECT_PATHS "${SUBPROJECT_PATHS} ${__subproject_dir}" 
+       CACHE INTERNAL SUBPROJECT_PATHS)
     endforeach()
+
+    separate_arguments(SUBPROJECT_PATHS)
+    list(REMOVE_DUPLICATES SUBPROJECT_PATHS)
 
     add_custom_target(update_git_subprojects_${PROJECT_NAME}
       COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
