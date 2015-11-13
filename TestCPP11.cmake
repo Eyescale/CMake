@@ -1,8 +1,8 @@
 # Copyright (c) 2013 ahmet.bilgili@epfl.ch
 #               2013 Stefan.Eilemann@epfl.ch
 
-# OPT: do this only once, included by Common.cmake
-if(TESTS_CPP11_DONE)
+# OPT: do this only once, included by Common.cmake, don't do if C++03
+if(TESTS_CPP11_DONE OR COMMON_USE_CXX03)
   return()
 endif()
 set(TESTS_CPP11_DONE ON)
