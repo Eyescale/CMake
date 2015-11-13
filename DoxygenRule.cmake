@@ -186,11 +186,17 @@ if(GIT_DOCUMENTATION_REPO)
       COMMENT "Copying ${PROJECT_NAME} API documentation to ${GIT_DOCUMENTATION_DIR}"
       DEPENDS ${PROJECT_NAME}-doxygen VERBATIM)
   else()
+    # Having a command will force this target to run always when invoked. That
+    # makes the Makefile to print the comment. The text will be also visible
+    # in ninja.
     add_custom_target(${PROJECT_NAME}-doxycopy
+      COMMAND ${CMAKE_COMMAND} -E echo ""
       COMMENT "doxycopy target not available, missing ${_GIT_DOC_SRC_DIR}")
   endif()
 else()
   add_custom_target(${PROJECT_NAME}-doxycopy
+    # Same as above
+    COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMENT "doxycopy target not available, missing GIT_DOCUMENTATION_REPO")
 endif()
 set_target_properties(${PROJECT_NAME}-doxycopy PROPERTIES
