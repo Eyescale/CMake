@@ -1,5 +1,6 @@
-# Copyright (c) 2013 ahmet.bilgili@epfl.ch
-#               2013 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2013-2015 ahmet.bilgili@epfl.ch
+#                         Stefan.Eilemann@epfl.ch
+#                         Daniel.Nachbaur@epfl.ch
 
 # OPT: do this only once, included by Common.cmake, don't do if C++03
 if(TESTS_CPP11_DONE OR COMMON_USE_CXX03)
@@ -12,8 +13,8 @@ if(NOT PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     "project so that it is run only once.")
 endif()
 
-set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map
-  template_alias)
+set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override noexcept
+  unordered_map template_alias)
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_sharedptr.cpp
 "#include <memory>
@@ -72,6 +73,10 @@ class Bar : public Foo
     virtual ~Bar();
 };
 
+int main() {}")
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_noexcept.cpp
+"bool foo() noexcept { return false; }
 int main() {}")
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cpp11_unordered_map.cpp

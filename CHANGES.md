@@ -1,5 +1,7 @@
 # git master
 
+* Add c++11 noexcept test (CXX_NOEXCEPT_SUPPORTED define)
+
 # 2015.11
 
 * cmake 2.8.9 or later is now required; reduced cmake 3 warnings
