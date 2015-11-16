@@ -48,9 +48,11 @@ list(SORT TEST_FILES)
 set(ALL_CPP_TESTS)
 set(ALL_CPP_PERF_TESTS)
 
-set(TEST_ENABLE_BOOST_HEADER "Add -DBOOST_TEST_DYN_LINK to tests" CACHE BOOL ON)
 # backwards compat: generate main() for unit tests
 #  should really #define BOOST_TEST_DYN_LINK if using boost
+if(NOT DEFINED TEST_ENABLE_BOOST_HEADER)
+  set(TEST_ENABLE_BOOST_HEADER ON)
+endif()
 if(NOT Boost_USE_STATIC_LIBS AND TEST_ENABLE_BOOST_HEADER)
   add_definitions(-DBOOST_TEST_DYN_LINK)
 endif()
