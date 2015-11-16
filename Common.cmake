@@ -79,7 +79,7 @@ if(APPLE)
     /opt/local/libexec/qt5-mac) # Macports
   set(ENV{PATH} "/opt/local/bin:$ENV{PATH}") # dito
   if(NOT CMAKE_OSX_ARCHITECTURES OR CMAKE_OSX_ARCHITECTURES STREQUAL "")
-    set(CMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE
+    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE
       STRING "Build architectures for OS X" FORCE)
   endif()
   set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
