@@ -27,6 +27,7 @@
 # * UNIT_AND_PERF_TESTS a list with files which should be compiled
 #   also as performance tests. The unit test will be named 'file',
 #   whereas the performance test will be named 'perf-file'.
+# * TEST_ENABLE_BOOST_HEADER adds -DBOOST_TEST_DYN_LINK to tests
 
 include(CommonCheckTargets)
 
@@ -46,6 +47,15 @@ list(SORT TEST_FILES)
 
 set(ALL_CPP_TESTS)
 set(ALL_CPP_PERF_TESTS)
+
+# backwards compat: generate main() for unit tests
+#  should really #define BOOST_TEST_DYN_LINK if using boost
+if(NOT DEFINED TEST_ENABLE_BOOST_HEADER)
+  set(TEST_ENABLE_BOOST_HEADER ON)
+endif()
+if(NOT Boost_USE_STATIC_LIBS AND TEST_ENABLE_BOOST_HEADER)
+  add_definitions(-DBOOST_TEST_DYN_LINK)
+endif()
 
 macro(common_add_cpp_test NAME FILE)
   set(TEST_NAME ${PROJECT_NAME}-${NAME})
