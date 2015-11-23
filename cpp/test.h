@@ -89,15 +89,15 @@ public:
             lunchbox::Thread::setName( "Watchdog" );
 #ifdef TEST_RUNTIME
             lunchbox::sleep( TEST_RUNTIME * 1000 );
-            TESTINFO( false,
-                      "Watchdog triggered - " << _name <<
-                      " did not terminate within " << TEST_RUNTIME << "s" );
+            std::cerr << "Watchdog triggered - " << _name
+                      << " did not terminate within " << TEST_RUNTIME << "s"
+                      << std::endl;
 #else
             lunchbox::sleep( 60000 );
-            TESTINFO( false,
-                      "Watchdog triggered - " << _name <<
-                      " did not terminate within 1 minute" );
+            std::cerr << "Watchdog triggered - " << _name
+                      << " did not terminate within 1 minute" << std::endl;
 #endif
+            lunchbox::abort( true /*dumpThreads*/ );
         }
 
 private:

@@ -22,15 +22,18 @@
 #   regular release build using Buildyard, which can be very time consuming.
 
 function(COMMON_DOCUMENTATION)
-  add_custom_target(${PROJECT_NAME}-doxygit ALL
+  add_custom_command(OUTPUT ${PROJECT_NAME}-index-generated
     COMMAND ${CMAKE_COMMAND}
     -DPROJECT_NAME="${PROJECT_NAME}"
     -DDOXYGIT_GENERATE_INDEX="${DOXYGIT_GENERATE_INDEX}"
     -DDOXYGIT_TOC_POST:STRING="${DOXYGIT_TOC_POST}"
     -DDOXYGIT_MAX_VERSIONS="${DOXYGIT_MAX_VERSIONS}"
+    -DDOXYGIT_STATE_FILE="${PROJECT_BINARY_DIR}/doxygit-generated"
     -P "${CMAKE_SOURCE_DIR}/CMake/common/Doxygit.cmake"
     COMMENT "Updating ${PROJECT_NAME} pages in ${PROJECT_SOURCE_DIR}"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+  add_custom_target(${PROJECT_NAME}-doxygit ALL
+    DEPENDS ${PROJECT_NAME}-index-generated)
   set_property(GLOBAL APPEND PROPERTY
     ${PROJECT_NAME}_ALL_DEP_TARGETS ${PROJECT_NAME}-doxygit)
 

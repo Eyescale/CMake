@@ -21,9 +21,16 @@
 # * DOXYGIT_GENERATE_INDEX generate an index.html page (default: OFF)
 # * DOXYGIT_MAX_VERSIONS number of versions to keep in directory (default: 10)
 # * DOXYGIT_TOC_POST html content to insert in 'index.html' (default: '')
+# * DOXYGIT_STATE_FILE dummy file to keep track if this script needs to run.
+#   If it exist, script will not run. Otherwise script will run and create the
+#   file on success. The file is deleted by doxycopy target in DoxygenRule
 #
 # Input files:
 # ${CMAKE_CURRENT_SOURCE_DIR}/${Entry}/ProjectInfo.cmake additional project info
+
+if(DOXYGIT_STATE_FILE AND EXISTS ${DOXYGIT_STATE_FILE})
+  return()
+endif()
 
 # CMake escapes the whitespaces when passing a string to a script
 if(DOXYGIT_TOC_POST)
@@ -171,7 +178,7 @@ if(DOXYGIT_GENERATE_INDEX)
   "  </head>\n"
   "  <body>\n"
   "  <div class=\"toc\">"
-  "    <h2 style=\"text-align: center;\">Projects</h2>")
+  "    <h2 style=>Projects</h2>")
 
   foreach(Entry ${Entries})
     string(REGEX REPLACE "^(.+)-.+$" "\\1" Project ${Entry})
@@ -216,3 +223,7 @@ execute_process(
   COMMAND "${GIT_EXECUTABLE}" add --all images ${Entries} ${RemovedEntries}
   css/github.css index.html ${PROJECTS}
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+if(DOXYGIT_STATE_FILE)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E touch ${DOXYGIT_STATE_FILE})
+endif()

@@ -181,6 +181,7 @@ if(GIT_DOCUMENTATION_REPO)
       ${_GIT_DOC_SRC_DIR}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
     add_custom_target(${PROJECT_NAME}-doxycopy
       COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
+      COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/${GIT_DOCUMENTATION_REPO}/doxygit-generated
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
       COMMAND ${CMAKE_COMMAND} -E copy ${_jekyll_md_file} ${_GIT_DOC_SRC_DIR}/_projects
       COMMENT "Copying ${PROJECT_NAME} API documentation to ${GIT_DOCUMENTATION_DIR}"
