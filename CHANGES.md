@@ -1,5 +1,7 @@
 # git master
 
+* Added new test targets called nightlytests and Project-nightlytests. This
+  targets depend on perf tests, and cpp test files with the prefix "nightly".
 * Add c++11 noexcept test (CXX_NOEXCEPT_SUPPORTED define)
 
 # 2015.11
