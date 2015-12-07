@@ -1,7 +1,7 @@
 # Copyright (c) 2012-2014 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #                         Stefan.Eilemann@epfl.ch
 #
-# Sets compiler optimization, definition and warnings according to
+# Sets compiler optimization, and warnings according to
 # chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
 # or later) and Visual Studio (2008 or later).
 #
@@ -11,6 +11,7 @@
 # Input Variables
 # * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
 # * COMMON_USE_CXX03 When set, do not enable C++11 language features
+# * COMMON_DISABLE When set, do not set any flags
 #
 # Output Variables
 # * GCC_COMPILER_VERSION The compiler version if gcc is used
@@ -22,10 +23,6 @@
 # * COMMON_CXX_FLAGS_DEBUG The common flags for C++ compiler in Debug build
 # * COMMON_CXX_FLAGS_RELWITHDEBINFO The common flags for C++ compiler in RelWithDebInfo build
 # * COMMON_CXX_FLAGS_RELEASE The common flags for C++ compiler in Release build
-# * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
-# * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
-# * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
-# * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
 
 # OPT: necessary only once, included by Common.cmake
 if(COMPILER_DONE)
@@ -33,34 +30,19 @@ if(COMPILER_DONE)
 endif()
 set(COMPILER_DONE ON)
 
-include(TestBigEndian)
-test_big_endian(BIGENDIAN)
-
-if(BIGENDIAN)
-  add_definitions(-DCOMMON_BIGENDIAN)
-else()
-  add_definitions(-DCOMMON_LITTLEENDIAN)
+if(COMMON_DISABLE)
+  return()
 endif()
 
-# Compiler name
-if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-  set(CMAKE_COMPILER_IS_XLCXX ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_COMPILER_IS_INTEL ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANG ON)
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
-endif()
-# use MSVC for Visual Studio
+include(CompilerIdentification)
 
 if(NOT COMMON_MINIMUM_GCC_VERSION)
   set(COMMON_MINIMUM_GCC_VERSION 4.4)
 endif()
 
-option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
 option(ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
 
+option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
 if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
@@ -72,12 +54,15 @@ set(COMMON_C_FLAGS
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   compiler_dumpversion(GCC_COMPILER_VERSION)
+
   if(NOT WIN32 AND NOT XCODE_VERSION)
     set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -Werror")
   endif()
+
   if(GCC_COMPILER_VERSION VERSION_GREATER 4.1)
     set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -Wshadow")
   endif()
+
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_C_FLAGS
       "${COMMON_C_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
@@ -112,11 +97,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     endif()
   endif()
 
-  set(C_DIALECT_OPT_C89    "-std=c89")
-  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
-  set(C_DIALECT_OPT_C99    "-std=c99")
-  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
-
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(COMMON_CXX_FLAGS
@@ -130,11 +110,6 @@ elseif(CMAKE_COMPILER_IS_INTEL)
     set(COMMON_CXXSTD_FLAGS "-std=c++11")
   endif()
 
-  set(C_DIALECT_OPT_C89    "-std=c89")
-  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
-  set(C_DIALECT_OPT_C99    "-std=c99")
-  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
-
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
   # default: Maintain code semantics Fix to link dynamically. On the
@@ -142,8 +117,7 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
   # default release flags since the default were '-O -NDEBUG'. By
   # default, set flags for backend since this is the most common use
   # case
-  option(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
-    ON)
+  option(XLC_BACKEND "Compile for BlueGene compute nodes using XLC" ON)
   if(XLC_BACKEND)
     set(COMMON_CXX_FLAGS_RELEASE
       "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink -DNDEBUG")
@@ -157,14 +131,8 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
   set(CMAKE_C_FLAGS_RELEASE ${COMMON_C_FLAGS_RELEASE})
   set(CMAKE_CXX_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
 
-  set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
-  set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
-  set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
-  set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
-endif()
-
 # Visual Studio
-if(MSVC)
+elseif(MSVC)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
     /D_SCL_SECURE_NO_WARNINGS
