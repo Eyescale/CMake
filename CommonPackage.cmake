@@ -42,7 +42,11 @@ option(COMMON_PACKAGE_USE_QUIET "Use QUIET for common_package command" ON)
 
 include(System)
 include(CommonGraph)
-set(COMMON_PACKAGE_DEFINES ${SYSTEM})
+if(COMMON_USE_CXX03)
+  set(COMMON_PACKAGE_DEFINES ${SYSTEM} COMMON_USE_CXX03)
+else()
+  set(COMMON_PACKAGE_DEFINES ${SYSTEM} COMMON_USE_CXX11)
+endif()
 
 macro(common_package Package_Name)
   string(TOUPPER ${Package_Name} PACKAGE_NAME)

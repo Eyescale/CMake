@@ -26,6 +26,7 @@
 # * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
 # * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
 # * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
+# * COMMON_USE_CXX03 Set if the compiler does only support C++03
 
 # OPT: necessary only once, included by Common.cmake
 if(COMPILER_DONE)
@@ -65,13 +66,13 @@ if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
 
-set(COMMON_C_FLAGS
-  "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
-
 # GCC (+clang)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   compiler_dumpversion(GCC_COMPILER_VERSION)
+
+  set(COMMON_C_FLAGS
+    "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
   if(NOT WIN32 AND NOT XCODE_VERSION)
     set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -Werror")
   endif()
@@ -88,6 +89,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     endif()
     if(GCC_COMPILER_VERSION VERSION_GREATER 4.5)
       set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -fmax-errors=5")
+    else()
+      set(COMMON_USE_CXX03 ON)
     endif()
   endif()
 
@@ -105,7 +108,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
         set(COMMON_CXXSTD_FLAGS "-std=c++0x")
       else()
         if(GCC_COMPILER_VERSION VERSION_LESS 4.8)
-          add_definitions(-D_GLIBCXX_USE_NANOSLEEP) # http://stackoverflow.com/questions/4438084
+          # http://stackoverflow.com/questions/4438084
+          add_definitions(-D_GLIBCXX_USE_NANOSLEEP)
         endif()
         set(COMMON_CXXSTD_FLAGS "-std=c++11")
       endif()
@@ -119,6 +123,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
 
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
+  set(COMMON_C_FLAGS
+    "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
   set(COMMON_CXX_FLAGS
     "-Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo -Wnon-virtual-dtor")
 
@@ -161,6 +167,7 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
   set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
   set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
   set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
+  set(COMMON_USE_CXX03 ON)
 endif()
 
 # Visual Studio
@@ -180,7 +187,6 @@ if(MSVC)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   endif()
 
-  set(COMMON_C_FLAGS) # reset, GCC flags not applicable
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
   set(COMMON_CXX_FLAGS_DEBUG "${COMMON_CXX_FLAGS_RELEASE} /WX")
