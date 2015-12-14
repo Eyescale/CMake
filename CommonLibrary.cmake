@@ -89,6 +89,10 @@ function(_common_library Name)
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
 
+    # Exclude this file for coverage report in Coverage.cmake
+    set_property(GLOBAL APPEND PROPERTY
+                 COMMON_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+
     # ${NAMESPACE}_API= -> Fix cppcheck error about not including version.h
     list(APPEND CPPCHECK_EXTRA_ARGS
       -D${NAME}_STATIC= -D${NAMESPACE}_API=)

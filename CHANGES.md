@@ -1,5 +1,10 @@
 # git master
 
+* Coverage.cmake fixes:
+    * Fix missing coverage report for multiple project directories
+    * Rename targets to match PROJECT_NAME-target syntax
+    * Exclude only generated files from COMMON_GENERATED_FILES property,
+      not everything from PROJECT_BINARY_DIR
 * Added new test targets called nightlytests and Project-nightlytests. This
   targets depend on perf tests, and cpp test files with the prefix "nightly".
 * Add c++11 noexcept test (CXX_NOEXCEPT_SUPPORTED define)

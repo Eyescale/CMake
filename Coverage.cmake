@@ -10,12 +10,15 @@
 # * LCOV_EXCLUDE Extra files to exclude from the coverage report
 # * COVERAGE_LIMITS Optional genhml flags to tweak the color codes of the report
 #
+# Input global property:
+# * COMMON_GENERATED_FILES: List of files to exclude from coverage report
+#
 # Targets generated:
-# * lcov-clean_${PROJECT_NAME} for internal use - clean before running cpptests
-# * lcov-gather_${PROJECT_NAME} for internal use
-# * lcov-remove_${PROJECT_NAME} for internal use
-# * coverage_${PROJECT_NAME} generate a coverage report for a specific project
-# * coverage run all coverage_${PROJECT_NAME}
+# * ${PROJECT_NAME}-lcov-clean for internal use - clean before running cpptests
+# * ${PROJECT_NAME}-lcov-gather for internal use
+# * ${PROJECT_NAME}-lcov-remove for internal use
+# * ${PROJECT_NAME}-coverage generate a coverage report for a specific project
+# * coverage run all ${PROJECT_NAME}-coverage
 
 option(ENABLE_COVERAGE "Enable code coverage testing" OFF)
 
@@ -65,45 +68,46 @@ function(add_coverage_targets TEST_TARGET)
     set(COVERAGE_LIMITS --rc genhtml_med_limit=40 --rc genhtml_hi_limit=80)
   endif()
 
-  if(NOT TARGET lcov-clean_${PROJECT_NAME})
-    add_custom_target(lcov-clean_${PROJECT_NAME}
+  if(NOT TARGET ${PROJECT_NAME}-lcov-clean)
+    add_custom_target(${PROJECT_NAME}-lcov-clean
       COMMAND ${LCOV} -q --directory ${PROJECT_BINARY_DIR} --zerocounters
       COMMENT "Resetting code coverage counters")
   endif()
-  add_dependencies(${TEST_TARGET} lcov-clean_${PROJECT_NAME})
+  add_dependencies(${TEST_TARGET} ${PROJECT_NAME}-lcov-clean)
 
-  if(NOT TARGET lcov-gather_${PROJECT_NAME})
-    add_custom_target(lcov-gather_${PROJECT_NAME}
+  if(NOT TARGET ${PROJECT_NAME}-lcov-gather)
+    add_custom_target(${PROJECT_NAME}-lcov-gather
       COMMAND ${LCOV} -q --capture --directory . --no-external
-        --directory ${PROJECT_SOURCE_DIR}/${PROJECT_INCLUDE_NAME}
+        --directory ${PROJECT_SOURCE_DIR}/${INCLUDE_NAME}
         --output-file lcov.info
       COMMENT "Capturing code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   endif()
-  add_dependencies(lcov-gather_${PROJECT_NAME} ${TEST_TARGET})
+  add_dependencies(${PROJECT_NAME}-lcov-gather ${TEST_TARGET})
 
-  if(NOT TARGET lcov-remove_${PROJECT_NAME})
-    add_custom_target(lcov-remove_${PROJECT_NAME}
+  if(NOT TARGET ${PROJECT_NAME}-lcov-remove)
+    get_property(GENERATED_FILES GLOBAL PROPERTY COMMON_GENERATED_FILES)
+    add_custom_target(${PROJECT_NAME}-lcov-remove
       COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '*.l' 'CMake/test/*'
-        '*/install/*' '${PROJECT_BINARY_DIR}/*' ${LCOV_EXCLUDE}
+        '*/install/*' ${GENERATED_FILES} ${LCOV_EXCLUDE}
         --output-file lcov2.info
       COMMENT "Cleaning up code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-      DEPENDS lcov-gather_${PROJECT_NAME})
+      DEPENDS ${PROJECT_NAME}-lcov-gather)
   endif()
 
-  if(NOT TARGET coverage_${PROJECT_NAME})
-    add_custom_target(coverage_${PROJECT_NAME}
+  if(NOT TARGET ${PROJECT_NAME}-coverage)
+    add_custom_target(${PROJECT_NAME}-coverage
       COMMAND ${GENHTML} -q --title ${PROJECT_NAME} ${COVERAGE_LIMITS}
         -o CoverageReport ${PROJECT_BINARY_DIR}/lcov2.info
       COMMENT "Creating html coverage report, open ${PROJECT_BINARY_DIR}/doc/html/CoverageReport/index.html "
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
-      DEPENDS lcov-remove_${PROJECT_NAME})
+      DEPENDS ${PROJECT_NAME}-lcov-remove)
     make_directory(${PROJECT_BINARY_DIR}/doc/html)
   endif()
 
   if(NOT TARGET coverage)
     add_custom_target(coverage)
   endif()
-  add_dependencies(coverage coverage_${PROJECT_NAME})
+  add_dependencies(coverage ${PROJECT_NAME}-coverage)
 endfunction()
