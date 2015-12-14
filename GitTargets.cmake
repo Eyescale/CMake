@@ -58,8 +58,8 @@ add_custom_target(${PROJECT_NAME}-make-branch
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
-if(TARGET flatten_git_external)
-  set(BRANCH_DEP flatten_git_external)
+if(TARGET ${PROJECT_NAME}-flatten-gitexternal)
+  set(BRANCH_DEP ${PROJECT_NAME}-flatten-gitexternal)
 else()
   set(BRANCH_DEP ${PROJECT_NAME}-make-branch)
 endif()
