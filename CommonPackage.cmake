@@ -132,7 +132,7 @@ macro(common_package Package_Name)
     # for defines.h
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
     string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
-    string(REGEX REPLACE "+" "P" __use_package_define ${__use_package_define})
+    string(REGEX REPLACE "\\+" "P" __use_package_define ${__use_package_define})
     list(APPEND COMMON_PACKAGE_DEFINES ${__use_package_define})
 
     # for CommonPackageConfig.cmake
