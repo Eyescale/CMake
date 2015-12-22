@@ -85,6 +85,9 @@ if(NOT COMMON_ORGANIZATION_NAME)
   set(COMMON_ORGANIZATION_NAME Unknown)
 endif()
 
+# list-to-string transform
+string(REPLACE ";" " " DOXYGEN_EXTRA_INPUT "${DOXYGEN_EXTRA_INPUT}")
+
 if(NOT DOXYGEN_CONFIG_FILE)
   # Assuming there exists a Doxyfile and that needs configuring
   configure_file(${CMAKE_CURRENT_LIST_DIR}/Doxyfile
