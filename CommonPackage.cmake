@@ -250,7 +250,7 @@ macro(common_package_post)
     include_directories(SYSTEM ${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
   endif()
 
-  set(__configure_msg "Configured ${PROJECT_NAME} [${GIT_REVISION}]")
+  set(__configure_msg "Configured ${PROJECT_NAME} [${GIT_STATE}]")
   if(${PROJECT_NAME}_FIND_PACKAGES_FOUND)
     set(__configure_msg
       "${__configure_msg} with${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")

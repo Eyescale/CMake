@@ -27,7 +27,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
     execute_process( COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process( COMMAND "${GIT_EXECUTABLE}" describe --long --tags --dirty
+    execute_process( COMMAND "${GIT_EXECUTABLE}" describe --long --tags --dirty --always
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       OUTPUT_VARIABLE GIT_STATE OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
     execute_process( COMMAND "${GIT_EXECUTABLE}" config --get remote.origin.url
