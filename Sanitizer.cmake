@@ -11,11 +11,14 @@
 #       thread
 #
 # Note: This modifies CMAKE_CXX_FLAGS and CMAKE_EXE_LINKER_FLAGS
+# Usage: add this when doing cmake configuration: -DSANITIZER=address
 
 option(SANITIZER "Sanitizer: one of address/thread/undefined, depending on compiler" OFF)
 if(NOT SANITIZER)
   return()
 endif()
+
+include(Compiler)
 
 #According to: http://clang.llvm.org/docs/AddressSanitizer.html#usage
 # the following compiler flags allow us to keep -O1 on, if desired, but
@@ -43,6 +46,5 @@ if(${_SANITIZER_FOUND} GREATER -1)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_SANITIZER_COMPILE_OPTIONS} ${_SANITIZER}" )
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${_SANITIZER}")
 else()
-  message(WARNING "Sanitizer ${SANITIZER} not set, check compiler support")
+  message(WARNING "Sanitizer '${SANITIZER}' not set, check compiler support")
 endif()
-
