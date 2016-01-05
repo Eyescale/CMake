@@ -13,7 +13,6 @@
 # Note: This modifies CMAKE_CXX_FLAGS and CMAKE_EXE_LINKER_FLAGS
 # Usage: add this when doing cmake configuration: -DSANITIZER=address
 
-option(SANITIZER "Sanitizer: one of address/thread/undefined, depending on compiler" OFF)
 if(NOT SANITIZER)
   return()
 endif()
