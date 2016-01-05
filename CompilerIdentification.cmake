@@ -69,8 +69,10 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(C_DIALECT_OPT_C99EXT "-std=gnu99")
 
 elseif(CMAKE_COMPILER_IS_XLCXX)
+  #read up on the features with 'xlc++ -qhelp'
   set(COMMON_USE_CXX03 ON)
-  set(CXX_DIALECT_PRE_11 "")
+  set(CXX_DIALECT_PRE_11 "-qlanglvl=extended") #strict98, with some ... extra features
+  set(CXX_DIALECT_11 "-qlanglvl=extended0x")
 
   set(C_DIALECT_OPT_C89 "-qlanglvl=stdc89")
   set(C_DIALECT_OPT_C99 "-qlanglvl=stdc99")
