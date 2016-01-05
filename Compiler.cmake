@@ -56,7 +56,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
 
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_C_FLAGS
-      "${COMMON_C_FLAGS} -Qunused-arguments -ferror-limit=6 -ftemplate-depth-1024 -Wheader-hygiene")
+      "${COMMON_C_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
     set(COMMON_CXX11_STDLIB "-stdlib=libc++")
   else()
     if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
