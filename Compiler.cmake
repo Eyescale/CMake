@@ -22,11 +22,6 @@
 # * COMMON_CXX_FLAGS_DEBUG The common flags for C++ compiler in Debug build
 # * COMMON_CXX_FLAGS_RELWITHDEBINFO The common flags for C++ compiler in RelWithDebInfo build
 # * COMMON_CXX_FLAGS_RELEASE The common flags for C++ compiler in Release build
-# * C_DIALECT_OPT_C89    Compiler flag to select C89 C dialect
-# * C_DIALECT_OPT_C89EXT Compiler flag to select C89 C dialect with extensions
-# * C_DIALECT_OPT_C99    Compiler flag to select C99 C dialect
-# * C_DIALECT_OPT_C99EXT Compiler flag to select C99 C dialect with extensions
-# * COMMON_USE_CXX03 Set if the compiler does only support C++03
 
 # OPT: necessary only once, included by Common.cmake
 if(COMPILER_DONE)
@@ -34,30 +29,7 @@ if(COMPILER_DONE)
 endif()
 set(COMPILER_DONE ON)
 
-include(TestBigEndian)
-test_big_endian(BIGENDIAN)
-
-if(BIGENDIAN)
-  add_definitions(-DCOMMON_BIGENDIAN)
-else()
-  add_definitions(-DCOMMON_LITTLEENDIAN)
-endif()
-
-# Compiler name
-if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-  set(CMAKE_COMPILER_IS_XLCXX ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_COMPILER_IS_INTEL ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANG ON)
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
-endif()
-# use MSVC for Visual Studio
-
-if(NOT COMMON_MINIMUM_GCC_VERSION)
-  set(COMMON_MINIMUM_GCC_VERSION 4.4)
-endif()
+include(${CMAKE_CURRENT_LIST_DIR}/CompilerIdentification.cmake)
 
 option(ENABLE_WARN_DEPRECATED "Enable deprecation warnings" ON)
 option(ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
@@ -66,19 +38,22 @@ if(ENABLE_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
 
-# GCC (+clang)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-  include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
-  compiler_dumpversion(GCC_COMPILER_VERSION)
+  if(NOT COMMON_MINIMUM_GCC_VERSION)
+    set(COMMON_MINIMUM_GCC_VERSION 4.4)
+  endif()
 
   set(COMMON_C_FLAGS
     "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
+
   if(NOT WIN32 AND NOT XCODE_VERSION)
     set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -Werror")
   endif()
+
   if(GCC_COMPILER_VERSION VERSION_GREATER 4.1)
     set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -Wshadow")
   endif()
+
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_C_FLAGS
       "${COMMON_C_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024 -Wheader-hygiene")
@@ -89,8 +64,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     endif()
     if(GCC_COMPILER_VERSION VERSION_GREATER 4.5)
       set(COMMON_C_FLAGS "${COMMON_C_FLAGS} -fmax-errors=5")
-    else()
-      set(COMMON_USE_CXX03 ON)
     endif()
   endif()
 
@@ -101,27 +74,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     # use C++03 std and stdlib, which is the default used by all
     # software, including all MacPorts.
   elseif(NOT COMMON_USE_CXX03)
-    if(CMAKE_COMPILER_IS_CLANG)
-      set(COMMON_CXXSTD_FLAGS "-std=c++11")
-    elseif(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
-      if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
-        set(COMMON_CXXSTD_FLAGS "-std=c++0x")
-      else()
-        if(GCC_COMPILER_VERSION VERSION_LESS 4.8)
-          # http://stackoverflow.com/questions/4438084
-          add_definitions(-D_GLIBCXX_USE_NANOSLEEP)
-        endif()
-        set(COMMON_CXXSTD_FLAGS "-std=c++11")
-      endif()
+    set(COMMON_CXXSTD_FLAGS ${CXX_DIALECT_11})
+    if(CMAKE_COMPILER_IS_GNUCXX_PURE AND GCC_COMPILER_VERSION VERSION_LESS 4.8)
+      # http://stackoverflow.com/questions/4438084
+      add_definitions(-D_GLIBCXX_USE_NANOSLEEP)
     endif()
   endif()
 
-  set(C_DIALECT_OPT_C89    "-std=c89")
-  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
-  set(C_DIALECT_OPT_C99    "-std=c99")
-  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
-
-# icc
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(COMMON_C_FLAGS
     "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
@@ -132,16 +91,11 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   # supported compilation host
   set(COMMON_C_FLAGS_RELEASE "${COMMON_C_FLAGS_RELEASE} -xhost")
   set(COMMON_CXX_FLAGS_RELEASE "${COMMON_CXX_FLAGS_RELEASE} -xhost")
+
   if(NOT COMMON_USE_CXX03)
-    set(COMMON_CXXSTD_FLAGS "-std=c++11")
+    set(COMMON_CXXSTD_FLAGS ${CXX_DIALECT_11})
   endif()
 
-  set(C_DIALECT_OPT_C89    "-std=c89")
-  set(C_DIALECT_OPT_C89EXT "-std=gnu89")
-  set(C_DIALECT_OPT_C99    "-std=c99")
-  set(C_DIALECT_OPT_C99EXT "-std=gnu99")
-
-# xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
   # default: Maintain code semantics Fix to link dynamically. On the
   # next pass should add an if statement: 'if shared ...'.  Overriding
@@ -163,14 +117,8 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
   set(CMAKE_C_FLAGS_RELEASE ${COMMON_C_FLAGS_RELEASE})
   set(CMAKE_CXX_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
 
-  set(C_DIALECT_OPT_C89    "-qlanglvl=stdc89")
-  set(C_DIALECT_OPT_C89EXT "-qlanglvl=extc89")
-  set(C_DIALECT_OPT_C99    "-qlanglvl=stdc99")
-  set(C_DIALECT_OPT_C99EXT "-qlanglvl=extc99")
-  set(COMMON_USE_CXX03 ON)
 endif()
 
-# Visual Studio
 if(MSVC)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
@@ -212,4 +160,3 @@ macro(common_compiler_flags)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${COMMON_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_CXX_FLAGS_RELEASE "${COMMON_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS_RELEASE}")
 endmacro()
-
