@@ -89,7 +89,7 @@ function(add_coverage_targets TEST_TARGET)
     get_property(GENERATED_FILES GLOBAL PROPERTY COMMON_GENERATED_FILES)
     add_custom_target(${PROJECT_NAME}-lcov-remove
       COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '*.l' 'CMake/test/*'
-        '*/install/*' ${GENERATED_FILES} ${LCOV_EXCLUDE}
+        '*/install/*' 'moc_*' 'qrc_*' ${GENERATED_FILES} ${LCOV_EXCLUDE}
         --output-file lcov2.info
       COMMENT "Cleaning up code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
