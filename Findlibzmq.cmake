@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Daniel.Nachbuar@epfl.ch
+# Copyright (c) 2014 Daniel.Nachbaur@epfl.ch
 #
 # based on:
 # https://github.com/robertmaynard/Remus/blob/master/CMake/FindZeroMQ.cmake
@@ -21,7 +21,7 @@
 #  LIBZMQ_FOUND              System has libzmq libs/headers
 #  LIBZMQ_LIBRARIES          The libzmq libraries
 #  LIBZMQ_INCLUDE_DIR        The location of libzmq headers
-#  LIBZMQ_INCLUDE_DIRS        The location of libzmq headers
+#  LIBZMQ_INCLUDE_DIRS       The location of libzmq headers
 
 find_path(LIBZMQ_ROOT_DIR
   NAMES include/zmq.h
