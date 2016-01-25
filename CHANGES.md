@@ -1,5 +1,7 @@
 # git master
 
+* Add OPTIONAL argument to git_external. This gives users the possibility of
+  cloning a repository without aborting the configuration if the operation fails
 * Coverage.cmake fixes:
     * Fix missing coverage report for multiple project directories
     * Rename targets to match PROJECT_NAME-target syntax
