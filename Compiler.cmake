@@ -108,6 +108,8 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
     set(COMMON_CXX_FLAGS_RELEASE
       "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink -DNDEBUG")
     set(COMMON_C_FLAGS_RELEASE ${COMMON_CXX_FLAGS_RELEASE})
+    set(COMMON_LIBRARY_TYPE STATIC)
+    set(COMPILE_LIBRARY_TYPE STATIC)
   else()
     set(COMMON_CXX_FLAGS_RELEASE
       "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
