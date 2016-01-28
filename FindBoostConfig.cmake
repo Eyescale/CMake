@@ -15,3 +15,8 @@ if(NOT "$ENV{BOOST_ROOT}" STREQUAL "" OR
   # Fix find of non-system Boost
   option(Boost_NO_SYSTEM_PATHS "Disable system paths for FindBoost" ON)
 endif()
+
+if(CMAKE_COMPILER_IS_XLCXX AND XLC_BACKEND)
+  set(Boost_NO_BOOST_CMAKE TRUE)
+  set(Boost_USE_STATIC_LIBS TRUE)
+endif()
