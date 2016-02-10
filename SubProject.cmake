@@ -229,10 +229,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
         "else()\n"
         "  file(APPEND .gitsubprojects \"git_subproject(${__subproject})\n\")\n"
         "endif()\n")
-      set(__subproject_paths "${__subproject_paths} ${__subproject_dir}")
+        list(APPEND __subproject_paths ${__subproject_dir})
     endforeach()
 
-    separate_arguments(__subproject_paths)
     list(REMOVE_DUPLICATES __subproject_paths)
     set_property(GLOBAL PROPERTY SUBPROJECT_PATHS ${__subproject_paths})
 
