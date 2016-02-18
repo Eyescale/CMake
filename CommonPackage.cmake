@@ -143,6 +143,7 @@ macro(common_package Package_Name)
     # setup link_ and include_directories
     set(__library_dirs ${${Package_Name}_LIBRARY_DIRS}
       ${${PACKAGE_NAME}_LIBRARY_DIRS})
+    set(__include_dirs)
     link_directories(${__library_dirs})
     if(NOT "${${Package_Name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
       list(APPEND __include_dirs ${${Package_Name}_INCLUDE_DIRS})
