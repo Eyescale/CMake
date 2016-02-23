@@ -9,6 +9,7 @@
 #   LINUX - if machine is Linux
 #   LINUX_PPC - if machine is PowerPC Linux
 #   DOC_DIR - folder for documentation, share/${PROJECT_NAME}/doc
+#   COMMON_OSX_TARGET_VERSION - OS X target version
 #
 
 if(CMAKE_INSTALL_PREFIX STREQUAL PROJECT_BINARY_DIR)
@@ -86,6 +87,12 @@ if(APPLE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
   if(NOT CMAKE_INSTALL_NAME_DIR)
     set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+  endif()
+  if(CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(COMMON_OSX_TARGET_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
+  else()
+    execute_process(COMMAND sw_vers -productVersion
+      OUTPUT_VARIABLE COMMON_OSX_TARGET_VERSION)
   endif()
 endif()
 if(MSVC)
