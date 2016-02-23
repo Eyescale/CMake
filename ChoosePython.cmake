@@ -53,7 +53,13 @@ if(${USE_PYTHON_VERSION} STREQUAL auto)
   # Finding Boost first if needed because if the Python3 interpreter is found
   # first there's no way back.
   if(NOT CHOOSE_PYTHON_IGNORE_BOOST)
-    find_package(Boost COMPONENTS python3 QUIET)
+    foreach(__suffix 3 -py34 -py33 -py32)
+      find_package(Boost COMPONENTS python${__suffix} QUIET)
+      if(Boost_FOUND)
+        string(TOUPPER  ${__suffix} __boost_python_library_suffix)
+        break()
+      endif()
+    endforeach()
   endif()
   if(Boost_FOUND OR CHOOSE_PYTHON_IGNORE_BOOST)
     find_package(PythonInterp 3 QUIET)
@@ -75,7 +81,7 @@ if(${USE_PYTHON_VERSION} STREQUAL 3)
   set(PythonLibs_FIND_VERSION 3)
   set(PythonInterp_FIND_VERSION 3)
   add_definitions(-DUSE_PYTHON3=1)
-  set(USE_BOOST_PYTHON_VERSION 3)
+  set(USE_BOOST_PYTHON_VERSION ${__boost_python_library_suffix})
   # This shouldn't be necessary but helps detecting the Python libs
   # provided by the module python/3.2-rhel6-x86_64
   if(DEFINED ENV{PYTHON_LIBRARY})
