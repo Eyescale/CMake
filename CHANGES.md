@@ -1,5 +1,6 @@
 # git master
 
+* Add COMMON_OSX_TARGET_VERSION - OS X target version
 * Add OPTIONAL argument to git_external. This gives users the possibility of
   cloning a repository without aborting the configuration if the operation fails
 * Coverage.cmake fixes:

@@ -215,6 +215,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       string(REPLACE " " ";" __subproject_list ${__subproject})
       list(GET __subproject_list 0 __subproject_name)
       list(GET __subproject_list 1 __subproject_repo)
+      list(APPEND SUBPROJECTS ${__subproject_name})
       set(__subproject_dir "${__common_source_dir}/${__subproject_name}")
       file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
         "execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q\n"
