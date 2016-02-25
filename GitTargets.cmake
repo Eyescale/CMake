@@ -1,17 +1,9 @@
-# Copyright (c) 2012-2014 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2012-2016 Stefan.Eilemann@epfl.ch
 # See doc/GitTargets.md for documentation
 
-# Options:
-#  GITTARGETS_RELEASE_BRANCH current | even_minor | minor
-#      create tags on the current, the next even minor version (e.g. 1.6) or for
-#      each minor version
-#
 # Targets:
 # * ${PROJECT_NAME}-branch: Create a new branch for developing the current
-#   version and push it to origin. The branch name is MAJOR.MINOR, where the
-#   minor version is rounded up to the next even version. Odd minor numbers
-#   are considered development versions, and might still be used when
-#   releasing a pre-release version (e.g., 1.3.9 used for 1.4-beta).
+#   version and push it to origin. The branch name is MAJOR.MINOR.
 # * ${PROJECT_NAME}-cut: Delete the current version branch locally and remote.
 # * ${PROJECT_NAME}-tag: Create the version branch if needed, and create a tag
 #   release-VERSION on the version branch HEAD. Pushes the tag to the
@@ -37,21 +29,10 @@ if(NOT GIT_EXECUTABLE)
   return()
 endif()
 
-if(NOT GITTARGETS_RELEASE_BRANCH)
-  set(GITTARGETS_RELEASE_BRANCH "minor")
-endif()
-
 find_program(GZIP_EXECUTABLE gzip)
 
 # branch
-math(EXPR _gittargets_ODD_MINOR "${VERSION_MINOR} % 2")
-if(_gittargets_ODD_MINOR AND ${GITTARGETS_RELEASE_BRANCH} STREQUAL even_minor)
-  math(EXPR BRANCH_VERSION "${VERSION_MINOR} + 1")
-  set(BRANCH_VERSION ${VERSION_MAJOR}.${BRANCH_VERSION})
-else()
-  set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
-endif()
-
+set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 add_custom_target(${PROJECT_NAME}-make-branch
   COMMAND "${GIT_EXECUTABLE}" checkout ${BRANCH_VERSION} || "${GIT_EXECUTABLE}" checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
@@ -82,18 +63,14 @@ add_custom_target(${PROJECT_NAME}-cut
 # tag on branch
 file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
   "# Branch:
-   if(\"${GITTARGETS_RELEASE_BRANCH}\" STREQUAL current)
-     set(TAG_BRANCH)
-   else()
-     execute_process(COMMAND \"${GIT_EXECUTABLE}\" branch ${BRANCH_VERSION}
-       RESULT_VARIABLE hadbranch ERROR_VARIABLE error
-       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-     if(NOT hadbranch)
-       execute_process(COMMAND \"${GIT_EXECUTABLE}\" push origin ${BRANCH_VERSION}
-        WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\")
-     endif()
-     set(TAG_BRANCH ${BRANCH_VERSION})
+   execute_process(COMMAND \"${GIT_EXECUTABLE}\" branch ${BRANCH_VERSION}
+     RESULT_VARIABLE hadbranch ERROR_VARIABLE error
+     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+   if(NOT hadbranch)
+     execute_process(COMMAND \"${GIT_EXECUTABLE}\" push origin ${BRANCH_VERSION}
+      WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\")
    endif()
+   set(TAG_BRANCH ${BRANCH_VERSION})
 
    # Create or move tag
    execute_process(
