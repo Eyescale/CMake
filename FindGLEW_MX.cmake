@@ -8,11 +8,11 @@ else()
 endif()
 
 find_path(_glew_mx_INCLUDE_DIR GL/glew.h
-  /usr/include /usr/local/include /opt/local/include)
+  HINTS ${GLEW_ROOT}/include $ENV{GLEW_ROOT}/include /usr/include /usr/local/include /opt/local/include)
 
 find_library(_glew_mx_LIBRARY
   NAMES GLEWmx glew32mx GLEW glew glew32
-  PATHS /usr/lib /usr/local/lib)
+  HINTS ${GLEW_ROOT}/lib64 $ENV{GLEW_ROOT}/lib64 /usr/lib /usr/local/lib)
 
 if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
   set(TEST_SRC ${PROJECT_BINARY_DIR}/glew_test.cpp)
