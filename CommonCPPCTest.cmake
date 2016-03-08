@@ -170,5 +170,6 @@ add_dependencies(tests ${PROJECT_NAME}-tests)
 add_dependencies(${PROJECT_NAME}-nightlytests ${PROJECT_NAME}-perftests)
 
 if(ENABLE_COVERAGE)
+  list(APPEND LCOV_EXCLUDE ${TEST_FILES})
   add_coverage_targets(${PROJECT_NAME}-cpptests)
 endif()

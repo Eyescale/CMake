@@ -86,6 +86,10 @@ foreach(Entry ${Entries})
             list(APPEND VersionList ${CMAKE_MATCH_2})
         endif()
       endforeach()
+      if(NOT VersionList)
+        message(FATAL_ERROR
+          "${Project} doc in ${PROJECT_NAME} has no versions in ${SubEntries}")
+      endif()
       _version_sort("${VersionList}" SortedVersionList )
       list(REVERSE SortedVersionList) #versions are descending order
       set(SubEntries)
