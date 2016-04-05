@@ -78,4 +78,4 @@ Additional features:
 * Users can use "cmake -DINSTALL_PACKAGES=1" during the initial configuration to
   install known system packages (Ubuntu and OS X only).
 
-[Detailed Change Log](Changes.md)
+[Detailed Change Log](CHANGES.md)
