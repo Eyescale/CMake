@@ -1,5 +1,7 @@
 # git master
 
+# 2016.04
+
 * Add COMMON_OSX_TARGET_VERSION - OS X target version
 * Add OPTIONAL argument to git_external. This gives users the possibility of
   cloning a repository without aborting the configuration if the operation fails
@@ -11,6 +13,16 @@
 * Added new test targets called nightlytests and Project-nightlytests. This
   targets depend on perf tests, and cpp test files with the prefix "nightly".
 * Add c++11 noexcept test (CXX_NOEXCEPT_SUPPORTED define)
+* Add Findhttpxx.cmake
+* Add Sanitizer.cmake for gcc and clang runtime sanitizer support
+* Add CoverageGcovr.cmake for gcovr support
+* FindGLEW_MX considers GLEW_ROOT as environment and CMake variable
+* Ignore moc and qrc files in coverage report
+* Make CPACK_RESOURCE_FILE_LICENSE configurable
+* New CompilerIdentification.cmake, resulted from splitting Compiler.cmake
+* Remove Findzeromqcpp.cmake, use Findlibzmq.cmake instead
+* Remove obsolete GIT_TARGETS_RELEASE_BRANCH
+* Remove -DBOOST_TEST_DYN_LINK from all translation units
 
 # 2015.11
 
