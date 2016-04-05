@@ -1,5 +1,35 @@
 # git master
 
+* [478](https://github.com/Eyescale/CMake/pull/478):
+  CMake3 port and various cleanups
+    * CMake 3.1 is now required
+    * Renames of files
+        * CommonPackage.cmake -> CommonFindPackage.cmake
+        * Compiler.cmake -> CommonCompiler.cmake
+        * Coverage.cmake -> CommonCoverage.cmake
+    * Renames of variables and options
+        * CMAKE_COMPILER_IS_GNUCXX -> CMAKE_COMPILER_IS_GCC
+        * COMMON_PACKAGE_DEFINES -> COMMON_FIND_PACKAGE_DEFINES
+        * COMMON_PACKAGE_USE_QUIET -> COMMON_FIND_PACKAGE_QUIET
+        * DOC_DIR -> COMMON_DOC_DIR
+        * ENABLE_CLANGCHECK_TESTS -> COMMON_ENABLE_CLANGCHECK_TESTS
+        * ENABLE_COVERAGE -> COMMON_ENABLE_COVERAGE
+        * ENABLE_CXX11_STDLIB -> COMMON_ENABLE_CXX11_STDLIB
+        * ENABLE_WARN_DEPRECATED -> COMMON_WARN_DEPRECATED
+        * GIT_EXTERNAL_VERBOSE -> COMMON_GIT_EXTERNAL_VERBOSE
+        * VERSION_ABI -> ${PROJECT_NAME}_VERSION_ABI
+        * VERSION -> ${PROJECT_NAME}_VERSION
+    * Renames of functions
+        * common_compiler_flags() -> common_compiler_options(${target})
+        * common_package() -> common_find_package()
+        * common_package_post() -> common_find_package_post()
+    * VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH are now part of project()
+    * OUTPUT_INCLUDE_DIR removed; use ${PROJECT_BINARY_DIR}/include instead
+    * Per-target include directories and definitions instead of global pollution
+    * Qt support is now implicit thanks to AUTOMOC, AUTORCC and AUTOUIC feature:
+      NAME_MOC_HEADERS, NAME_UI_FORMS and NAME_RESOURCES are not supported
+      anymore; use NAME_PUBLIC_HEADERS, NAME_HEADERS and NAME_SOURCES
+      accordingly
 * [477](https://github.com/Eyescale/CMake/pull/477):
   Rename functions to common_cppcheck, common_clangcheck and
   common_cpplint to solve a name clash with ITK

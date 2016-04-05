@@ -38,10 +38,6 @@ if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath support
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/cpp ${PROJECT_SOURCE_DIR})
-
-common_compiler_flags()
-
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.c *.cpp)
 foreach(FILE ${EXCLUDE_FROM_TESTS})
   list(REMOVE_ITEM TEST_FILES ${FILE})
@@ -68,6 +64,7 @@ macro(common_add_cpp_test NAME FILE)
   endif()
 
   add_executable(${TEST_NAME} ${FILE})
+  common_compile_options(${TEST_NAME})
   common_check_targets(${TEST_NAME})
   set_target_properties(${TEST_NAME} PROPERTIES FOLDER ${PROJECT_NAME}/tests
     OUTPUT_NAME ${NAME})
@@ -75,8 +72,8 @@ macro(common_add_cpp_test NAME FILE)
   # for DoxygenRule.cmake and SubProject.cmake
   set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${TEST_NAME})
 
-  # Per target INCLUDE_DIRECTORIES if supported
-  if(CMAKE_VERSION VERSION_GREATER 2.8.7 AND ${NAME}_INCLUDE_DIRECTORIES)
+  # Per target INCLUDE_DIRECTORIES
+  if(${NAME}_INCLUDE_DIRECTORIES)
     set_target_properties(${TEST_NAME} PROPERTIES
       INCLUDE_DIRECTORIES "${${NAME}_INCLUDE_DIRECTORIES}")
   endif()
@@ -169,7 +166,7 @@ add_dependencies(${PROJECT_NAME}-tests ${PROJECT_NAME}-cpptests)
 add_dependencies(tests ${PROJECT_NAME}-tests)
 add_dependencies(${PROJECT_NAME}-nightlytests ${PROJECT_NAME}-perftests)
 
-if(ENABLE_COVERAGE)
+if(COMMON_ENABLE_COVERAGE)
   foreach(TEST_FILE ${TEST_FILES})
     list(APPEND LCOV_EXCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_FILE}")
   endforeach()

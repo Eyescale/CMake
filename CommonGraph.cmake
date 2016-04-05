@@ -1,5 +1,5 @@
 # Provides functions to generate dependency graph images using graphviz.
-# Used by common_package.
+# Used by common_find_package.
 # common_graph_dep(): Write a dependency from->to into global properties
 # common_graph(): Write .dot from the global properties and add Name-graph rule
 
@@ -68,7 +68,7 @@ function(common_graph Name)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot
       COMMAND ${TRED_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/${Name}.dot >
                ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot
-      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${Name}.dot)
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${Name}.dot)
     add_custom_command(OUTPUT ${dest}/${Name}.png
       COMMAND ${CMAKE_COMMAND} -E make_directory ${dest}
       COMMAND ${DOT_EXECUTABLE} -o ${dest}/${Name}.png -Tpng ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot

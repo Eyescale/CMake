@@ -3,8 +3,8 @@
 # - provides a function to add 'coverage' targets
 #
 # CMake options:
-#   ENABLE_COVERAGE Must be explicitly enabled by the user since adding code
-#   coverage compiler flags may break downstream projects.
+#   COMMON_ENABLE_COVERAGE Must be explicitly enabled by the user since adding
+#   code coverage compiler flags may break downstream projects.
 #
 # Input variables:
 # * LCOV_EXCLUDE Extra files to exclude from the coverage report
@@ -20,9 +20,9 @@
 # * ${PROJECT_NAME}-coverage generate a coverage report for a specific project
 # * coverage run all ${PROJECT_NAME}-coverage
 
-option(ENABLE_COVERAGE "Enable code coverage testing" OFF)
+option(COMMON_ENABLE_COVERAGE "Enable code coverage testing" OFF)
 
-if(ENABLE_COVERAGE)
+if(COMMON_ENABLE_COVERAGE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     find_program(GENHTML genhtml)
     find_program(LCOV lcov)

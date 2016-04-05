@@ -6,8 +6,6 @@
 # present in the same CMake source directory. The .gitsubprojects file
 # contains lines in the form:
 #   "git_subproject(<project> <giturl> <gittag>)"
-# Will also parse Buildyard config files in the current directory and
-# activate all configurations which have <NAME>_SUBPROJECT set.
 #
 # All the subprojects will be cloned and configured during the CMake configure
 # step thanks to the 'git_subproject(project giturl gittag)' macro
@@ -69,20 +67,16 @@ set(__common_source_dir ${COMMON_SOURCE_DIR})
 get_filename_component(__common_source_dir ${__common_source_dir} ABSOLUTE)
 file(MAKE_DIRECTORY ${__common_source_dir})
 
-function(subproject_install_packages file name)
+function(subproject_install_packages name)
   if(NOT INSTALL_PACKAGES)
     return()
   endif()
 
-  if(EXISTS ${file})
-    include(${file})
-  endif()
-
   string(TOUPPER ${name} NAME)
-  list(APPEND ${NAME}_DEB_DEPENDS pkg-config git subversion cmake autoconf
-    automake git-review doxygen ${OPTIONAL_DEBS})
+  list(APPEND ${NAME}_DEB_DEPENDS pkg-config git cmake git-review doxygen
+    ${OPTIONAL_DEBS})
   set(${NAME}_BUILD_DEBS ${NAME}_DEB_DEPENDS)
-  list(APPEND ${NAME}_DEB_DEPENDS ninja-build lcov cppcheck git-svn clang
+  list(APPEND ${NAME}_DEB_DEPENDS ninja-build lcov cppcheck clang
     clang-format-3.5) # optional deb packages, not added to build spec
   list(APPEND ${NAME}_PORT_DEPENDS cppcheck)
 
@@ -148,8 +142,7 @@ function(add_subproject name)
       "Location of ${name} project" FORCE)
   endif()
 
-  subproject_install_packages(
-    "${__common_source_dir}/${path}/CMake/${name}.cmake" ${name})
+  subproject_install_packages(${name})
 
   # add the source sub directory to our build and set the binary dir
   # to the build tree
@@ -171,7 +164,7 @@ endfunction()
 macro(git_subproject name url tag)
   # enter early to catch all dependencies
   common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
-  if(NOT BUILDYARD AND NOT DISABLE_SUBPROJECTS)
+  if(NOT DISABLE_SUBPROJECTS)
     string(TOUPPER ${name} NAME)
     if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
       get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
@@ -200,8 +193,7 @@ endmacro()
 
 # Interpret .gitsubprojects
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
-  subproject_install_packages(
-    "${CMAKE_SOURCE_DIR}/CMake/${PROJECT_NAME}.cmake" ${PROJECT_NAME})
+  subproject_install_packages(${PROJECT_NAME})
 
   set(__subprojects) # appended on each git_subproject invocation
   include(.gitsubprojects)
@@ -250,50 +242,3 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
     add_dependencies(update ${PROJECT_NAME}-update-git-subprojects)
   endif()
 endif()
-
-function(subproject_configure)
-  # interpret Buildyard project.cmake and depends.txt configurations
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/depends.txt")
-    file(READ depends.txt SUBPROJECT_DEPENDS)
-    string(REGEX REPLACE "#[^\n]*" "" SUBPROJECT_DEPENDS
-      "${SUBPROJECT_DEPENDS}")
-    string(REGEX REPLACE "^\n" "" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
-    string(REGEX REPLACE "[ \n]" ";" SUBPROJECT_DEPENDS "${SUBPROJECT_DEPENDS}")
-
-    list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
-    while(SUBPROJECT_DEPENDS_LEFT GREATER 2)
-      list(GET SUBPROJECT_DEPENDS 0 SUBPROJECT_DEPENDS_DIR)
-      list(GET SUBPROJECT_DEPENDS 1 SUBPROJECT_DEPENDS_REPO)
-      list(GET SUBPROJECT_DEPENDS 2 SUBPROJECT_DEPENDS_TAG)
-      list(REMOVE_AT SUBPROJECT_DEPENDS 0 1 2)
-      list(LENGTH SUBPROJECT_DEPENDS SUBPROJECT_DEPENDS_LEFT)
-
-      git_subproject(${SUBPROJECT_DEPENDS_DIR} ${SUBPROJECT_DEPENDS_REPO}
-        ${SUBPROJECT_DEPENDS_TAG})
-    endwhile()
-  endif()
-
-  file(GLOB _files *.cmake)
-  list(SORT _files)
-  foreach(_file ${_files})
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" _config ${_file})
-    list(APPEND _localFiles ${_config})
-
-    string(REPLACE ".cmake" "" Name ${_config})
-    get_filename_component(NAME ${Name} NAME)
-    string(TOUPPER ${NAME} NAME)
-    set(${NAME}_DIR ${BASEDIR})
-    include(${_file})
-
-    if(${NAME}_SUBPROJECT)
-      if(NOT ${NAME}_REPO_TAG)
-        set(${NAME}_REPO_TAG master)
-      endif()
-      git_subproject(${Name} ${${NAME}_REPO_URL} ${${NAME}_REPO_TAG})
-    endif()
-  endforeach()
-
-  if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-    unset(INSTALL_PACKAGES CACHE) # Remove after install in SubProject.cmake
-  endif()
-endfunction()

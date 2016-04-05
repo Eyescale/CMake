@@ -139,7 +139,7 @@ add_dependencies(doxygen ${PROJECT_NAME}-doxygen)
 
 make_directory(${PROJECT_BINARY_DIR}/doc/html)
 install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/html
-  DESTINATION ${DOC_DIR}/API
+  DESTINATION ${COMMON_DOC_DIR}/API
   COMPONENT doc CONFIGURATIONS Release)
 
 set(README)
