@@ -17,6 +17,7 @@
 * Add Sanitizer.cmake for gcc and clang runtime sanitizer support
 * Add CoverageGcovr.cmake for gcovr support
 * FindGLEW_MX considers GLEW_ROOT as environment and CMake variable
+* Fix install in common_library() with subfolders
 * Ignore moc and qrc files in coverage report
 * Make CPACK_RESOURCE_FILE_LICENSE configurable
 * New CompilerIdentification.cmake, resulted from splitting Compiler.cmake

@@ -203,8 +203,8 @@ function(_common_library Name)
   endif()
 
   # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
-  install_files(include/${INCLUDE_NAME}
-    FILES ${PUBLIC_HEADERS} COMPONENT dev)
+  install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
+    COMPONENT dev BASE ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME})
 endfunction()
 
 macro(generate_library_header NAME)
