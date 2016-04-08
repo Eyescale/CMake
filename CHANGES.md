@@ -1,5 +1,8 @@
 # git master
 
+* Remove common_gui_application, add GUI and EXAMPLE arguments to
+  common_application
+
 # 2016.04
 
 * Add COMMON_OSX_TARGET_VERSION - OS X target version
