@@ -20,6 +20,7 @@
 # * NAME_NAMESPACE for api.h and version.h
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * NAME_OMIT_EXPORT do not export target in CommonPackageConfig.cmake
+# * NAME_OMIT_INSTALL do not install, for example a library for unit tests
 # * VERSION for the API version
 # * VERSION_ABI for the ABI version
 # * Optional Qt support:
@@ -177,34 +178,38 @@ function(_common_library Name)
       add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
     endif()
 
-    # add target to export set if not excluded, written by
-    # CommonPackageConfig.cmake
-    if(${NAME}_OMIT_EXPORT)
-      install(TARGETS ${LibName}
-        ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
-        INCLUDES DESTINATION include)
-    else()
-      install(TARGETS ${LibName}
-        EXPORT ${PROJECT_NAME}Targets
-        ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
-        INCLUDES DESTINATION include)
+    if(NOT ${NAME}_OMIT_INSTALL)
+      # add target to export set if not excluded, written by
+      # CommonPackageConfig.cmake
+      if(${NAME}_OMIT_EXPORT)
+        install(TARGETS ${LibName}
+          ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
+          RUNTIME DESTINATION bin COMPONENT lib
+          LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
+          INCLUDES DESTINATION include)
+      else()
+        install(TARGETS ${LibName}
+          EXPORT ${PROJECT_NAME}Targets
+          ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
+          RUNTIME DESTINATION bin COMPONENT lib
+          LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
+          INCLUDES DESTINATION include)
+      endif()
     endif()
   endforeach()
 
-  if(MSVC AND "${${NAME}_LIBRARY_TYPE}" MATCHES "SHARED")
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${Name}${CMAKE_DEBUG_POSTFIX}.pdb
-      DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/${Name}.pdb
-      DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
-  endif()
+  if(NOT ${NAME}_OMIT_INSTALL)
+    if(MSVC AND "${${NAME}_LIBRARY_TYPE}" MATCHES "SHARED")
+      install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${Name}${CMAKE_DEBUG_POSTFIX}.pdb
+        DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+      install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/${Name}.pdb
+        DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+    endif()
 
-  # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
-  install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
-    COMPONENT dev BASE ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME})
+    # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
+    install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
+      COMPONENT dev BASE ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME})
+  endif()
 endfunction()
 
 macro(generate_library_header NAME)
