@@ -39,10 +39,10 @@ macro(COMMON_APPLICATION Name)
 endmacro()
 
 function(_common_application Name)
-  set(OPT_NAMES GUI EXAMPLE)
-  set(ARG_NAMES)
-  set(ARGS_NAMES)
-  cmake_parse_arguments(THIS "${OPT_NAMES}" "${ARG_NAMES}" "${ARGS_NAMES}"
+  set(_opts GUI EXAMPLE)
+  set(_singleArgs)
+  set(_multiArgs)
+  cmake_parse_arguments(THIS "${_opts}" "${_singleArgs}" "${_multiArgs}"
     ${ARGN})
 
   string(TOUPPER ${Name} NAME)
