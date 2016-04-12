@@ -16,9 +16,9 @@
 # sub directories. See also: cmake command 'add_subdirectory'.
 #
 # The following targets are created by SubProject.cmake:
-# - An 'update_git_subprojects_${PROJECT_NAME}' target to update the <gittag> of
+# - An '${PROJECT_NAME}-update-git-subprojects' target to update the <gittag> of
 #   all the .gitsubprojects entries to their latest respective origin/master ref
-# - A generic 'update' target to execute 'update_git_subrojects' recursively
+# - A generic 'update' target to execute 'update-git-subrojects' recursively
 # - A <project>-all target to build only the given sub project
 #
 # To be compatible with the SubProject feature, (sub)projects might need to
@@ -236,18 +236,18 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
     list(REMOVE_DUPLICATES __subproject_paths)
     set_property(GLOBAL PROPERTY SUBPROJECT_PATHS ${__subproject_paths})
 
-    add_custom_target(update_git_subprojects_${PROJECT_NAME}
+    add_custom_target(${PROJECT_NAME}-update-git-subprojects
       COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
       COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    set_target_properties(update_git_subprojects_${PROJECT_NAME} PROPERTIES
+    set_target_properties(${PROJECT_NAME}-update-git-subprojects PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
 
     if(NOT TARGET update)
       add_custom_target(update)
       set_target_properties(update PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
     endif()
-    add_dependencies(update update_git_subprojects_${PROJECT_NAME})
+    add_dependencies(update ${PROJECT_NAME}-update-git-subprojects)
   endif()
 endif()
 
