@@ -8,7 +8,7 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#      git_external(<directory> <giturl> <gittag> [VERBOSE]
+#      git_external(<directory> <giturl> <gittag> [VERBOSE,SHALLOW]
 #        [RESET <files>])
 #    which will check out directory in CMAKE_SOURCE_DIR (if relative)
 #    or in the given absolute path using the given repository and tag
@@ -18,6 +18,11 @@
 #  VERBOSE, when present, this option tells the function to output
 #    information about what operations are being performed by git on
 #    the repo.
+#  SHALLOW, when present, causes a shallow clone of depth 1 to be made
+#    of the specified repo. This may save considerable memory/bandwidth
+#    when only a specific branch of a repo is required and the full history
+#    is not required. Note that the SHALLOW option will only work for a branch
+#    or tag and cannot be used for an arbitrary SHA.
 #  OPTIONAL, when present, this option makes this operation optional.
 #    The function will output a warning and return if the repo could not be
 #    cloned.
@@ -72,7 +77,7 @@ function(JOIN VALUES GLUE OUTPUT)
 endfunction()
 
 function(GIT_EXTERNAL DIR REPO tag)
-  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;OPTIONAL" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW;OPTIONAL" "" "RESET" ${ARGN})
   set(TAG ${tag})
   if(GIT_EXTERNAL_TAG AND "${tag}" MATCHES "^[0-9a-f]+$")
     set(TAG ${GIT_EXTERNAL_TAG})
@@ -100,8 +105,14 @@ function(GIT_EXTERNAL DIR REPO tag)
 
   if(NOT EXISTS "${DIR}")
     # clone
-    set(_clone_options --recursive --depth 1 --branch ${TAG})
-    message(STATUS "git clone ${REPO} ${DIR} [${TAG}]")
+    set(_clone_options --recursive)
+    if(GIT_EXTERNAL_LOCAL_SHALLOW)
+      list(APPEND _clone_options --depth 1 --branch ${TAG})
+    else()
+      set(_msg_tag "[${TAG}]")
+    endif()
+    JOIN("${_clone_options}" " " _msg_text)
+    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR} ${_msg_tag}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
       RESULT_VARIABLE nok ERROR_VARIABLE error
@@ -113,6 +124,26 @@ function(GIT_EXTERNAL DIR REPO tag)
       else()
         message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
       endif()
+    endif()
+
+    # checkout requested tag
+    if(NOT GIT_EXTERNAL_LOCAL_SHALLOW)
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+        RESULT_VARIABLE nok ERROR_VARIABLE error
+        WORKING_DIRECTORY "${DIR}")
+      if(nok)
+        message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed: ${error}\n")
+      endif()
+    endif()
+
+    # checkout requested tag
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${DIR}")
+    if(nok)
+      message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed: ${error}\n")
     endif()
   endif()
 
