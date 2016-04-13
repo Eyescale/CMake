@@ -1,10 +1,10 @@
 # - Run cpplint on c++ source files as a custom target and a test
 #
 #  include(CpplintTargets)
-#  add_cpplint(<target-name> [FILES files] [CATEGORY_FILTER_OUT category ...]
-#              [EXTENSIONS extension ...] [VERBOSE level]
-#              [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits]
-#              [EXCLUDE_PATTERN pattern ...])
+#  common_cpplint(<target-name> [FILES files] [CATEGORY_FILTER_OUT category ...]
+#                 [EXTENSIONS extension ...] [VERBOSE level]
+#                 [COUNTING level_of_detail] [ROOT subdir] [LINELENGTH digits]
+#                 [EXCLUDE_PATTERN pattern ...])
 #  Create a target to check a target's sources with cpplint and the indicated
 #  options
 #
@@ -34,17 +34,18 @@ if(NOT TARGET cpplint)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cpplint _name)
+function(common_cpplint _name)
   if(NOT CPPLINT_FOUND)
     return()
   endif()
 
   set(oneValueArgs VERBOSE COUNTING ROOT LINELENGTH EXCLUDE_PATTERN)
   set(multiValueArgs FILES CATEGORY_FILTER_OUT EXTENSIONS)
-  cmake_parse_arguments(add_cpplint "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(common_cpplint "${options}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN})
   if(NOT TARGET ${_name})
     message(FATAL_ERROR
-      "add_cpplint is given a target name that does not exist: '${_name}' !")
+      "common_cpplint is given a target name that does not exist: '${_name}' !")
   endif()
 
   set(_cpplint_args)
@@ -52,47 +53,47 @@ function(add_cpplint _name)
   # handles category filters
   set(_category_filter)
   set(_category_filter_in "+build,+legal,+readability,+runtime,+whitespace")
-  if (add_cpplint_CATEGORY_FILTER_OUT)
-    string(REPLACE ";" ",-" add_cpplint_CATEGORY_FILTER_OUT "${add_cpplint_CATEGORY_FILTER_OUT}")
-    set(_category_filter "--filter=${_category_filter_in},-${add_cpplint_CATEGORY_FILTER_OUT}")
+  if (common_cpplint_CATEGORY_FILTER_OUT)
+    string(REPLACE ";" ",-" common_cpplint_CATEGORY_FILTER_OUT "${common_cpplint_CATEGORY_FILTER_OUT}")
+    set(_category_filter "--filter=${_category_filter_in},-${common_cpplint_CATEGORY_FILTER_OUT}")
   endif()
   list(APPEND _cpplint_args ${_category_filter})
 
   # handles allowed extensions
-  if (add_cpplint_EXTENSIONS)
-    string(REPLACE ";" "," add_cpplint_EXTENSIONS "${add_cpplint_EXTENSIONS}")
-    set(add_cpplint_EXTENSIONS "--extensions=${add_cpplint_EXTENSIONS}")
-    list(APPEND _cpplint_args ${add_cpplint_EXTENSIONS})
+  if (common_cpplint_EXTENSIONS)
+    string(REPLACE ";" "," common_cpplint_EXTENSIONS "${common_cpplint_EXTENSIONS}")
+    set(common_cpplint_EXTENSIONS "--extensions=${common_cpplint_EXTENSIONS}")
+    list(APPEND _cpplint_args ${common_cpplint_EXTENSIONS})
   endif()
 
   # handles verbosity level ([0-5])
-  if (add_cpplint_VERBOSE)
-    list(APPEND _cpplint_args "--verbose=${add_cpplint_VERBOSE}")
+  if (common_cpplint_VERBOSE)
+    list(APPEND _cpplint_args "--verbose=${common_cpplint_VERBOSE}")
   endif()
 
   # handles counting level of detail (total|toplevel|detailed)
-  if (add_cpplint_COUNTING)
-    list(APPEND _cpplint_args "--counting=${add_cpplint_COUNTING}")
+  if (common_cpplint_COUNTING)
+    list(APPEND _cpplint_args "--counting=${common_cpplint_COUNTING}")
   endif()
 
   # handles root directory used for deriving header guard CPP variable
-  if(add_cpplint_ROOT)
-    list(APPEND _cpplint_args "--root=${add_cpplint_ROOT}")
+  if(common_cpplint_ROOT)
+    list(APPEND _cpplint_args "--root=${common_cpplint_ROOT}")
   endif()
 
   # handles line length
-  if (add_cpplint_LINELENGTH)
-    list(APPEND _cpplint_args "--linelength=${add_cpplint_LINELENGTH}")
+  if (common_cpplint_LINELENGTH)
+    list(APPEND _cpplint_args "--linelength=${common_cpplint_LINELENGTH}")
   endif()
 
-  set(_files ${add_cpplint_FILES})
+  set(_files ${common_cpplint_FILES})
   if(NOT _files)
     # handles exclude pattern
-    if(NOT add_cpplint_EXCLUDE_PATTERN)
-      set(add_cpplint_EXCLUDE_PATTERN "^$") # Empty string regex
+    if(NOT common_cpplint_EXCLUDE_PATTERN)
+      set(common_cpplint_EXCLUDE_PATTERN "^$") # Empty string regex
     endif()
 
-    get_source_files(${_name} ${add_cpplint_EXCLUDE_PATTERN})
+    get_source_files(${_name} ${common_cpplint_EXCLUDE_PATTERN})
     if(NOT ${_name}_FILES) # nothing to check
       return()
     endif()

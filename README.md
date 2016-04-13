@@ -46,9 +46,9 @@ The following CMake modules can be included in your project:
     * [Coverage](Coverage.cmake) *coverage* target to generate a code coverage
       report as html, if ENABLE_COVERAGE option is also set. Additional compiler
       flags are set in that case, so it should be enabled only for debug builds.
-    * [CppcheckTargets](CppcheckTargets.cmake): *cppcheck* target for
+    * [CommonCPPCheck](CommonCPPCheck.cmake): *cppcheck* target for
       static code analysis. Also adds all cppcheck targets to *tests* target.
-    * [clangcheckTargets](clangcheckTargets.cmake): *clangcheck* target for
+    * [CommandClangCheck](CommandClangCheck.cmake): *clangcheck* target for
       clang-check code analysis. Adds all clangcheck targets to *tests* if
       ENABLE_CLANGCHECK_TESTS is set.
 * [CommonPackageConfig](CommonPackageConfig.cmake) generates cmake package

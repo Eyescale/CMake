@@ -1,5 +1,8 @@
 # git master
 
+* [477](https://github.com/Eyescale/CMake/pull/477):
+  Rename functions to common_cppcheck, common_clangcheck and
+  common_cpplint to solve a name clash with ITK
 * Remove common_gui_application, add GUI and EXAMPLE arguments to
   common_application
 

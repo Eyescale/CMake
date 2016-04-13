@@ -1,7 +1,7 @@
 # - Run clang-check on c++ source files as a custom target and a test
 #
 #  include(clangcheckTargets)
-#  add_clangcheck(<target-name> [FILES] [EXCLUDE_PATTERN]) -
+#  common_clangcheck(<target-name> [FILES] [EXCLUDE_PATTERN]) -
 #    Create a target to check a target's sources with clang-check and the
 #    indicated options
 
@@ -28,7 +28,7 @@ if(NOT TARGET clangcheck)
   add_custom_target(clangcheck)
 endif()
 
-function(add_clangcheck _name)
+function(common_clangcheck _name)
   if(NOT CLANGCHECK)
     return()
   endif()
@@ -37,14 +37,14 @@ function(add_clangcheck _name)
     -fatal-assembler-warnings -extra-arg=-Qunused-arguments
     ${CLANGCHECK_EXTRA_ARGS})
 
-  cmake_parse_arguments(add_clangcheck "" "EXCLUDE_PATTERN" "FILES" ${ARGN})
-  if(NOT add_clangcheck_EXCLUDE_PATTERN)
-    set(add_clangcheck_EXCLUDE_PATTERN "^$") # Empty string regex
+  cmake_parse_arguments(common_clangcheck "" "EXCLUDE_PATTERN" "FILES" ${ARGN})
+  if(NOT common_clangcheck_EXCLUDE_PATTERN)
+    set(common_clangcheck_EXCLUDE_PATTERN "^$") # Empty string regex
   endif()
 
-  set(_files ${add_clangcheck_FILES})
+  set(_files ${common_clangcheck_FILES})
   if(NOT _files)
-    get_source_files(${_name} ${add_clangcheck_EXCLUDE_PATTERN})
+    get_source_files(${_name} ${common_clangcheck_EXCLUDE_PATTERN})
     if(NOT ${_name}_FILES) # nothing to check
       return()
     endif()
@@ -60,7 +60,7 @@ function(add_clangcheck _name)
       PROPERTIES FAIL_REGULAR_EXPRESSION " (warning|error): ")
   endif()
 
-  add_custom_target(${_name}_clangcheck
+  add_custom_target(${_name}-clangcheck
     COMMAND ${CLANGCHECK} ${_clangcheck_args} ${_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running clangcheck on target ${_name}..."

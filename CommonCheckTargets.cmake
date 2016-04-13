@@ -4,9 +4,9 @@
 # cppcheck, cpplint) to the given target.
 
 include(GetSourceFilesFromTarget)
-include(clangcheckTargets)
-include(CppcheckTargets)
-include(CpplintTargets)
+include(CommonClangCheck)
+include(CommonCPPCheck)
+include(CommonCPPLint)
 
 function(common_check_targets _name)
   set(_exclude_pattern ".*moc_|.*qrc_.*\\.c.*$") # Qt moc and qrc files
@@ -17,7 +17,8 @@ function(common_check_targets _name)
     return()
   endif()
 
-  add_clangcheck(${_name} FILES ${${_name}_FILES})
-  add_cppcheck(${_name} FILES ${${_name}_FILES} POSSIBLE_ERROR FAIL_ON_WARNINGS)
-  add_cpplint(${_name} FILES ${${_name}_FILES} CATEGORY_FILTER_OUT readability/streams)
+  common_clangcheck(${_name} FILES ${${_name}_FILES})
+  common_cppcheck(${_name} FILES ${${_name}_FILES}
+    POSSIBLE_ERROR FAIL_ON_WARNINGS)
+  common_cpplint(${_name} FILES ${${_name}_FILES} CATEGORY_FILTER_OUT readability/streams)
 endfunction()

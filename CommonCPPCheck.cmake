@@ -1,7 +1,7 @@
 # - Run cppcheck on c++ source files as a custom target and a test
 #
 #  include(CppcheckTargets)
-#  add_cppcheck(<target-name> [FILES] [UNUSED_FUNCTIONS] [STYLE]
+#  common_cppcheck(<target-name> [FILES] [UNUSED_FUNCTIONS] [STYLE]
 #                             [POSSIBLE_ERROR] [FAIL_ON_WARNINGS]
 #                             [EXCLUDE_PATTERN]) -
 #    Create a target to check a target's sources with cppcheck and the
@@ -47,7 +47,7 @@ if(NOT TARGET cppcheck)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-function(add_cppcheck _name)
+function(common_cppcheck _name)
   if(NOT CPPCHECK_FOUND)
     return()
   endif()
@@ -64,31 +64,31 @@ function(add_cppcheck _name)
 
   set(oneValueArgs UNUSED_FUNCTIONS STYLE POSSIBLE_ERROR FAIL_ON_WARNINGS EXCLUDE_PATTERN)
   set(multiValueArgs FILES)
-  cmake_parse_arguments(add_cppcheck "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-  if(NOT add_cppcheck_EXCLUDE_PATTERN)
-    set(add_cppcheck_EXCLUDE_PATTERN "^$") # Empty string regex
+  cmake_parse_arguments(common_cppcheck "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  if(NOT common_cppcheck_EXCLUDE_PATTERN)
+    set(common_cppcheck_EXCLUDE_PATTERN "^$") # Empty string regex
   endif()
 
-  if(add_cppcheck_UNUSED_FUNCTIONS)
+  if(common_cppcheck_UNUSED_FUNCTIONS)
     list(APPEND _cppcheck_args ${CPPCHECK_UNUSEDFUNC_ARG})
   endif()
 
-  if(add_cppcheck_STYLE)
+  if(common_cppcheck_STYLE)
     list(APPEND _cppcheck_args ${CPPCHECK_STYLE_ARG})
   endif()
 
-  if(add_cppcheck_POSSIBLE_ERROR)
+  if(common_cppcheck_POSSIBLE_ERROR)
     list(APPEND _cppcheck_args ${CPPCHECK_POSSIBLEERROR_ARG})
   endif()
 
-  if(add_cppcheck_FAIL_ON_WARNINGS)
+  if(common_cppcheck_FAIL_ON_WARNINGS)
     list(APPEND CPPCHECK_FAIL_REGULAR_EXPRESSION
       ${CPPCHECK_WARN_REGULAR_EXPRESSION})
   endif()
 
-  set(_files ${add_cppcheck_FILES})
+  set(_files ${common_cppcheck_FILES})
   if(NOT _files)
-    get_source_files(${_name} ${add_cppcheck_EXCLUDE_PATTERN})
+    get_source_files(${_name} ${common_cppcheck_EXCLUDE_PATTERN})
     if(NOT ${_name}_FILES) # nothing to check
       return()
     endif()
