@@ -24,6 +24,8 @@ if(NOT CLANGCHECK)
   endif()
 endif()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # write compile_commands.json for clangcheck
+
 if(NOT TARGET clangcheck)
   add_custom_target(clangcheck)
 endif()
@@ -51,12 +53,12 @@ function(common_clangcheck _name)
     set(_files ${${_name}_FILES})
   endif()
 
-  if(ENABLE_CLANGCHECK_TESTS)
-    add_test(NAME ${_name}_clangcheck_test
+  if(COMMON_ENABLE_CLANGCHECK_TESTS)
+    add_test(NAME ${_name}-clangcheck-test
       COMMAND "${CLANGCHECK}" ${_clangcheck_args} ${_files}
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-    set_tests_properties(${_name}_clangcheck_test
+    set_tests_properties(${_name}-clangcheck-test
       PROPERTIES FAIL_REGULAR_EXPRESSION " (warning|error): ")
   endif()
 
@@ -66,6 +68,6 @@ function(common_clangcheck _name)
     COMMENT "Running clangcheck on target ${_name}..."
     VERBATIM)
   add_dependencies(clangcheck ${_name}-clangcheck)
-    set_target_properties(${_name}-clangcheck PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
+  set_target_properties(${_name}-clangcheck PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 endfunction()

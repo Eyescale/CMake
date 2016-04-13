@@ -21,13 +21,8 @@
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * NAME_OMIT_EXPORT do not export target in CommonPackageConfig.cmake
 # * NAME_OMIT_INSTALL do not install, for example a library for unit tests
-# * VERSION for the API version
-# * VERSION_ABI for the ABI version
-# * Optional Qt support:
-# ** NAME_MOC_HEADERS list of internal moc input headers
-# ** NAME_MOC_PUBLIC_HEADERS list of public moc input headers, to be installed
-# ** NAME_UI_FORMS list of all .ui input files
-# ** NAME_RESOURCES list of all .qrc resource files
+# * ${PROJECT_NAME}_VERSION for the API version
+# * ${PROJECT_NAME}_VERSION_ABI for the ABI version
 #
 # If NAME_LIBRARY_TYPE is a list, libraries are built of each specified
 # (i.e. shared and static) type. Whichever is first becomes the library
@@ -43,26 +38,13 @@
 #
 
 include(CommonCheckTargets)
-include(CommonQtSupport)
 include(InstallFiles)
 
 set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
 set_property(CACHE COMMON_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
-
-# applying CMAKE_C(XX)_FLAGS to add_library only works from parent scope, hence
-# the macro calling the function _common_library
-macro(common_library Name)
-  common_compiler_flags()
-  _common_library(${Name} ${ARGN})
-endmacro()
-
-#-------------------------------------------------------------------------------
-# Implementation
-#-------------------------------------------------------------------------------
-
-function(_common_library Name)
+function(common_library Name)
   string(TOUPPER ${Name} NAME)
 
   set(INCLUDE_NAME ${${NAME}_INCLUDE_NAME})
@@ -77,20 +59,21 @@ function(_common_library Name)
   string(TOUPPER ${namespace} NAMESPACE)
 
   set(SOURCES ${${NAME}_SOURCES})
-  set(HEADERS ${${NAME}_HEADERS} ${${NAME}_MOC_HEADERS})
-  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS} ${${NAME}_MOC_PUBLIC_HEADERS})
+  set(HEADERS ${${NAME}_HEADERS})
+  set(PUBLIC_HEADERS ${${NAME}_PUBLIC_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
 
   # Generate api.h and version.h/cpp for non-interface libraries
   if(${NAME}_SOURCES)
+    set(PROJECT_VERSION_ABI ${${PROJECT_NAME}_VERSION_ABI})
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/api.h
-      ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/api.h @ONLY)
+      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h @ONLY)
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.h
-      ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/version.h @ONLY)
+      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h @ONLY)
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
 
-    # Exclude this file for coverage report in Coverage.cmake
+    # Exclude this file for coverage report in CommonCoverage.cmake
     set_property(GLOBAL APPEND PROPERTY
                  COMMON_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
 
@@ -99,8 +82,8 @@ function(_common_library Name)
       -D${NAME}_STATIC= -D${NAMESPACE}_API=)
 
     list(APPEND PUBLIC_HEADERS
-      ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/api.h
-      ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/version.h)
+      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h
+      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h)
     list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
   endif()
 
@@ -108,11 +91,8 @@ function(_common_library Name)
     generate_library_header(${NAME})
   endif()
 
-  # from CommonPackage.cmake
+  # from CommonFindPackage.cmake
   list(APPEND PUBLIC_HEADERS ${COMMON_DEFINES_FILE})
-
-  common_qt_support(${NAME})
-  list(APPEND SOURCES ${COMMON_QT_SUPPORT_SOURCES})
 
   if(SOURCES)
     list(SORT SOURCES)
@@ -124,6 +104,7 @@ function(_common_library Name)
     list(SORT PUBLIC_HEADERS)
   endif()
 
+  source_group(\\ FILES CMakeLists.txt)
   source_group(${INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
 
   if(NOT ${NAME}_LIBRARY_TYPE)
@@ -139,15 +120,7 @@ function(_common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-      if(CMAKE_MAJOR_VERSION GREATER 2)
-        add_library(${LibName} INTERFACE)
-      else()
-        add_library(${LibName} ${PUBLIC_HEADERS}
-                               ${CMAKE_SOURCE_DIR}/CMake/common/cpp/dummy.cpp)
-        set_target_properties(${LibName} PROPERTIES
-          LINKER_LANGUAGE CXX FOLDER ${PROJECT_NAME})
-      endif()
-
+      add_library(${LibName} INTERFACE)
       _target_include_directories(INTERFACE)
     else()
       # append a debug suffix to library name on windows or if user requests it
@@ -155,7 +128,7 @@ function(_common_library Name)
 
       add_library(${LibName} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
       set_target_properties(${LibName} PROPERTIES
-        VERSION ${VERSION} SOVERSION ${VERSION_ABI}
+        VERSION ${${PROJECT_NAME}_VERSION} SOVERSION ${${PROJECT_NAME}_VERSION_ABI}
         OUTPUT_NAME ${Name} FOLDER ${PROJECT_NAME})
       target_link_libraries(${LibName} ${LINK_LIBRARIES})
 
@@ -167,6 +140,8 @@ function(_common_library Name)
 
       common_enable_dlopen_usage(${LibName})
     endif()
+
+    common_compile_options(${LibName})
 
     # for DoxygenRule.cmake and SubProject.cmake
     set_property(GLOBAL APPEND PROPERTY
@@ -183,16 +158,16 @@ function(_common_library Name)
       # CommonPackageConfig.cmake
       if(${NAME}_OMIT_EXPORT)
         install(TARGETS ${LibName}
-          ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
+          ARCHIVE DESTINATION lib COMPONENT dev
           RUNTIME DESTINATION bin COMPONENT lib
-          LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
+          LIBRARY DESTINATION lib COMPONENT lib
           INCLUDES DESTINATION include)
       else()
         install(TARGETS ${LibName}
           EXPORT ${PROJECT_NAME}Targets
-          ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
+          ARCHIVE DESTINATION lib COMPONENT dev
           RUNTIME DESTINATION bin COMPONENT lib
-          LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib
+          LIBRARY DESTINATION lib COMPONENT lib
           INCLUDES DESTINATION include)
       endif()
     endif()
@@ -208,14 +183,14 @@ function(_common_library Name)
 
     # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
     install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
-      COMPONENT dev BASE ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME})
+      COMPONENT dev BASE ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME})
   endif()
 endfunction()
 
 macro(generate_library_header NAME)
   get_filename_component(__base_name ${INCLUDE_NAME} NAME)
 
-  set(__generated_header ${OUTPUT_INCLUDE_DIR}/${INCLUDE_NAME}/${__base_name}.h)
+  set(__generated_header ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/${__base_name}.h)
   set(__generated_header_in ${__generated_header}.in)
 
   file(WRITE ${__generated_header_in}
@@ -259,9 +234,9 @@ function(common_enable_dlopen_usage Target)
     set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}${CMAKE_SHARED_LIBRARY_SUFFIX})
   else()
     if(APPLE)
-      set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
+      set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}.${${PROJECT_NAME}_VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
     else()
-      set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI})
+      set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${${PROJECT_NAME}_VERSION_ABI})
     endif()
   endif()
   string(TOUPPER ${Target} TARGET)
@@ -278,7 +253,7 @@ macro(_target_include_directories _type)
   target_include_directories(
       ${LibName} ${_type}
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-      "$<BUILD_INTERFACE:${OUTPUT_INCLUDE_DIR}>"
+      "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
       "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
   )
   if(${NAME}_PUBLIC_INCLUDE_DIRECTORIES)

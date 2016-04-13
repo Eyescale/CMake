@@ -4,11 +4,7 @@
 # ${PROJECT_NAME}Targets.cmake like CMake suggests to create a 'package' that
 # can be found by downstream projects, either from the build tree (subproject)
 # or from the install tree (package/module).
-# http://www.cmake.org/cmake/help/v3.2/manual/cmake-packages.7.html#creating-packages
-#
-# Note that the install tree export target set creation is only supported if
-# CMake 3 is used. On the other hand, a CMake 3 generated install tree can be
-# consumed either by CMake 2 or 3.
+# http://www.cmake.org/cmake/help/v3.1/manual/cmake-packages.7.html#creating-packages
 #
 # Uses:
 # * ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - list of 'leaking'/public
@@ -25,22 +21,16 @@ write_basic_package_version_file(
   VERSION ${VERSION} COMPATIBILITY SameMajorVersion
 )
 
-# Add find_package/find_dependency (CMake2/3) calls for leaking dependent
-# libraries to ${PROJECT_NAME}Config.cmake
+# Add find_dependency calls for leaking dependent libraries to
+# ${PROJECT_NAME}Config.cmake
 if(${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES)
   set(DEPENDENT_LIBRARIES
     "  # find dependent libraries which provide dependent targets\n"
-    "  if(CMAKE_MAJOR_VERSION GREATER 2)\n"
-    "    include(CMakeFindDependencyMacro)\n")
+    "  include(CMakeFindDependencyMacro)\n")
 
   foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
-    list(APPEND DEPENDENT_LIBRARIES "    find_dependency(${_dependent})\n")
+    list(APPEND DEPENDENT_LIBRARIES "  find_dependency(${_dependent})\n")
   endforeach()
-  list(APPEND DEPENDENT_LIBRARIES "  else()\n")
-  foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
-    list(APPEND DEPENDENT_LIBRARIES "    find_package(${_dependent} QUIET)\n")
-  endforeach()
-  list(APPEND DEPENDENT_LIBRARIES "  endif()\n")
   string(REGEX REPLACE ";" " " DEPENDENT_LIBRARIES ${DEPENDENT_LIBRARIES})
 endif()
 
@@ -58,8 +48,7 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
 )
 
-# No export(EXPORT) in CMake 2 or if common_library has not been used.
-if(CMAKE_MAJOR_VERSION LESS 3 OR NOT TARGET ${PROJECT_NAME}_ALIAS)
+if(NOT TARGET ${PROJECT_NAME}_ALIAS)
   return()
 endif()
 

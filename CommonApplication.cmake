@@ -15,10 +15,6 @@
 # * NAME_LINK_LIBRARIES for dependencies of name
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * ARGN for optional add_executable parameters
-# * Optional Qt support:
-# ** NAME_MOC_HEADERS list of all moc input headers
-# ** NAME_UI_FORMS list of all .ui input files
-# ** NAME_RESOURCES list of all .qrc resource files
 # * NAME_DATA files for share/Project/data (in binary and install dir)
 # * NAME_ICON optional .icns file (Mac OS GUI applications only)
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
@@ -27,18 +23,10 @@
 
 include(AppleCheckOpenGL)
 include(CommonCheckTargets)
-include(CommonQtSupport)
 include(CMakeParseArguments)
 include(StringifyShaders)
 
-# applying CMAKE_C(XX)_FLAGS to add_executable only works from parent
-# scope, hence the macro calling the function _common_application
-macro(COMMON_APPLICATION Name)
-  common_compiler_flags()
-  _common_application(${Name} ${ARGN})
-endmacro()
-
-function(_common_application Name)
+function(common_application Name)
   set(_opts GUI EXAMPLE)
   set(_singleArgs)
   set(_multiArgs)
@@ -48,12 +36,9 @@ function(_common_application Name)
   string(TOUPPER ${Name} NAME)
   string(TOLOWER ${Name} name)
   set(SOURCES ${${NAME}_SOURCES})
-  set(HEADERS ${${NAME}_HEADERS} ${${NAME}_MOC_HEADERS})
+  set(HEADERS ${${NAME}_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
   set(ICON ${${NAME}_ICON})
-
-  common_qt_support(${NAME})
-  list(APPEND SOURCES ${COMMON_QT_SUPPORT_SOURCES})
 
   if(${NAME}_SHADERS)
     stringify_shaders(${${NAME}_SHADERS})
@@ -71,6 +56,7 @@ function(_common_application Name)
 
   add_executable(${Name} ${OPTIONS} ${ICON} ${HEADERS} ${SOURCES})
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
+  common_compile_options(${Name})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
 

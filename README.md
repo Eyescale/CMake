@@ -26,16 +26,17 @@ The following CMake modules can be included in your project:
 
 * [Common](Common.cmake) does a common CMake setup, and also includes:
     * [CommonLibrary](CommonLibrary.cmake) *common_library* function to build a
-      shared library using a standard recipe and generates header files for the
-      library (api.h, version.h).
+      (shared) library using a standard recipe and generates header files for
+      the library (api.h, version.h).
     * [CommonApplication](CommonApplication.cmake) *common_application*
       function to build an application using a standard recipe.
-    * [CommonPackage](CommonPackage.cmake) *common_package* for more convenience
-      over find_package and *common_package_post* (last after all common_package
-      calls) to generate defines.h and options.cmake for feature checking.
-    * [Compiler](Compiler.cmake): Default compiler flags applied via
-      common_compiler_flags(), useful default warnings and 'safe' C++11
-      features.
+    * [CommonFindPackage](CommonFindPackage.cmake) *common_find_package* for
+      more convenience over find_package and *common_find_package_post* (must be
+      last after all common_find_package calls) to generate defines.h and
+      options.cmake for feature checking.
+    * [CommonCompiler](CommonCompiler.cmake): Default compiler flags can be set
+      on given target to common_compile_options(), useful default warnings and
+      'safe' C++11 features.
     * [GitInfo](GitInfo.cmake) sets variables with information about the git
       source tree.
     * [GitTargets](GitTargets.cmake) *branch*, *cut*, *tag*, *erase*, *retag*,
@@ -43,19 +44,20 @@ The following CMake modules can be included in your project:
 * [CommonCTest](CommonCTest.cmake) should be included from a tests subfolder.
       Does a common CTest setup, automatically adding all .cpp files in the
       current folder as unit tests to a *tests* target. It also includes:
-    * [Coverage](Coverage.cmake) *coverage* target to generate a code coverage
-      report as html, if ENABLE_COVERAGE option is also set. Additional compiler
-      flags are set in that case, so it should be enabled only for debug builds.
+    * [CommonCoverage](CommonCoverage.cmake) *coverage* target to generate a
+      code coverage report as html, if COMMON_ENABLE_COVERAGE option is set.
+      Additional compiler flags are set in that case, so it should be enabled
+      only for debug builds.
     * [CommonCPPCheck](CommonCPPCheck.cmake): *cppcheck* target for
       static code analysis. Also adds all cppcheck targets to *tests* target.
-    * [CommandClangCheck](CommandClangCheck.cmake): *clangcheck* target for
+    * [CommonClangCheck](CommonClangCheck.cmake): *clangcheck* target for
       clang-check code analysis. Adds all clangcheck targets to *tests* if
-      ENABLE_CLANGCHECK_TESTS is set.
+      COMMON_ENABLE_CLANGCHECK_TESTS is set.
 * [CommonPackageConfig](CommonPackageConfig.cmake) generates cmake package
   information files for the project. These files let other CMake-based projects
   locate it through find_package (in config mode, without the need for a finder
   script). Must be included at the end of the CMakeLists.txt, after all targets
-  have been added via common_library().
+  have been added via common_library() and common_application().
 * [CommonCPack](CommonCPack.cmake) Configures the CPack package generator to
   redistribute the project as an installable package. Also includes
   CommonPackageConfig.

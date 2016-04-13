@@ -1,34 +1,34 @@
 # Copyright (c) 2014-2015 Stefan.Eilemann@epfl.ch
 #                         Daniel.Nachbaur@epfl.ch
 
-# Provides common_package(Package_Name args) and common_package_post() which
-# improves find_package.
+# Provides common_find_package(Package_Name args) and common_find_package_post()
+# which improves find_package.
 #
-# common_package()
-#  - QUIET if COMMON_PACKAGE_USE_QUIET option is set
+# common_find_package()
+#  - QUIET if COMMON_FIND_PACKAGE_QUIET option is set
 #  - -isystem if SYSTEM argument is passed; for convenience, Boost is always
 #    SYSTEM
 #  - first tries find_package with all the given arguments, and then falls back
 #    to using pkg_config if available (no component support for pkg_config though)
 #  - processes ${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake to tweak result
-#    of common_package_post()
+#    of common_find_package_post()
 #  - sets include_directories() and link_directories() accordingly
 #
-# common_package_disable(<list>)
+# common_find_package_disable(<list>)
 #   Disables the previous found package(s)
 #
-# common_package_post()
+# common_find_package_post()
 #  - generates defines.h and options.cmake for found packages.
 #  - prints status message of found and not-found packages
 #
 # Input variables
 #  - CMAKE_INSTALL_PREFIX - install prefix, comes from Common.cmake
-#  - CMAKE_MODULE_INSTALL_PATH - module install prefix, comes from CMakeInstallPath.cmake
+#  - CMAKE_MODULE_INSTALL_PATH - module install prefix, comes from Common.cmake
 #  - UPPER_PROJECT_NAME - upper-case project name, comes from Common.cmake
 #
 # Output variables
-#  - COMMON_PACKAGE_DEFINES - accumulated defines of found packages for
-#    options.cmake and defines.h, written by common_package_post()
+#  - COMMON_FIND_PACKAGE_DEFINES - accumulated defines of found packages for
+#    options.cmake and defines.h, written by common_find_package_post()
 #  - ${PROJECT_NAME}_FIND_PACKAGES_FOUND - string of found packages
 #  - ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND - string of not-found packages
 
@@ -38,17 +38,24 @@ endif()
 set(ENV{PKG_CONFIG_PATH}
   "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 
-option(COMMON_PACKAGE_USE_QUIET "Use QUIET for common_package command" ON)
+option(COMMON_FIND_PACKAGE_QUIET "Use QUIET for common_find_package command" ON)
 
-include(System)
 include(CommonGraph)
 if(COMMON_USE_CXX03)
-  set(COMMON_PACKAGE_DEFINES ${SYSTEM} COMMON_USE_CXX03)
+  set(COMMON_FIND_PACKAGE_DEFINES ${SYSTEM} ${UPPER_PROJECT_NAME}_USE_CXX03)
 else()
-  set(COMMON_PACKAGE_DEFINES ${SYSTEM} COMMON_USE_CXX11)
+  set(COMMON_FIND_PACKAGE_DEFINES ${SYSTEM} ${UPPER_PROJECT_NAME}_USE_CXX11)
 endif()
 
-macro(common_package Package_Name)
+include(TestBigEndian)
+test_big_endian(BIGENDIAN)
+if(BIGENDIAN)
+  set(COMMON_FIND_PACKAGE_DEFINES ${SYSTEM} ${UPPER_PROJECT_NAME}_BIGENDIAN)
+else()
+  set(COMMON_FIND_PACKAGE_DEFINES ${SYSTEM} ${UPPER_PROJECT_NAME}_LITTLEENDIAN)
+endif()
+
+macro(common_find_package Package_Name)
   string(TOUPPER ${Package_Name} PACKAGE_NAME)
   set(__args ${ARGN}) # ARGN is not a list. make one.
 
@@ -75,7 +82,7 @@ macro(common_package Package_Name)
 
   # QUIET either via as global option or as argument
   set(__find_quiet)
-  if(COMMON_PACKAGE_USE_QUIET)
+  if(COMMON_FIND_PACKAGE_QUIET)
     set(__find_quiet "QUIET")
   else()
     list(FIND __args "QUIET" __quiet_pos)
@@ -109,10 +116,6 @@ macro(common_package Package_Name)
     common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE FALSE)
   endif()
 
-  if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
-    include(${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
-  endif()
-
   if(${PACKAGE_NAME}_FOUND)
     set(${Package_Name}_name ${PACKAGE_NAME})
     set(${Package_Name}_FOUND TRUE)
@@ -120,12 +123,12 @@ macro(common_package Package_Name)
     set(${Package_Name}_name ${Package_Name})
     set(${PACKAGE_NAME}_FOUND TRUE)
   else()
-    # for common_package_post()
+    # for common_find_package_post()
     set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
       "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND} ${Package_Name}")
   endif()
   if(${Package_Name}_name)
-    # for common_package_post()
+    # for common_find_package_post()
     set(${PROJECT_NAME}_FIND_PACKAGES_FOUND
       "${${PROJECT_NAME}_FIND_PACKAGES_FOUND} ${Package_Name}")
 
@@ -133,7 +136,7 @@ macro(common_package Package_Name)
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
     string(REPLACE "-" "_" __use_package_define ${__use_package_define})
     string(REPLACE "+" "P" __use_package_define ${__use_package_define})
-    list(APPEND COMMON_PACKAGE_DEFINES ${__use_package_define})
+    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${__use_package_define})
 
     # for CommonPackageConfig.cmake
     if(NOT COMMON_LIBRARY_TYPE MATCHES "SHARED")
@@ -165,7 +168,7 @@ macro(common_package Package_Name)
   endif()
 endmacro()
 
-macro(common_package_disable)
+macro(common_find_package_disable)
   set(__args ${ARGN}) # ARGN is not a list. make one.
   foreach(Package_Name ${__args})
     string(TOUPPER ${Package_Name} PACKAGE_NAME)
@@ -174,7 +177,7 @@ macro(common_package_disable)
     set(${PACKAGE_NAME}_FOUND)
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
     string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
-    list(REMOVE_ITEM COMMON_PACKAGE_DEFINES ${__use_package_define})
+    list(REMOVE_ITEM COMMON_FIND_PACKAGE_DEFINES ${__use_package_define})
     string(REPLACE " ${Package_Name}" "" ${PROJECT_NAME}_FIND_PACKAGES_FOUND
       "${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
     set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
@@ -182,7 +185,7 @@ macro(common_package_disable)
   endforeach()
 endmacro()
 
-macro(common_package_post)
+macro(common_find_package_post)
   # Write defines.h and options.cmake
   if(NOT PROJECT_INCLUDE_NAME)
     message(FATAL_ERROR "PROJECT_INCLUDE_NAME not set, old or missing Common.cmake?")
@@ -192,20 +195,20 @@ macro(common_package_post)
   endif()
 
   configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/defines.h
-    ${OUTPUT_INCLUDE_DIR}/${PROJECT_INCLUDE_NAME}/defines.h @ONLY)
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines.h @ONLY)
   set(__defines_file
     "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines${SYSTEM}.h")
   set(COMMON_DEFINES_FILE
-    ${OUTPUT_INCLUDE_DIR}/${PROJECT_INCLUDE_NAME}/defines.h ${__defines_file})
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines.h ${__defines_file})
 
   set(__defines_file_in ${__defines_file}.in)
   set(__options_cmake_file_in ${__options_cmake_file}.in)
   file(WRITE ${__defines_file_in}
-    "// generated by CommonPackage.cmake, do not edit.\n\n"
+    "// generated by CommonFindPackage.cmake, do not edit.\n\n"
     "#ifndef ${PROJECT_NAME}_DEFINES_${SYSTEM}_H\n"
     "#define ${PROJECT_NAME}_DEFINES_${SYSTEM}_H\n\n")
   file(WRITE ${__options_cmake_file_in} "# Optional modules enabled during build\n")
-  foreach(DEF ${COMMON_PACKAGE_DEFINES})
+  foreach(DEF ${COMMON_FIND_PACKAGE_DEFINES})
     add_definitions(-D${DEF}=1)
     file(APPEND ${__defines_file_in}
       "#ifndef ${DEF}\n"
@@ -234,10 +237,6 @@ macro(common_package_post)
   if(Boost_FOUND) # another WAR for broken boost stuff...
     set(Boost_VERSION
       ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
-  endif()
-  if(CUDA_FOUND)
-    string(REPLACE "-std=c++11" "" CUDA_HOST_FLAGS "${CUDA_HOST_FLAGS}")
-    string(REPLACE "-std=c++0x" "" CUDA_HOST_FLAGS "${CUDA_HOST_FLAGS}")
   endif()
   if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

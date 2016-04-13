@@ -14,19 +14,19 @@
 namespace @namespace@
 {
     /** The current major version. */
-#   define @NAMESPACE@_VERSION_MAJOR @VERSION_MAJOR@
+#   define @NAMESPACE@_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
 
     /** The current minor version. */
-#   define @NAMESPACE@_VERSION_MINOR @VERSION_MINOR@
+#   define @NAMESPACE@_VERSION_MINOR @PROJECT_VERSION_MINOR@
 
     /** The current patch level. */
-#   define @NAMESPACE@_VERSION_PATCH @VERSION_PATCH@
+#   define @NAMESPACE@_VERSION_PATCH @PROJECT_VERSION_PATCH@
 
     /** The current SCM revision. */
 #   define @NAMESPACE@_VERSION_REVISION 0x@GIT_REVISION@
 
     /** The current binary interface. */
-#   define @NAMESPACE@_VERSION_ABI @VERSION_ABI@
+#   define @NAMESPACE@_VERSION_ABI @PROJECT_VERSION_ABI@
 
 /** True if the current version is newer than the given one. */
 #   define @NAMESPACE@_VERSION_GT( MAJOR, MINOR, PATCH )       \

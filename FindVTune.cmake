@@ -4,10 +4,6 @@
 # if not found, installs a dummy ittnotify.h to build_dir/include to eliminate
 # the need to protect the itt calls with ifdefs
 
-if(CMAKE_VERSION VERSION_LESS 2.8.3) # WAR bug
-  get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
-endif()
-
 find_program(VTUNE_EXECUTABLE amplxe-cl)
 if(NOT VTUNE_EXECUTABLE)
   set(VTUNE_FOUND)
