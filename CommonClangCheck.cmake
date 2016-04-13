@@ -65,7 +65,7 @@ function(common_clangcheck _name)
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Running clangcheck on target ${_name}..."
     VERBATIM)
-  add_dependencies(clangcheck ${_name}_clangcheck)
-    set_target_properties(${_name}_clangcheck PROPERTIES
+  add_dependencies(clangcheck ${_name}-clangcheck)
+    set_target_properties(${_name}-clangcheck PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/tests)
 endfunction()
