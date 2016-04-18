@@ -47,7 +47,10 @@ endif()
 
 # https://cmake.org/cmake/help/v3.1/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html
 set(COMMON_CXX11_FEATURES
-  cxx_alias_templates cxx_nullptr cxx_override cxx_final cxx_noexcept)
+  cxx_alias_templates cxx_nullptr cxx_override cxx_final)
+if(NOT MSVC OR MSVC_VERSION VERSION_GREATER 1800)
+  list(APPEND COMMON_CXX11_FEATURES cxx_noexcept)
+endif()
 
 function(compiler_dumpversion OUTPUT_VERSION)
   execute_process(COMMAND

@@ -49,8 +49,6 @@ function(common_application Name)
   if(THIS_GUI)
     if(APPLE)
       set(OPTIONS MACOSX_BUNDLE)
-    elseif(MSVC)
-      set(OPTIONS WIN32)
     endif()
   endif()
 
