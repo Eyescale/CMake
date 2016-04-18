@@ -75,7 +75,7 @@ function(common_graph Name)
       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot)
     add_custom_target(${Name}-graph DEPENDS ${dest}/${Name}.png)
     set_target_properties(${Name}-graph PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON
-      FOLDER doxygen)
+      FOLDER ${Name}/doxygen)
     add_dependencies(graphs ${Name}-graph)
   endif()
 endfunction()
