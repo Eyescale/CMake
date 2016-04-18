@@ -190,7 +190,7 @@ function(common_compile_options Name)
     target_compile_features(${Name} ${__visibility} ${COMMON_CXX11_FEATURES})
   endif()
   if(NOT __interface)
-    if(CMAKE_VERSION VERSION_LESS 3.3)
+    if(CMAKE_VERSION VERSION_LESS 3.3 OR MSVC)
       target_compile_options(${Name} PRIVATE
         "$<$<CONFIG:Debug>:${COMMON_CXX_FLAGS_DEBUG}>"
         "$<$<CONFIG:RelWithDebInfo>:${COMMON_CXX_FLAGS_RELWITHDEBINFO}>"
