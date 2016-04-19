@@ -6,6 +6,6 @@ macro(common_target NAME FOLDER)
   if(NOT TARGET ${NAME})
     add_custom_target(${NAME})
     set_target_properties(${NAME} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON
-      FOLDER ${FOLDER})
+      FOLDER ${NAME}/${FOLDER})
   endif()
 endmacro()

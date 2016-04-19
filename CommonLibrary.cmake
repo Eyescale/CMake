@@ -231,7 +231,7 @@ function(common_enable_dlopen_usage Target)
     set(_compile_definitions) # clear _compile_definitions-NOTFOUND
   endif()
   if(MSVC OR XCODE_VERSION)
-    set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}${CMAKE_DEBUG_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
   else()
     if(APPLE)
       set(_DSOName ${CMAKE_SHARED_LIBRARY_PREFIX}${Target}.${${PROJECT_NAME}_VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
