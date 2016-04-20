@@ -9,7 +9,8 @@ include(CommonCPPCheck)
 include(CommonCPPLint)
 
 function(common_check_targets _name)
-  set(_exclude_pattern ".*moc_|.*qrc_.*\\.c.*$") # Qt moc and qrc files
+  # Qt moc & qrc files, C and Objective-C files
+  set(_exclude_pattern ".*moc_|.*qrc_.*\\.c.*|.*\\.mm.*$")
 
   # Get the list of files once for all check targets
   get_source_files(${_name} ${_exclude_pattern})
