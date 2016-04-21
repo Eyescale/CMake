@@ -12,6 +12,9 @@
 #
 # Input global property:
 # * COMMON_GENERATED_FILES: List of files to exclude from coverage report
+# * ${PROJECT_NAME}_COVERAGE_INPUT_DIRS: List of BINARY_DIRs containing .gcda
+#   files to generate the report. Filled by common_library() in
+#   CommonLibrary.cmake.
 #
 # Targets generated:
 # * ${PROJECT_NAME}-lcov-clean for internal use - clean before running cpptests
@@ -55,6 +58,15 @@ if(COMMON_ENABLE_COVERAGE)
     message(FATAL_ERROR "No code coverage report, unsupported compiler")
   endif()
 
+  if(COMMON_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    message(WARNING "The coverage report for ${PROJECT_NAME} will include all "
+                    "the subprojects present in PROJECT_SOURCE_DIR="
+                    "'${PROJECT_SOURCE_DIR}'.\n"
+                    "To avoid this, make sure the subprojects are located "
+                    "outside of ${PROJECT_NAME}'s source tree by defining an "
+                    "external COMMON_SOURCE_DIR at the CMake configure step.")
+  endif()
+
   # success!
   set(CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
@@ -76,10 +88,28 @@ function(add_coverage_targets TEST_TARGET)
   add_dependencies(${TEST_TARGET} ${PROJECT_NAME}-lcov-clean)
 
   if(NOT TARGET ${PROJECT_NAME}-lcov-gather)
+    # Only include coverage report files from all common_library() calls in the project
+    get_property(__binary_dirs GLOBAL PROPERTY ${PROJECT_NAME}_COVERAGE_INPUT_DIRS)
+    foreach(__binary_dir ${__binary_dirs})
+      list(APPEND __directories --directory ${__binary_dir})
+    endforeach()
+
+    if(__directories)
+      # Add the tests folder (needed for header-only/interface libraries);
+      # lcov-gather needs to find at least one gdca file to generate lcov.info
+      # and gdca files are only generated for source/cpp files.
+      list(APPEND __directories --directory ${PROJECT_BINARY_DIR}/tests)
+    else()
+      # If no common_library() used, include every gcda file that's reachable
+      # from the build dir
+      list(APPEND __directories --directory ${PROJECT_BINARY_DIR})
+    endif()
+    # Allow all headers from the PROJECT_SOURCE_DIR. If subprojects are not
+    # located outside of the source tree they will be part of the report.
+    list(APPEND __directories --directory ${PROJECT_SOURCE_DIR})
+
     add_custom_target(${PROJECT_NAME}-lcov-gather
-      COMMAND ${LCOV} -q --capture --directory . --no-external
-        --directory ${PROJECT_SOURCE_DIR}/${INCLUDE_NAME}
-        --output-file lcov.info
+      COMMAND ${LCOV} -q --capture ${__directories} --no-external --output-file lcov.info
       COMMENT "Capturing code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   endif()
@@ -89,7 +119,7 @@ function(add_coverage_targets TEST_TARGET)
     get_property(GENERATED_FILES GLOBAL PROPERTY COMMON_GENERATED_FILES)
     # 'tests/*' excluded otherwise unit test source file coverage is produced
     add_custom_target(${PROJECT_NAME}-lcov-remove
-      COMMAND ${LCOV} -q --remove lcov.info '*.l' 'tests/*' 'CMake/test/*'
+      COMMAND ${LCOV} -q --remove lcov.info '*.l*' '*.y*' 'tests/*' 'CMake/test/*'
         '*/install/*' 'moc_*' 'qrc_*' ${GENERATED_FILES} '${LCOV_EXCLUDE}'
         --output-file lcov2.info
       COMMENT "Cleaning up code coverage counters"
