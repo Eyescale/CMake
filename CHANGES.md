@@ -1,5 +1,7 @@
 # git master
 
+* [484](https://github.com/Eyescale/CMake/pull/484):
+  Fix coverage report generation for non-subprojects
 * [478](https://github.com/Eyescale/CMake/pull/478):
   CMake3 port and various cleanups
     * CMake 3.1 is now required
