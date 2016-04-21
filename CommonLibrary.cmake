@@ -184,6 +184,9 @@ function(common_library Name)
     # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
     install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
       COMPONENT dev BASE ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME})
+
+    # for CommonCoverage.cmake
+    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_INCLUDE_NAMES ${INCLUDE_NAME})
   endif()
 endfunction()
 

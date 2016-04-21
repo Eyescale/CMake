@@ -76,10 +76,26 @@ function(add_coverage_targets TEST_TARGET)
   add_dependencies(${TEST_TARGET} ${PROJECT_NAME}-lcov-clean)
 
   if(NOT TARGET ${PROJECT_NAME}-lcov-gather)
+    # Only include files from all common_library() calls in the project
+    get_property(__include_names GLOBAL PROPERTY ${PROJECT_NAME}_INCLUDE_NAMES)
+    foreach(__include_name ${__include_names})
+      list(APPEND __directories --directory ${PROJECT_SOURCE_DIR}/${__include_name}
+                                --directory ${PROJECT_BINARY_DIR}/${__include_name})
+    endforeach()
+
+    if(__directories)
+      # Add the tests folder (needed for header-only/interface libraries);
+      # lcov-gather needs to find at least one gdca file to generate lcov.info
+      # and gdca files are only generated for source/cpp files.
+      list(APPEND __directories --directory tests)
+    else()
+      # If no common_library() used, include everything that's reachable from
+      # the build dir
+      list(APPEND __directories --directory .)
+    endif()
+
     add_custom_target(${PROJECT_NAME}-lcov-gather
-      COMMAND ${LCOV} -q --capture --directory . --no-external
-        --directory ${PROJECT_SOURCE_DIR}/${INCLUDE_NAME}
-        --output-file lcov.info
+      COMMAND ${LCOV} -q --capture ${__directories} --no-external --output-file lcov.info
       COMMENT "Capturing code coverage counters"
       WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   endif()
@@ -89,7 +105,7 @@ function(add_coverage_targets TEST_TARGET)
     get_property(GENERATED_FILES GLOBAL PROPERTY COMMON_GENERATED_FILES)
     # 'tests/*' excluded otherwise unit test source file coverage is produced
     add_custom_target(${PROJECT_NAME}-lcov-remove
-      COMMAND ${LCOV} -q --remove lcov.info '*.l' 'tests/*' 'CMake/test/*'
+      COMMAND ${LCOV} -q --remove lcov.info '*.l*' '*.y*' 'tests/*' 'CMake/test/*'
         '*/install/*' 'moc_*' 'qrc_*' ${GENERATED_FILES} '${LCOV_EXCLUDE}'
         --output-file lcov2.info
       COMMENT "Cleaning up code coverage counters"
