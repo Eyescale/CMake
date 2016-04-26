@@ -20,6 +20,10 @@
 #   ${UPPER_PROJECT_NAME}_DESCRIPTION if not provided.
 # * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
 #   to PROJECT_NAME if not provided.
+# * DOXYGEN_PROJECT_VERSION The full version of the project. Defaults to
+#   ${PROJECT_NAME}_VERSION if not provided.
+# * ${PROJECT_NAME}_VERSION_(MINOR|MAJOR) The project's major/minor version,
+#   generally set by the project() command in the top-level CMakeLists.txt.
 #
 # Optional project information
 # Output to a metadata file for html index page generation by Jekyll
@@ -29,7 +33,7 @@
 # * ${UPPER_PROJECT_NAME}_MATURITY EP, RD or RS
 #
 # IO Variables (set if not set as input)
-# * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_org is used
+# * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_ORG (from GithubInfo.cmake) is used
 # * DOXYGEN_CONFIG_FILE or one is auto-configured
 # * COMMON_ORGANIZATION_NAME (from GithubInfo. Defaults to: Unknown)
 # * COMMON_PROJECT_DOMAIN a reverse DNS name. (Defaults to: org.doxygen)
@@ -75,6 +79,10 @@ endif()
 
 if(NOT DOXYGEN_PROJECT_NAME)
   set(DOXYGEN_PROJECT_NAME ${PROJECT_NAME})
+endif()
+
+if(NOT DOXYGEN_PROJECT_VERSION)
+  set(DOXYGEN_PROJECT_VERSION ${${PROJECT_NAME}_VERSION})
 endif()
 
 if(NOT DOXYGEN_PROJECT_BRIEF)
@@ -157,13 +165,18 @@ string(REPLACE ";" "; " AUTHORS "${GIT_AUTHORS}")
 string(REPLACE "<" "(" MAINTAINER "${${UPPER_PROJECT_NAME}_MAINTAINER}")
 string(REPLACE ">" ")" MAINTAINER "${MAINTAINER}")
 
-set(_jekyll_md_file "${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}.md")
+# Write the project's metadata file (for Jekyll index page and other consumers)
+set(_version_major ${${PROJECT_NAME}_VERSION_MAJOR})
+set(_version_minor ${${PROJECT_NAME}_VERSION_MINOR})
+set(_version "${_version_major}.${_version_minor}")
+
+set(_jekyll_md_file "${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}-${_version}.md")
 file(WRITE ${_jekyll_md_file}
 "---\n"
 "name: ${PROJECT_NAME}\n"
-"version: \"${VERSION_MAJOR}.${VERSION_MINOR}\"\n"
-"major: ${VERSION_MAJOR}\n"
-"minor: ${VERSION_MINOR}\n"
+"version: \"${_version}\"\n"
+"major: ${_version_major}\n"
+"minor: ${_version_minor}\n"
 "description: ${DOXYGEN_PROJECT_BRIEF}\n"
 "updated: ${COMMON_DATE}\n"
 "homepage: ${${UPPER_PROJECT_NAME}_URL}\n"
@@ -178,18 +191,18 @@ file(WRITE ${_jekyll_md_file}
 "---\n"
 "${README}\n")
 
+# Create 'doxycopy' target
 if(GIT_DOCUMENTATION_REPO)
-  set(_GIT_DOC_SRC_DIR "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
+  set(_git_doc_repo_dir "${PROJECT_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}")
 
-  if(IS_DIRECTORY ${_GIT_DOC_SRC_DIR})
-    set(GIT_DOCUMENTATION_DIR
-      ${_GIT_DOC_SRC_DIR}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+  if(IS_DIRECTORY ${_git_doc_repo_dir})
+    set(_doc_destination_dir ${_git_doc_repo_dir}/${PROJECT_NAME}-${_version})
     add_custom_target(${PROJECT_NAME}-doxycopy
-      COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
+      COMMAND ${CMAKE_COMMAND} -E remove_directory ${_doc_destination_dir}
       COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/${GIT_DOCUMENTATION_REPO}/doxygit-generated
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
-      COMMAND ${CMAKE_COMMAND} -E copy ${_jekyll_md_file} ${_GIT_DOC_SRC_DIR}/_projects
-      COMMENT "Copying ${PROJECT_NAME} API documentation to ${GIT_DOCUMENTATION_DIR}"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/doc/html ${_doc_destination_dir}
+      COMMAND ${CMAKE_COMMAND} -E copy ${_jekyll_md_file} ${_git_doc_repo_dir}/_projects
+      COMMENT "Copying ${PROJECT_NAME} API documentation to ${_doc_destination_dir}"
       DEPENDS ${PROJECT_NAME}-doxygen VERBATIM)
   else()
     # Having a command will force this target to run always when invoked. That
@@ -197,7 +210,7 @@ if(GIT_DOCUMENTATION_REPO)
     # in ninja.
     add_custom_target(${PROJECT_NAME}-doxycopy
       COMMAND ${CMAKE_COMMAND} -E echo ""
-      COMMENT "doxycopy target not available, missing ${_GIT_DOC_SRC_DIR}")
+      COMMENT "doxycopy target not available, missing ${_git_doc_repo_dir}")
   endif()
 else()
   add_custom_target(${PROJECT_NAME}-doxycopy
