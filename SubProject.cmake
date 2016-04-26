@@ -73,8 +73,8 @@ function(subproject_install_packages name)
   endif()
 
   string(TOUPPER ${name} NAME)
-  list(APPEND ${NAME}_DEB_DEPENDS pkg-config git cmake git-review doxygen
-    ${OPTIONAL_DEBS})
+  list(APPEND ${NAME}_DEB_DEPENDS pkg-config git cmake git-review doxygen ccache
+    graphviz ${OPTIONAL_DEBS})
   set(${NAME}_BUILD_DEBS ${NAME}_DEB_DEPENDS)
   list(APPEND ${NAME}_DEB_DEPENDS ninja-build lcov cppcheck clang
     clang-format-3.5) # optional deb packages, not added to build spec
