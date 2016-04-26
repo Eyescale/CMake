@@ -24,6 +24,10 @@
 # * ${PROJECT_NAME}_VERSION for the API version
 # * ${PROJECT_NAME}_VERSION_ABI for the ABI version
 #
+# Output global property:
+# * ${PROJECT_NAME}_COVERAGE_INPUT_DIRS: Each library's CURRENT_BINARY_DIR
+#   is appended to this list consumed by CommonCoverage.cmake.
+#
 # If NAME_LIBRARY_TYPE is a list, libraries are built of each specified
 # (i.e. shared and static) type. Whichever is first becomes the library
 # target associated with <Name>.
@@ -184,6 +188,9 @@ function(common_library Name)
     # install(TARGETS ... PUBLIC_HEADER ...) flattens directories
     install_files(include/${INCLUDE_NAME} FILES ${PUBLIC_HEADERS}
       COMPONENT dev BASE ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME})
+
+    # for CommonCoverage.cmake
+    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_COVERAGE_INPUT_DIRS ${CMAKE_CURRENT_BINARY_DIR})
   endif()
 endfunction()
 
