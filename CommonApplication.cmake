@@ -93,10 +93,12 @@ function(common_application Name)
     install(FILES ${_QT_CONF} DESTINATION ${_RESOURCES} COMPONENT apps)
 
     install(CODE "message(\"-- macdeployqt: ${_BUNDLE} -dmg\")" COMPONENT apps)
+
+    set(_target_dmg "${Name}-${PROJECT_VERSION}.dmg")
     install(CODE "execute_process(COMMAND macdeployqt ${Name}.app -dmg
       WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
-    install(CODE "execute_process(COMMAND mv ${Name}.dmg
-      ${Name}-${VERSION}.dmg WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
+    install(CODE "execute_process(COMMAND mv ${Name}.dmg ${_target_dmg}
+      WORKING_DIRECTORY ${_INSTALLDIR})" COMPONENT apps)
   endif()
 
   if(THIS_EXAMPLE)

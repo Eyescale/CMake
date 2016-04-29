@@ -18,7 +18,7 @@
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION ${VERSION} COMPATIBILITY SameMajorVersion
+  COMPATIBILITY SameMajorVersion
 )
 
 # Add find_dependency calls for leaking dependent libraries to

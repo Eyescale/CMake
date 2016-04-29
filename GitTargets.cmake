@@ -11,7 +11,8 @@
 # * ${PROJECT_NAME}-untag: Delete the current tag locally and remote
 # * ${PROJECT_NAME}-retag: Move an existing tag to HEAD
 # * tarball: Run ${PROJECT_NAME}-tarball for all projects
-# * ${PROJECT_NAME}-tarball: Create an archive of the source code at VERSION
+# * ${PROJECT_NAME}-tarball: Create an archive of the source code at
+#   PROJECT_VERSION
 # Targets for internal use:
 # * ${PROJECT_NAME}-make-branch: Used by ${PROJECT_NAME}-branch to create a new
 #   local branch
@@ -32,7 +33,7 @@ endif()
 find_program(GZIP_EXECUTABLE gzip)
 
 # branch
-set(BRANCH_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+set(BRANCH_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 add_custom_target(${PROJECT_NAME}-make-branch
   COMMAND "${GIT_EXECUTABLE}" checkout ${BRANCH_VERSION} || "${GIT_EXECUTABLE}" checkout -b ${BRANCH_VERSION}
   COMMENT "Create local branch ${BRANCH_VERSION}"
@@ -74,42 +75,42 @@ file(WRITE ${PROJECT_BINARY_DIR}/gitbranchandtag.cmake
 
    # Create or move tag
    execute_process(
-     COMMAND \"${GIT_EXECUTABLE}\" tag -f ${VERSION} ${TAG_BRANCH}
+     COMMAND \"${GIT_EXECUTABLE}\" tag -f ${PROJECT_VERSION} ${TAG_BRANCH}
      COMMAND \"${GIT_EXECUTABLE}\" push --tags
      RESULT_VARIABLE notdone WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}\")
    if(notdone)
      message(FATAL_ERROR
-        \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
+        \"Error creating tag ${PROJECT_VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
 add_custom_target(${PROJECT_NAME}-tag
   COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
-  COMMENT "Add tag ${VERSION}"
+  COMMENT "Add tag ${PROJECT_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 # remove tag
 add_custom_target(${PROJECT_NAME}-untag
-  COMMAND "${GIT_EXECUTABLE}" tag -d ${VERSION}
-  COMMAND "${GIT_EXECUTABLE}" push origin :${VERSION}
-  COMMENT "Remove tag ${VERSION}"
+  COMMAND "${GIT_EXECUTABLE}" tag -d ${PROJECT_VERSION}
+  COMMAND "${GIT_EXECUTABLE}" push origin :${PROJECT_VERSION}
+  COMMENT "Remove tag ${PROJECT_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   )
 
 # move tag
 add_custom_target(${PROJECT_NAME}-retag
   COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/gitbranchandtag.cmake"
-  COMMENT "Add tag ${VERSION}"
+  COMMENT "Add tag ${PROJECT_VERSION}"
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   DEPENDS ${PROJECT_NAME}-untag)
 
 # tarball
-set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${VERSION}.tar")
+set(TARBALL "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}.tar")
 
 add_custom_target(${PROJECT_NAME}-create-tarball
   COMMAND "${GIT_EXECUTABLE}" archive --worktree-attributes
-    --prefix ${PROJECT_NAME}-${VERSION}/ -o ${TARBALL}
-    ${VERSION}
+    --prefix ${PROJECT_NAME}-${PROJECT_VERSION}/ -o ${TARBALL}
+    ${PROJECT_VERSION}
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
   COMMENT "Creating ${TARBALL}"
   )
