@@ -23,6 +23,12 @@ cmake_policy(SET CMP0038 NEW) # Targets may not link directly to themselves.
 cmake_policy(SET CMP0048 NEW) # The project() command manages VERSION variables.
 cmake_policy(SET CMP0054 OLD) # Only interpret if() arguments as variables or keywords when unquoted.
 
+# WAR for CMake >=3.1 bug (observed with 3.2.3)
+# If not set to false, any call to pkg_check_modules() or pkg_search_module()
+# ERASES the $ENV{PKG_CONFIG_PATH}, so subsequent calls may fail to locate
+# a dependency which depends on this variable (e.g. in FindPoppler.cmake).
+set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH FALSE)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
