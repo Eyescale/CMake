@@ -95,9 +95,6 @@ function(common_library Name)
     generate_library_header(${NAME})
   endif()
 
-  # from CommonFindPackage.cmake
-  list(APPEND PUBLIC_HEADERS ${COMMON_DEFINES_FILE})
-
   if(SOURCES)
     list(SORT SOURCES)
   endif()
