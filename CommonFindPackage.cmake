@@ -33,6 +33,7 @@
 #  - ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND - string of not-found packages
 
 include(CommonGraph)
+include(InstallFiles)
 
 if(NOT PKGCONFIG_FOUND AND NOT MSVC)
   find_package(PkgConfig QUIET)
@@ -210,8 +211,6 @@ macro(common_find_package_post)
     ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines.h @ONLY)
   set(__defines_file
     "${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines${__system}.h")
-  set(COMMON_DEFINES_FILE
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines.h ${__defines_file})
 
   set(__defines_file_in ${__defines_file}.in)
   set(__options_cmake_file_in ${__options_cmake_file}.in)
@@ -239,6 +238,9 @@ macro(common_find_package_post)
   if(CMAKE_MODULE_INSTALL_PATH)
     install(FILES ${__options_cmake_file}
             DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
+    install_files(include/${PROJECT_INCLUDE_NAME}
+      FILES ${PROJECT_BINARY_DIR}/include/${PROJECT_INCLUDE_NAME}/defines.h
+            ${__defines_file} COMPONENT dev)
   else()
     message(FATAL_ERROR
       "CMAKE_MODULE_INSTALL_PATH not set, old or missing Common.cmake?")
