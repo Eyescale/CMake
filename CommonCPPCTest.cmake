@@ -167,8 +167,5 @@ add_dependencies(tests ${PROJECT_NAME}-tests)
 add_dependencies(${PROJECT_NAME}-nightlytests ${PROJECT_NAME}-perftests)
 
 if(COMMON_ENABLE_COVERAGE)
-  foreach(TEST_FILE ${TEST_FILES})
-    list(APPEND LCOV_EXCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/${TEST_FILE}")
-  endforeach()
   add_coverage_targets(${PROJECT_NAME}-cpptests)
 endif()
