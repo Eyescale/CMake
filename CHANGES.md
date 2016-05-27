@@ -1,5 +1,9 @@
 # git master
 
+* [494](https://github.com/Eyescale/CMake/pull/494):
+  Fix include paths in project header file for generated files within the binary dir
+* [493](https://github.com/Eyescale/CMake/pull/493):
+  Do not mess with LCOV_EXCLUDE which is set by outside users
 * [484](https://github.com/Eyescale/CMake/pull/484):
   Fix coverage report generation for the top-level project.
 * [478](https://github.com/Eyescale/CMake/pull/478):
