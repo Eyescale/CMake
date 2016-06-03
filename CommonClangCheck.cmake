@@ -36,8 +36,7 @@ function(common_clangcheck _name)
   endif()
 
   set(_clangcheck_args -p "${PROJECT_BINARY_DIR}" -analyze -fixit
-    -fatal-assembler-warnings -extra-arg=-Qunused-arguments
-    ${CLANGCHECK_EXTRA_ARGS})
+    -extra-arg=-Qunused-arguments ${CLANGCHECK_EXTRA_ARGS})
 
   cmake_parse_arguments(common_clangcheck "" "EXCLUDE_PATTERN" "FILES" ${ARGN})
   if(NOT common_clangcheck_EXCLUDE_PATTERN)
