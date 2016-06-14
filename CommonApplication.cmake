@@ -38,7 +38,7 @@ function(common_application Name)
   set(SOURCES ${${NAME}_SOURCES})
   set(HEADERS ${${NAME}_HEADERS})
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
-  set(ICON ${${NAME}_ICON})
+  set(_ICON ${${NAME}_ICON}) # also used to configure Info.plist
 
   if(${NAME}_SHADERS)
     stringify_shaders(${${NAME}_SHADERS})
@@ -52,7 +52,7 @@ function(common_application Name)
     endif()
   endif()
 
-  add_executable(${Name} ${OPTIONS} ${ICON} ${HEADERS} ${SOURCES})
+  add_executable(${Name} ${OPTIONS} ${_ICON} ${HEADERS} ${SOURCES})
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
   common_compile_options(${Name})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
@@ -66,6 +66,7 @@ function(common_application Name)
     # Configure bundle property file using current version, copyright and icon
     set(_BUNDLE_NAME ${Name})
     set(_COPYRIGHT ${${NAME}_COPYRIGHT})
+    set(_VERSION ${${PROJECT_NAME}_VERSION})
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/Info.plist.in
       ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
 

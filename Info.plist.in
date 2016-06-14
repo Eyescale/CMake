@@ -15,13 +15,13 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleLongVersionString</key>
-    <string>@VERSION@</string>
+    <string>@_VERSION@</string>
     <key>CFBundleName</key>
     <string></string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>@VERSION@</string>
+    <string>@_VERSION@</string>
     <key>CFBundleSignature</key>
     <string></string>
     <key>CFBundleVersion</key>
