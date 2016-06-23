@@ -1,5 +1,7 @@
 # git master
 
+* [498](https://github.com/Eyescale/CMake/pull/498):
+  Add Findlibmemcached.cmake
 * [497](https://github.com/Eyescale/CMake/pull/497):
   Fix install directory of common_application data
 * [494](https://github.com/Eyescale/CMake/pull/494):
