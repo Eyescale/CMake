@@ -111,7 +111,7 @@ function(common_application Name)
       file(COPY ${${NAME}_DATA}
         DESTINATION ${CMAKE_BINARY_DIR}/share/${PROJECT_NAME}/data)
       install(FILES ${${NAME}_DATA}
-        DESTINATION share/{PROJECT_NAME}/data COMPONENT examples)
+        DESTINATION share/${PROJECT_NAME}/data COMPONENT examples)
     endif()
   endif()
 
