@@ -1,5 +1,7 @@
 # git master
 
+* [497](https://github.com/Eyescale/CMake/pull/497):
+  Fix install directory of common_application data
 * [494](https://github.com/Eyescale/CMake/pull/494):
   Fix include paths in project header file for generated files within the binary dir
 * [493](https://github.com/Eyescale/CMake/pull/493):
