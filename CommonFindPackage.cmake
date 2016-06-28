@@ -43,31 +43,6 @@ set(ENV{PKG_CONFIG_PATH}
 
 option(COMMON_FIND_PACKAGE_QUIET "Use QUIET for common_find_package command" ON)
 
-if(WIN32)
-  set(__system Win32)
-endif()
-if(APPLE)
-  set(__system Darwin)
-endif()
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set(__system Linux)
-endif()
-
-list(APPEND COMMON_FIND_PACKAGE_DEFINES ${__system})
-if(COMMON_USE_CXX03)
-  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX03)
-else()
-  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX11)
-endif()
-
-include(TestBigEndian)
-test_big_endian(BIGENDIAN)
-if(BIGENDIAN)
-  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_BIGENDIAN)
-else()
-  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_LITTLEENDIAN)
-endif()
-
 macro(common_find_package Package_Name)
   string(TOUPPER ${Package_Name} PACKAGE_NAME)
   set(__args ${ARGN}) # ARGN is not a list. make one.
@@ -199,6 +174,31 @@ macro(common_find_package_disable)
 endmacro()
 
 macro(common_find_package_post)
+  if(WIN32)
+    set(__system Win32)
+  endif()
+  if(APPLE)
+    set(__system Darwin)
+  endif()
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(__system Linux)
+  endif()
+
+  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${__system})
+  if(COMMON_USE_CXX03)
+    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX03)
+  else()
+    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX11)
+  endif()
+
+  include(TestBigEndian)
+  test_big_endian(BIGENDIAN)
+  if(BIGENDIAN)
+    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_BIGENDIAN)
+  else()
+    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_LITTLEENDIAN)
+  endif()
+
   # Write defines.h and options.cmake
   if(NOT PROJECT_INCLUDE_NAME)
     message(FATAL_ERROR "PROJECT_INCLUDE_NAME not set, old or missing Common.cmake?")
