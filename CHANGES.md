@@ -1,13 +1,14 @@
-# git master
+# 2016.06 (30-Jun-2016)
 
 * [497](https://github.com/Eyescale/CMake/pull/497):
   Fix install directory of common_application data
 * [494](https://github.com/Eyescale/CMake/pull/494):
-  Fix include paths in project header file for generated files within the binary dir
+  Fix include paths in project header file for generated files within the binary
+  dir
 * [493](https://github.com/Eyescale/CMake/pull/493):
   Do not mess with LCOV_EXCLUDE which is set by outside users
-* [484](https://github.com/Eyescale/CMake/pull/484):
-  Fix coverage report generation for the top-level project.
+* [486](https://github.com/Eyescale/CMake/pull/486):
+  Fix coverage report generation for the top-level project
 * [478](https://github.com/Eyescale/CMake/pull/478):
   CMake3 port and various cleanups
     * CMake 3.1 is now required
@@ -41,10 +42,13 @@
 * [477](https://github.com/Eyescale/CMake/pull/477):
   Rename functions to common_cppcheck, common_clangcheck and
   common_cpplint to solve a name clash with ITK
-* Remove common_gui_application, add GUI and EXAMPLE arguments to
+* [474](https://github.com/Eyescale/CMake/pull/474):
+  common_library() : add an option to omit install (useful for test libs)
+* [472](https://github.com/Eyescale/CMake/pull/472):
+  Remove common_gui_application, add GUI and EXAMPLE arguments to
   common_application
 
-# 2016.04
+# 2016.04 (08-Apr-2016)
 
 * Add COMMON_OSX_TARGET_VERSION - OS X target version
 * Add OPTIONAL argument to git_external. This gives users the possibility of
