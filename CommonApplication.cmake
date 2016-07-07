@@ -27,7 +27,7 @@ include(CMakeParseArguments)
 include(StringifyShaders)
 
 function(common_application Name)
-  set(_opts GUI EXAMPLE)
+  set(_opts GUI EXAMPLE WIN32)
   set(_singleArgs)
   set(_multiArgs)
   cmake_parse_arguments(THIS "${_opts}" "${_singleArgs}" "${_multiArgs}"
@@ -49,6 +49,12 @@ function(common_application Name)
   if(THIS_GUI)
     if(APPLE)
       set(OPTIONS MACOSX_BUNDLE)
+    endif()
+  endif()
+
+  if(THIS_WIN32)
+    if(MSVC)
+      set(OPTIONS WIN32)
     endif()
   endif()
 
