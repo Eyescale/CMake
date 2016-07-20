@@ -1,4 +1,4 @@
-# - Try to find Poppler and specified components: {cpp, Qt4, Qt5}
+# - Try to find Poppler and specified components: {cpp, Qt4, Qt5, glib}
 # Once done this will define:
 #
 #  POPPLER_FOUND - system has Poppler and specified components
@@ -38,6 +38,13 @@ else()
   set(FIND_QT5 TRUE)
 endif()
 
+list(FIND Poppler_FIND_COMPONENTS "glib" FIND_POS)
+if(${FIND_POS} EQUAL -1)
+  set(FIND_GLIB FALSE)
+else()
+  set(FIND_GLIB TRUE)
+endif()
+
 # Default values
 set(POPPLER_FOUND FALSE)
 set(POPPLER_INCLUDE_DIRS)
@@ -58,6 +65,10 @@ if( NOT WIN32 )
   endif()
   if( FIND_QT5 )
     pkg_check_modules(POPPLER_QT5_PKG QUIET poppler-qt5)
+  endif()
+  if( FIND_GLIB )
+    pkg_check_modules(POPPLER_GLIB_PKG QUIET poppler-glib)
+    pkg_check_modules(GLIB_PKG QUIET glib-2.0)
   endif()
 endif( NOT WIN32 )
 
@@ -168,11 +179,43 @@ else( NOT(POPPLER_LIBRARY) )
       list(APPEND POPPLER_LIBRARIES ${POPPLER_QT5_LIBRARY})
     endif()
   endif()
+
+  if( FIND_GLIB )
+    list(APPEND POPPLER_REQUIRED POPPLER_GLIB_INCLUDE_DIR POPPLER_GLIB_LIBRARY)
+    find_path(POPPLER_GLIB_INCLUDE_DIR NAMES poppler.h
+              HINTS ${POPPLER_GLIB_INCLUDEDIR} ${POPPLER_GLIB_PKG_INCLUDEDIR}
+              PATH_SUFFIXES glib poppler/glib )
+
+    if( NOT(POPPLER_GLIB_INCLUDE_DIR) )
+      if( NOT Poppler_FIND_QUIETLY )
+        message( STATUS "Could not find Poppler-glib headers." )
+      endif( NOT Poppler_FIND_QUIETLY )
+    elseif( NOT(GLIB_PKG_FOUND) )
+      if( NOT Poppler_FIND_QUIETLY )
+        message( STATUS "Could not find glib headers needed by Poppler-glib." )
+      endif( NOT Poppler_FIND_QUIETLY )
+    else()
+      list(APPEND POPPLER_INCLUDE_DIRS ${POPPLER_GLIB_INCLUDE_DIR}
+           ${GLIB_PKG_INCLUDE_DIRS})
+    endif()
+    find_library(
+      POPPLER_GLIB_LIBRARY NAMES poppler-glib ${POPPLER_GLIB_PKG_LIBRARIES}
+      HINTS ${POPPLER_PKG_LIBDIR} ${POPPLER_GLIB_PKG_LIBDIR} )
+    if( NOT(POPPLER_GLIB_LIBRARY) )
+      if( NOT Poppler_FIND_QUIETLY )
+        message(STATUS "Could not find libpoppler-glib." )
+      endif( NOT Poppler_FIND_QUIETLY )
+    else()
+      list(APPEND POPPLER_LIBRARIES ${POPPLER_GLIB_LIBRARY})
+    endif()
+  endif()
+
 endif( NOT(POPPLER_LIBRARY) )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Poppler DEFAULT_MSG ${POPPLER_REQUIRED})
 
 mark_as_advanced(POPPLER_CPP_INCLUDE_DIR POPPLER_QT4_INCLUDE_DIR
-                 POPPLER_QT5_INCLUDE_DIR POPPLER_LIBRARIES POPPLER_CPP_LIBRARY
-                 POPPLER_QT4_LIBRARY POPPLER_QT5_LIBRARY)
+                 POPPLER_QT5_INCLUDE_DIR POPPLER_GLIB_INCLUDE_DIR
+                 POPPLER_LIBRARIES POPPLER_CPP_LIBRARY OPPLER_QT4_LIBRARY
+                 POPPLER_QT5_LIBRARY POPPLER_GLIB_LIBRARY)
