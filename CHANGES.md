@@ -1,5 +1,8 @@
 # 2016.06 (30-Jun-2016)
 
+* [503](https://github.com/Eyescale/CMake/pull/503):
+  Added optional MODULE argument to common_find_package() as a hint for
+  pkg_config. Example usage: common_find_package(RSVG MODULE librsvg-2.0)
 * [500](https://github.com/Eyescale/CMake/pull/500):
   Added WIN32 option to CommonApplication to be able to build WinMain-based
   apps (no console).
