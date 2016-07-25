@@ -45,54 +45,46 @@ option(COMMON_FIND_PACKAGE_QUIET "Use QUIET for common_find_package command" ON)
 
 macro(common_find_package Package_Name)
   string(TOUPPER ${Package_Name} PACKAGE_NAME)
-  set(__args ${ARGN}) # ARGN is not a list. make one.
 
-  # SYSTEM specified?
-  set(__is_system_package)
-  if(__args)
-    string(REGEX MATCH "SYSTEM?" __is_system_package ${__args})
-    list(REMOVE_ITEM __args "SYSTEM")
-  endif()
+  # Parse macro arguments
+  set(__options QUIET REQUIRED SYSTEM)
+  set(__oneValueArgs MODULE)
+  set(__multiValueArgs)
+  cmake_parse_arguments(__pkg "${__options}" "${__oneValueArgs}" "${__multiValueArgs}" ${ARGN})
 
   # Boost is always SYSTEM
   if(${Package_Name} STREQUAL "Boost")
-    set(__is_system_package ON)
+    set(__pkg_SYSTEM TRUE)
   endif()
 
-  # Get (optional) version from argument
-  set(__package_version)
-  if(__args)
-    list(GET __args 0 __package_version)
-    if(__package_version MATCHES "^[0-9.]+$") # is a version
-      set(__package_version ">=${__package_version}")
-    endif()
-  endif()
-
-  # QUIET either via as global option or as argument
+  # QUIET either via global option or macro argument
   set(__find_quiet)
-  if(COMMON_FIND_PACKAGE_QUIET)
+  if(__pkg_QUIET OR COMMON_FIND_PACKAGE_QUIET)
     set(__find_quiet "QUIET")
-  else()
-    list(FIND __args "QUIET" __quiet_pos)
-    if(NOT __quiet_pos EQUAL -1)
-      set(__find_quiet "QUIET")
-    endif()
   endif()
 
-  list(FIND __args "REQUIRED" __is_required)
-  if(NOT __is_required EQUAL -1)
-    list(REMOVE_AT __args ${__is_required})
-  endif()
+  # try standard cmake way
+  find_package(${Package_Name} ${__find_quiet} ${__pkg_UNPARSED_ARGUMENTS})
 
-  find_package(${Package_Name} ${__find_quiet} ${__args}) # standard cmake way
+  # if no results, try pkg_config way
   if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND) AND PKG_CONFIG_EXECUTABLE)
-    pkg_check_modules(${Package_Name} ${Package_Name}${__package_version}
-      ${__find_quiet}) # try pkg_config way
+    # module name defaults to Package_Name if not provided
+    if(NOT __pkg_MODULE)
+      set(__pkg_MODULE ${Package_Name})
+    endif()
+    # Get (optional) version from arguments
+    set(__package_version_check)
+    if(__pkg_UNPARSED_ARGUMENTS)
+      list(GET __pkg_UNPARSED_ARGUMENTS 0 __package_version)
+      if(__package_version MATCHES "^[0-9.]+$") # is a version
+        set(__package_version_check ">=${__package_version}")
+      endif()
+    endif()
+    pkg_check_modules(${Package_Name} ${__pkg_MODULE}${__package_version_check}
+      ${__find_quiet})
   endif()
 
-  if(__is_required EQUAL -1)   # Optional find
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
-  else() # required find
+  if(__pkg_REQUIRED)  # required find
     if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND))
       if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
         message(FATAL_ERROR "Not configured ${PROJECT_NAME}: Required ${Package_Name} not found")
@@ -102,6 +94,8 @@ macro(common_find_package Package_Name)
       return()
     endif()
     common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE FALSE)
+  else()  # optional find
+    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
   endif()
 
   if(${PACKAGE_NAME}_FOUND)
@@ -148,7 +142,7 @@ macro(common_find_package Package_Name)
     if(NOT "${${PACKAGE_NAME}_INCLUDE_DIR}" MATCHES "-NOTFOUND")
       list(APPEND __include_dirs ${${PACKAGE_NAME}_INCLUDE_DIR})
     endif()
-    if(__is_system_package)
+    if(__pkg_SYSTEM)
       include_directories(BEFORE SYSTEM ${__include_dirs})
     else()
       include_directories(${__include_dirs})
