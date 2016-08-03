@@ -78,6 +78,9 @@ The following CMake modules can be included in your project:
 
 Additional features:
 * Users can use "cmake -DINSTALL_PACKAGES=1" during the initial configuration to
-  install known system packages (Ubuntu and OS X only).
+  install known system packages.
+  This is only implemented for Linux distributions using apt-get and yum
+  package managers and MacPorts in OS X. The actual support depends on the
+  project declaring its dependencies for each particular case.
 
 [Detailed Change Log](CHANGES.md)
