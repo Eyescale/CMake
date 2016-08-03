@@ -1,3 +1,10 @@
+# git master
+
+* [504](https://github.com/Eyescale/CMake/pull/504):
+    * Add support for yum to subproject_install_packages
+    * Make sure that package installation is only attempted if INSTALL_PACKAGES
+      is in the command line (i.e. do not cache the variable).
+
 # 2016.06 (30-Jun-2016)
 
 * [503](https://github.com/Eyescale/CMake/pull/503):

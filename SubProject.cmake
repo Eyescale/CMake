@@ -37,8 +37,11 @@
 # - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
 #   example for continuous integration builds
 # - SUBPROJECT_${name}: If set to OFF, the subproject is not added.
-# - INSTALL_PACKAGES: command line cache variable which will "apt-get" or
-#   "port install" the known system packages. Will be unset after installation.
+# - INSTALL_PACKAGES: command line cache variable which will "apt-get", "yum" or
+#   "port install" the known system packages. This variable is unset after this
+#   script is parsed by top level projects.
+#   The packages to install are taken from ${PROJECT_NAME}_${type}_DEPENDS
+#   where type is DEB, RPM or PORT depending on the system.
 # - COMMON_SOURCE_DIR: When set, the source code of subprojects will be
 #   downloaded in this path instead of CMAKE_SOURCE_DIR.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
@@ -80,12 +83,40 @@ function(subproject_install_packages name)
     clang-format-3.5) # optional deb packages, not added to build spec
   list(APPEND ${NAME}_PORT_DEPENDS cppcheck)
 
-  if(${NAME}_DEB_DEPENDS AND CMAKE_SYSTEM_NAME MATCHES "Linux" )
-    list(SORT ${NAME}_DEB_DEPENDS)
-    list(REMOVE_DUPLICATES ${NAME}_DEB_DEPENDS)
-    message("Running 'sudo apt-get install ${${NAME}_DEB_DEPENDS}'")
-    execute_process(COMMAND sudo apt-get install ${${NAME}_DEB_DEPENDS})
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux" )
+    # Detecting the package manager to use
+    find_program(__pkg_mng apt-get)
+    if(__pkg_mng)
+      set(__pkg_type DEB)
+    else()
+      find_program(__pkg_mng yum)
+      if(__pkg_mng)
+        set(__pkg_type RPM)
+      endif()
+    endif()
+  elseif(APPLE)
+    find_program(__pkg_mng port)
   endif()
+
+  if(NOT __pkg_mng)
+    message(WARNING "Could not find the package manager tool for installing dependencies in this system")
+    # Removing INSTALL_PACKAGES so the warning is not printed repeatedly.
+    unset(INSTALL_PACKAGES CACHE)
+    return()
+  else()
+    # We don't want __pkg_mng to appear in ccmake.
+    set(__pkg_mng ${__pkg_mng} CACHE INTERNAL "")
+  endif()
+
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND ${NAME}_${__pkg_type}_DEPENDS)
+    list(SORT ${NAME}_${__pkg_type}_DEPENDS)
+    list(REMOVE_DUPLICATES ${NAME}_${__pkg_type}_DEPENDS)
+    message(
+      "Running 'sudo ${__pkg_mng} install ${${NAME}_${__pkg_type}_DEPENDS}'")
+    execute_process(
+      COMMAND sudo ${__pkg_mng} install ${${NAME}_${__pkg_type}_DEPENDS})
+  endif()
+
   if(${NAME}_PORT_DEPENDS AND APPLE)
     list(SORT ${NAME}_PORT_DEPENDS)
     list(REMOVE_DUPLICATES ${NAME}_PORT_DEPENDS)
@@ -241,4 +272,11 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
     endif()
     add_dependencies(update ${PROJECT_NAME}-update-git-subprojects)
   endif()
+
+  if(NOT ${PROJECT_NAME}_IS_SUBPROJECT)
+    # If this variable was given in the command line, ensure that the package
+    # installation is only run in this cmake invocation.
+    unset(INSTALL_PACKAGES CACHE)
+  endif()
+
 endif()
