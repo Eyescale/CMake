@@ -1,5 +1,7 @@
 # git master
 
+* [505](https://github.com/Eyescale/CMake/pull/505):
+  Added CommonCUDA.cmake with some common configuration checks for CUDA.
 * [504](https://github.com/Eyescale/CMake/pull/504):
     * Add support for yum to subproject_install_packages
     * Make sure that package installation is only attempted if INSTALL_PACKAGES

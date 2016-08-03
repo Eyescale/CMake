@@ -34,6 +34,7 @@
 
 include(CommonGraph)
 include(InstallFiles)
+include(CommonCUDA)
 
 if(NOT PKGCONFIG_FOUND AND NOT MSVC)
   find_package(PkgConfig QUIET)
@@ -256,6 +257,10 @@ macro(common_find_package_post)
   endif()
   if(MPI_FOUND)
     include_directories(SYSTEM ${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
+  endif()
+
+  if(CUDA_FOUND)
+    find_cuda_compatible_host_compiler()
   endif()
 
   set(__configure_msg "Configured ${PROJECT_NAME} [${GIT_STATE}]")
