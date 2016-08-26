@@ -1,5 +1,8 @@
 # git master
 
+* [506](https://github.com/Eyescale/CMake/pull/506):
+  Added CommonPythonTest.cmake to ease adding Python tests to project under
+  CTest.
 * [505](https://github.com/Eyescale/CMake/pull/505):
   Added CommonCUDA.cmake with some common configuration checks for CUDA.
 * [504](https://github.com/Eyescale/CMake/pull/504):
