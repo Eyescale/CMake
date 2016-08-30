@@ -1,5 +1,7 @@
 # git master
 
+* [507](https://github.com/Eyescale/CMake/pull/507):
+  Handle required version in FindNumPy.cmake
 * [506](https://github.com/Eyescale/CMake/pull/506):
   Added CommonPythonTest.cmake to ease adding Python tests to project under
   CTest.
