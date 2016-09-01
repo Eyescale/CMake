@@ -18,19 +18,19 @@ if (PYTHON_EXECUTABLE)
   # Find out the include path
   execute_process(
     COMMAND "${PYTHON_EXECUTABLE}" -c
-            "try: import numpy; print(numpy.get_include())\nexcept:pass\n"
+            "from __future__ import print_function\ntry: import numpy; print(numpy.get_include(), end='')\nexcept:pass\n"
             OUTPUT_VARIABLE __numpy_path)
   # And the version
   execute_process(
     COMMAND "${PYTHON_EXECUTABLE}" -c
-            "try: import numpy; print(numpy.__version__)\nexcept:pass\n"
+            "from __future__ import print_function\ntry: import numpy; print(numpy.__version__, end='')\nexcept:pass\n"
     OUTPUT_VARIABLE __numpy_version)
 elseif(__numpy_out)
   message(STATUS "Python executable not found.")
 endif(PYTHON_EXECUTABLE)
 
 find_path(PYTHON_NUMPY_INCLUDE_DIR numpy/arrayobject.h
-  HINTS "${__numpy_path}" "${PYTHON_INCLUDE_PATH}")
+  HINTS "${__numpy_path}" "${PYTHON_INCLUDE_PATH}" NO_DEFAULT_PATH)
 
 if(PYTHON_NUMPY_INCLUDE_DIR)
   set(PYTHON_NUMPY_FOUND 1 CACHE INTERNAL "Python numpy found")
