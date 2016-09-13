@@ -15,7 +15,6 @@ function(find_cuda_compatible_host_compiler)
   endif()
 
   set(_host_config "${CUDA_INCLUDE_DIRS}/host_config.h")
-
   if(NOT EXISTS "${_host_config}")
     message(SEND_ERROR "host_config.h CUDA header not found")
     return()
@@ -27,8 +26,10 @@ function(find_cuda_compatible_host_compiler)
   file(STRINGS "${_host_config}" _host_config_content REGEX "#if __GNUC__")
   # Different versions of host_config.h differ in how they check if the
   # version of gcc is supported.
+  string(REGEX REPLACE "#if __GNUC__ > ([0-9]) \\|\\| \\(__GNUC__ == ([0-9]) && __GNUC_MINOR__ > ([0-9]*)\\)"
+    "\\2.\\3" _max_gcc_version_supported ${_host_config_content})
   string(REGEX REPLACE "#if __GNUC__ == ([0-9]) && __GNUC_MINOR__ > ([0-9]+)"
-    "\\1.\\2" _max_gcc_version_supported ${_host_config_content})
+    "\\1.\\2" _max_gcc_version_supported ${_max_gcc_version_supported})
   string(REGEX REPLACE "#if __GNUC__ > ([0-9])"
     "\\1" _max_gcc_version_supported ${_max_gcc_version_supported})
   string(REPLACE "." "" _maxgccversionsupported ${_max_gcc_version_supported})
@@ -50,10 +51,7 @@ function(find_cuda_compatible_host_compiler)
       find_program(_gcc_binary gcc${_maxgccversionsupported})
     endif()
 
-    if(NOT _gcc_binary)
-      # Trying finally with the default compiler on the path.
-      # This is needed for example when not using a system level binary.
-      find_program(_gcc_binary gcc)
+    macro(CHECK_GCC_VERSION)
       execute_process(COMMAND ${_gcc_binary} -dumpversion
         OUTPUT_VARIABLE _gcc_version OUTPUT_STRIP_TRAILING_WHITESPACE)
       # Reducing the version number to 1 or 2 digits depending on how
@@ -67,6 +65,19 @@ function(find_cuda_compatible_host_compiler)
       endif()
       if(${_gcc_version} VERSION_GREATER ${_max_gcc_version_supported})
         unset(_gcc_binary CACHE)
+      endif()
+    endmacro()
+
+    if(NOT _gcc_binary)
+      # Try with the default compiler on the path.
+      # This is needed for example when not using a system level binary.
+      find_program(_gcc_binary gcc)
+      check_gcc_version()
+
+      if(NOT _gcc_binary)
+        # Finally try with the default system compiler.
+        find_program(_gcc_binary gcc PATHS /usr/bin NO_DEFAULT_PATH)
+        check_gcc_version()
       endif()
     endif()
 
