@@ -127,9 +127,11 @@ function(common_library Name)
       # append a debug suffix to library name on windows or if user requests it
       common_set_lib_name_postfix()
 
-      add_library(${LibName} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      add_library(${LibName} ${LIBRARY_TYPE}
+        ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
       set_target_properties(${LibName} PROPERTIES
-        VERSION ${${PROJECT_NAME}_VERSION} SOVERSION ${${PROJECT_NAME}_VERSION_ABI}
+        VERSION ${${PROJECT_NAME}_VERSION}
+        SOVERSION ${${PROJECT_NAME}_VERSION_ABI}
         OUTPUT_NAME ${Name} FOLDER ${PROJECT_NAME})
       target_link_libraries(${LibName} ${LINK_LIBRARIES})
 

@@ -1,5 +1,7 @@
 # git master
 
+* [510](https://github.com/Eyescale/CMake/pull/510):
+  Also create project-all target for super project
 * [507](https://github.com/Eyescale/CMake/pull/507):
   Handle required version in FindNumPy.cmake
 * [506](https://github.com/Eyescale/CMake/pull/506):

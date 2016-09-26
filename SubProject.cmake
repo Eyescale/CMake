@@ -17,7 +17,6 @@
 # - An '${PROJECT_NAME}-update-git-subprojects' target to update the <gittag> of
 #   all the .gitsubprojects entries to their latest respective origin/master ref
 # - A generic 'update' target to execute 'update-git-subrojects' recursively
-# - A <project>-all target to build only the given sub project
 #
 # To be compatible with the SubProject feature, (sub)projects might need to
 # adapt their CMake scripts in the following way:
@@ -184,12 +183,6 @@ function(add_subproject name)
 
   # Mark globally that we've already used name as a sub project
   set_property(GLOBAL PROPERTY ${name}_IS_SUBPROJECT ON)
-  # Create <project>-all target
-  get_property(__targets GLOBAL PROPERTY ${name}_ALL_DEP_TARGETS)
-  if(__targets)
-    add_custom_target(${name}-all DEPENDS ${__targets})
-    set_target_properties(${name}-all PROPERTIES FOLDER ${name})
-  endif()
 endfunction()
 
 macro(git_subproject name url tag)

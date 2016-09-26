@@ -1,12 +1,13 @@
-# Copyright (c) 2012-2014 Fabien Delalondre <fabien.delalondre@epfl.ch>
+# Copyright (c) 2012-2016 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #                         Stefan.Eilemann@epfl.ch
 #
 # Sets compiler optimization, definition and warnings according to
 # chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
 # or later) and Visual Studio (2008 or later).
 #
-# This defines the common_compile_options() function to apply compiler flags and
-# features for the given target.
+# This defines the common_compile_options() function to apply compiler
+# flags and features for the given target, and adds the target to the
+# project-all meta target.
 #
 # Input Variables
 # * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
@@ -169,6 +170,7 @@ set(COMMON_CXX_FLAGS_RELWITHDEBINFO -DNDEBUG)
 list(APPEND COMMON_CXX_FLAGS ${COMMON_C_FLAGS})
 
 function(common_compile_options Name)
+  add_dependencies(${PROJECT_NAME}-all ${Name})
   get_target_property(__type ${Name} TYPE)
   set(__visibility PUBLIC)
   if(__type STREQUAL INTERFACE_LIBRARY)
