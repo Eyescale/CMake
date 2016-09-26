@@ -1,15 +1,17 @@
 # Common settings
 #
 # Output variables
-#   UPPER_PROJECT_NAME - lower-case ${PROJECT_NAME}
-#   LOWER_PROJECT_NAME - upper-case ${PROJECT_NAME}
-#   TRAVIS - if environment is travis build system
-#   BLUEGENE - if machine is BlueGene
-#   LINUX - if machine is Linux
-#   LINUX_PPC - if machine is PowerPC Linux
-#   COMMON_DOC_DIR - folder for documentation, share/${PROJECT_NAME}/doc
-#   COMMON_OSX_TARGET_VERSION - OS X target version
+# - UPPER_PROJECT_NAME - lower-case ${PROJECT_NAME}
+# - LOWER_PROJECT_NAME - upper-case ${PROJECT_NAME}
+# - TRAVIS - if environment is travis build system
+# - BLUEGENE - if machine is BlueGene
+# - LINUX - if machine is Linux
+# - LINUX_PPC - if machine is PowerPC Linux
+# - COMMON_DOC_DIR - folder for documentation, share/${PROJECT_NAME}/doc
+# - COMMON_OSX_TARGET_VERSION - OS X target version
 #
+# Output targets
+# - A <project>-all target to build only the given (sub)project
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
@@ -113,6 +115,12 @@ endif()
 set(PROJECT_namespace ${${UPPER_PROJECT_NAME}_namespace})
 if(NOT PROJECT_namespace)
   set(PROJECT_namespace ${PROJECT_INCLUDE_NAME})
+endif()
+
+if(NOT TARGET ${PROJECT_NAME}-all)
+  # Create <project>-all target. Deps are added by common_compile_options()
+  add_custom_target(${PROJECT_NAME}-all)
+  set_target_properties(${PROJECT_NAME}-all PROPERTIES FOLDER ${PROJECT_NAME})
 endif()
 
 set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc)
