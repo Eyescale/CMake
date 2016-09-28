@@ -118,7 +118,7 @@ if(NOT PROJECT_namespace)
 endif()
 
 if(NOT TARGET ${PROJECT_NAME}-all)
-  # Create <project>-all target. Deps are added by common_compile_options()
+  # Create <project>-all target. Deps are added by common_lib/app/test macros
   add_custom_target(${PROJECT_NAME}-all)
   set_target_properties(${PROJECT_NAME}-all PROPERTIES FOLDER ${PROJECT_NAME})
 endif()
