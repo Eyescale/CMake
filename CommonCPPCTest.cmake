@@ -1,6 +1,6 @@
-# Copyright (c) 2010 Daniel Pfeifer
-#               2010-2015, Stefan Eilemann <eile@eyescale.ch>
-#               2014, Juan Hernando <jhernando@fi.upm.es>
+# Copyright (c) 2010-2016 Daniel Pfeifer
+#                         Stefan Eilemann <eile@eyescale.ch>
+#                         Juan Hernando <jhernando@fi.upm.es>
 #
 # Creates per project cpptests, perftests and nightlytests targets.
 # The first one creates a test for each .c or .cpp file in the current
@@ -65,12 +65,10 @@ macro(common_add_cpp_test NAME FILE)
 
   add_executable(${TEST_NAME} ${FILE})
   common_compile_options(${TEST_NAME})
+  add_dependencies(${PROJECT_NAME}-all ${TEST_NAME})
   common_check_targets(${TEST_NAME})
   set_target_properties(${TEST_NAME} PROPERTIES FOLDER ${PROJECT_NAME}/tests
     OUTPUT_NAME ${NAME})
-
-  # for DoxygenRule.cmake and SubProject.cmake
-  set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${TEST_NAME})
 
   # Per target INCLUDE_DIRECTORIES
   if(${NAME}_INCLUDE_DIRECTORIES)

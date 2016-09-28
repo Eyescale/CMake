@@ -1,5 +1,5 @@
-# Copyright (c) 2014 Stefan.Eilemann@epfl.ch
-#               2015 Raphael.Dumusc@epfl.ch
+# Copyright (c) 2014-2016 Stefan.Eilemann@epfl.ch
+#                         Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
 #   common_application(<Name> [GUI] [EXAMPLE])
@@ -61,6 +61,7 @@ function(common_application Name)
   add_executable(${Name} ${OPTIONS} ${_ICON} ${HEADERS} ${SOURCES})
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
   common_compile_options(${Name})
+  add_dependencies(${PROJECT_NAME}-all ${Name})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
 
@@ -120,9 +121,6 @@ function(common_application Name)
         DESTINATION share/${PROJECT_NAME}/data COMPONENT examples)
     endif()
   endif()
-
-  # for DoxygenRule.cmake and SubProject.cmake
-  set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_ALL_DEP_TARGETS ${Name})
 
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)
     common_check_targets(${Name})

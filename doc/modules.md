@@ -62,10 +62,8 @@ Generates: .../include/lunchbox.h
     Lunchbox::Lock (lock, spinlock, scoped, monitor, queue, lockable)
     Lunchbox::LockFree
     Lunchbox::Log
-    Lunchbox::MPI
     Lunchbox::MemoryMap
     Lunchbox::Monitor
-    Lunchbox::OMP
     Lunchbox::OS
     Lunchbox::PersistentMap
     Lunchbox::Plugin
