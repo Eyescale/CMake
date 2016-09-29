@@ -1,5 +1,10 @@
 # Copyright (c) 2014 Stefan.Eilemann@epfl.ch
-#  Writes ProjectInfo.cmake for installed html docs
+# [DEPRECATED] Writes ProjectInfo.cmake for installed html docs.
+#
+# The generated ProjectInfo.cmake was used by Doxygit.cmake for the manual
+# generation of an html index page. Since Doxygit has been deprecated in favor
+# of a Jekyll-generated index page on github.io (GitHub pages) this file shall
+# be removed too at some later point.
 #
 # Input Variables:
 # * ${UPPER_PROJECT_NAME}_MATURITY EP, RD or RS

@@ -132,7 +132,6 @@ include(CommonCompiler)
 include(CommonCoverage)
 include(GitInfo)
 include(GitTargets)
-include(Maturity)
 include(ProjectInfo)
 include(UpdateGitExternal)
 
