@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2014 Fabien Delalondre <fabien.delalondre@epfl.ch>
+# Copyright (c) 2012-2016 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #                         Stefan.Eilemann@epfl.ch
 #
 # Sets compiler optimization, definition and warnings according to
@@ -40,6 +40,7 @@ endif()
 
 option(COMMON_WARN_DEPRECATED "Enable compiler deprecation warnings" ON)
 option(COMMON_ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
+option(COMMON_DISABLE_WERROR "Disable -Werror flag" OFF)
 
 if(COMMON_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
@@ -86,7 +87,7 @@ if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
   set(COMMON_CXX_FLAGS
     -Wnon-virtual-dtor -Wsign-promo -Wvla -fno-strict-aliasing)
 
-  if(NOT WIN32 AND NOT XCODE_VERSION)
+  if(NOT WIN32 AND NOT XCODE_VERSION AND NOT COMMON_DISABLE_WERROR)
     list(APPEND COMMON_C_FLAGS -Werror)
   endif()
 
