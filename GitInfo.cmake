@@ -68,7 +68,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
       set(GIT_ROOT_URL ${GIT_ORIGIN_URL})
     endif()
     if(NOT GIT_STATE)
-       set(GIT_STATE "<no-tag>")
+      set(GIT_STATE "<no-tag>")
     endif()
     string(REPLACE "* " "" GIT_BRANCH ${GIT_BRANCH})
 
