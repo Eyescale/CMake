@@ -264,13 +264,13 @@ macro(common_find_package_post)
   endif()
 
   set(__configure_msg "${PROJECT_NAME} [${GIT_STATE}]")
-  if(${PROJECT_NAME}_FIND_PACKAGES_FOUND)
+  if(${PROJECT_NAME}_FIND_PACKAGES_FOUND AND NOT COMMON_FIND_PACKAGE_QUIET)
     set(__configure_msg
       "${__configure_msg} with${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
   endif()
   if(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND)
     set(__configure_msg
-      "${__configure_msg} WITHOUT${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND}")
+      "${__configure_msg} without${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND}")
   endif()
   common_graph(${PROJECT_NAME})
   message(STATUS ${__configure_msg})
