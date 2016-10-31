@@ -41,6 +41,11 @@ endif()
 option(COMMON_WARN_DEPRECATED "Enable compiler deprecation warnings" ON)
 option(COMMON_ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
 option(COMMON_DISABLE_WERROR "Disable -Werror flag" OFF)
+if($ENV{CMAKE_COMMON_USE_CXX03_ABI}) # set by viz/env module
+  option(COMMON_ENABLE_CXX11_ABI "Enable C++11 ABI for gcc 5 or later" OFF)
+else()
+  option(COMMON_ENABLE_CXX11_ABI "Enable C++11 ABI for gcc 5 or later" ON)
+endif()
 
 if(COMMON_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
@@ -79,6 +84,10 @@ if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
     if(GCC_COMPILER_VERSION VERSION_LESS 4.8)
       # http://stackoverflow.com/questions/4438084
       add_definitions(-D_GLIBCXX_USE_NANOSLEEP)
+    endif()
+    if(NOT COMMON_ENABLE_CXX11_ABI)
+      # http://stackoverflow.com/questions/30668560
+      add_definitions("-D_GLIBCXX_USE_CXX11_ABI=0")
     endif()
   endif()
 
