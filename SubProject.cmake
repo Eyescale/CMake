@@ -186,31 +186,35 @@ function(add_subproject name)
 endfunction()
 
 macro(git_subproject name url tag)
-  # enter early to catch all dependencies
-  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
-  if(NOT DISABLE_SUBPROJECTS)
-    string(TOUPPER ${name} NAME)
-    if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(NOT __included)
-        if(NOT EXISTS ${__common_source_dir}/${name})
-          # Always try first using Config mode, then Module mode.
-          find_package(${name} QUIET CONFIG)
-          if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-            find_package(${name} QUIET MODULE)
+  if(__subprojects_collect)
+    list(APPEND __subprojects "${name} ${url} ${tag}")
+  else()
+    # enter early to catch all dependencies
+    common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
+    if(NOT DISABLE_SUBPROJECTS)
+      string(TOUPPER ${name} NAME)
+      if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+        get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+        if(NOT __included)
+          if(NOT EXISTS ${__common_source_dir}/${name})
+            # Always try first using Config mode, then Module mode.
+            find_package(${name} QUIET CONFIG)
+            if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+              find_package(${name} QUIET MODULE)
+            endif()
+          endif()
+          if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
+              ${NAME}_FOUND_SUBPROJECT)
+            # not found externally, add as sub project
+            git_external(${__common_source_dir}/${name} ${url} ${tag})
+            add_subproject(${name})
           endif()
         endif()
-        if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
-            ${NAME}_FOUND_SUBPROJECT)
-          # not found externally, add as sub project
-          git_external(${__common_source_dir}/${name} ${url} ${tag})
-          add_subproject(${name})
-        endif()
       endif()
-    endif()
-    get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-    if(__included)
-      list(APPEND __subprojects "${name} ${url} ${tag}")
+      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+      if(__included)
+        list(APPEND __subprojects "${name} ${url} ${tag}")
+      endif()
     endif()
   endif()
 endmacro()
@@ -219,7 +223,51 @@ endmacro()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
   subproject_install_packages(${PROJECT_NAME})
 
-  set(__subprojects) # appended on each git_subproject invocation
+  # Gather all subprojects
+  set(__subprojects_collect 1)
+  set(__subprojects) # all appended on each git_subproject invocation
+  include(.gitsubprojects)
+  set(__subprojects_collect)
+
+  # Clone all subprojects in parallel
+  set(__all_subprojects "${__subprojects}")
+  set(__clone_subprojects)
+  foreach(__subproject ${__subprojects})
+    string(REPLACE " " ";" __subproject_list ${__subproject})
+    list(GET __subproject_list 0 __name)
+    list(GET __subproject_list 1 __repo)
+    list(GET __subproject_list 2 __tag)
+    set(__dir "${__common_source_dir}/${__name}")
+
+    if(NOT EXISTS "${__dir}")
+      message(STATUS "git clone --recursive ${__repo} ${__name} [${__tag}]")
+      file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake"
+        "execute_process("
+        "  COMMAND \"${GIT_EXECUTABLE}\" clone --recursive ${__repo} ${__dir}"
+        "  RESULT_VARIABLE nok ERROR_VARIABLE error)\n"
+        "if(nok)\n"
+        "  message(FATAL_ERROR \"${__name} clone failed: \${error}\")\n"
+        "endif()\n"
+        "execute_process(COMMAND \"${GIT_EXECUTABLE}\" checkout -q ${__tag}"
+        "  RESULT_VARIABLE nok ERROR_VARIABLE error"
+        "  WORKING_DIRECTORY ${__dir})\n"
+        "if(nok)\n"
+        "  message(FATAL_ERROR \"git checkout ${__tag} in ${__dir} failed: \${error}\")\n"
+        "endif()\n")
+      list(APPEND __clone_subprojects COMMAND "${CMAKE_COMMAND}" -P
+        "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake")
+    endif()
+  endforeach()
+  if(__clone_subprojects)
+    execute_process(${__clone_subprojects}
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${__common_source_dir}")
+    if(nok)
+      message(FATAL_ERROR "Cloning of projects failed: ${error}")
+    endif()
+  endif()
+
+  set(__subprojects) # activate projects on each git_subproject invocation
   include(.gitsubprojects)
   if(__subprojects)
     get_property(__subproject_paths GLOBAL PROPERTY SUBPROJECT_PATHS)
