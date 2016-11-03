@@ -130,7 +130,7 @@ include(CommonFindPackage)
 
 # OPT
 if(NOT DOXYGEN_FOUND)
-  find_package(Doxygen QUIET)
+  common_find_package(Doxygen QUIET)
 endif()
 
 include(CommonApplication)
