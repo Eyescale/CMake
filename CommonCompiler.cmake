@@ -118,7 +118,7 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(COMMON_C_FLAGS
     -Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas)
   set(COMMON_CXX_FLAGS
-    -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo -Wnon-virtual-dtor)
+    -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo)
 
   # Release: automatically generate instructions for the highest
   # supported compilation host
