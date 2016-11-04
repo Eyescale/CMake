@@ -128,7 +128,8 @@ set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc)
 include(ChoosePython) # Must be before any find_package to python
 include(CommonFindPackage)
 
-# OPT
+# OPT: reduce CMake runtime by finding Doxygen only once per superproject, not
+# in every include of Doxygen.cmake
 if(NOT DOXYGEN_FOUND)
   find_package(Doxygen QUIET)
 endif()
