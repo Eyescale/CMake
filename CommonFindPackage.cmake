@@ -180,11 +180,7 @@ macro(common_find_package_post)
   endif()
 
   list(APPEND COMMON_FIND_PACKAGE_DEFINES ${__system})
-  if(COMMON_USE_CXX03)
-    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX03)
-  else()
-    list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX11)
-  endif()
+  list(APPEND COMMON_FIND_PACKAGE_DEFINES ${UPPER_PROJECT_NAME}_USE_CXX11)
 
   include(TestBigEndian)
   test_big_endian(BIGENDIAN)
