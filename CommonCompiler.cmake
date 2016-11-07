@@ -132,6 +132,10 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   if(NOT COMMON_USE_CXX03)
     list(APPEND COMMON_CXX_FLAGS -std=c++11)
   endif()
+  if(NOT COMMON_ENABLE_CXX11_ABI)
+    # http://stackoverflow.com/questions/30668560
+    add_definitions("-D_GLIBCXX_USE_CXX11_ABI=0")
+  endif()
 
 elseif(CMAKE_COMPILER_IS_XLCXX)
   # default: Maintain code semantics Fix to link dynamically. On the
