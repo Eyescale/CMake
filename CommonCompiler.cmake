@@ -9,8 +9,7 @@
 # features for the given target.
 #
 # Input Variables
-# * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.4
-# * COMMON_USE_CXX03 When set, do not enable C++11 language features
+# * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.8
 #
 # Output Variables
 # * CMAKE_COMPILER_IS_XLCXX for IBM XLC
@@ -72,14 +71,11 @@ endfunction()
 if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
   compiler_dumpversion(GCC_COMPILER_VERSION)
   if(NOT COMMON_MINIMUM_GCC_VERSION)
-    set(COMMON_MINIMUM_GCC_VERSION 4.4)
+    set(COMMON_MINIMUM_GCC_VERSION 4.8)
   endif()
   if(CMAKE_COMPILER_IS_GCC)
     if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
-    endif()
-    if(GCC_COMPILER_VERSION VERSION_LESS 4.5)
-      set(COMMON_USE_CXX03 ON)
     endif()
     if(GCC_COMPILER_VERSION VERSION_LESS 4.8)
       # http://stackoverflow.com/questions/4438084
@@ -129,8 +125,10 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_CXX_COMPILE_FEATURES ${CMAKE_CXX11_COMPILE_FEATURES})
   set(CMAKE_CXX11_STANDARD_COMPILE_OPTION "-std=c++11")
   set(CMAKE_CXX11_EXTENSION_COMPILE_OPTION "-std=c++11")
-  if(NOT COMMON_USE_CXX03)
-    list(APPEND COMMON_CXX_FLAGS -std=c++11)
+  list(APPEND COMMON_CXX_FLAGS -std=c++11)
+  if(NOT COMMON_ENABLE_CXX11_ABI)
+    # http://stackoverflow.com/questions/30668560
+    add_definitions("-D_GLIBCXX_USE_CXX11_ABI=0")
   endif()
 
 elseif(CMAKE_COMPILER_IS_XLCXX)
@@ -185,20 +183,11 @@ function(common_compile_options Name)
     set(__interface 1)
     set(__visibility INTERFACE)
   endif()
-  if(COMMON_USE_CXX03)
-    target_compile_definitions(${Name} ${__visibility}
-      ${UPPER_PROJECT_NAME}_USE_CXX03)
-    if(NOT __interface)
-      set_property(TARGET ${Name} PROPERTY C_STANDARD 99)
-      set_property(TARGET ${Name} PROPERTY CXX_STANDARD 98)
-    endif()
-  else()
-    if(NOT __interface)
-      set_property(TARGET ${Name} PROPERTY C_STANDARD 11)
-      set_property(TARGET ${Name} PROPERTY CXX_STANDARD 11)
-    endif()
-    target_compile_features(${Name} ${__visibility} ${COMMON_CXX11_FEATURES})
+  if(NOT __interface)
+    set_property(TARGET ${Name} PROPERTY C_STANDARD 11)
+    set_property(TARGET ${Name} PROPERTY CXX_STANDARD 11)
   endif()
+  target_compile_features(${Name} ${__visibility} ${COMMON_CXX11_FEATURES})
   if(APPLE)
     target_compile_definitions(${Name} ${__visibility} Darwin)
   endif()
