@@ -186,26 +186,26 @@ function(add_subproject name)
 endfunction()
 
 macro(git_subproject name url tag)
-  if(__subprojects_collect)
-    list(APPEND __subprojects "${name} ${url} ${tag}")
-  else()
-    # enter early to catch all dependencies
-    common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
-    if(NOT DISABLE_SUBPROJECTS)
-      string(TOUPPER ${name} NAME)
-      if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-        get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-        if(NOT __included)
-          if(NOT EXISTS ${__common_source_dir}/${name})
-            # Always try first using Config mode, then Module mode.
-            find_package(${name} QUIET CONFIG)
-            if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-              find_package(${name} QUIET MODULE)
-            endif()
+  # enter early to catch all dependencies
+  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
+  if(NOT DISABLE_SUBPROJECTS)
+    string(TOUPPER ${name} NAME)
+    if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+      if(NOT __included)
+        if(NOT EXISTS ${__common_source_dir}/${name})
+          # Always try first using Config mode, then Module mode.
+          find_package(${name} QUIET CONFIG)
+          if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+            find_package(${name} QUIET MODULE)
           endif()
-          if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
-              ${NAME}_FOUND_SUBPROJECT)
-            # not found externally, add as sub project
+        endif()
+        if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
+            ${NAME}_FOUND_SUBPROJECT)
+          # not found externally, add as sub project
+          if(__subprojects_collect)
+            list(APPEND __subprojects "${name} ${url} ${tag}")
+          else()
             git_external(${__common_source_dir}/${name} ${url} ${tag})
             add_subproject(${name})
           endif()
