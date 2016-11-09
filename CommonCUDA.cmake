@@ -1,12 +1,16 @@
 # Copyright (c) 2016 Juan.Hernando@epfl.ch
-
-# Provides two functions for common configuration checks and setup for projects
-# using CUDA.
+#               2016 Jafet.VillafrancaDiaz@epfl.ch
+#
+# Provides three functions for common configuration checks and setup for
+# projects using CUDA.
 # In particular:
 # * find_cuda_compatible_host_compiler() tries to set CUDA_HOST_COMPILER to a
 #   version compatible with the CUDA version detected.
 # * common_cuda_compile_options() sets the default architecture to a minimum
 #   value that does not cause deprecation warnings with newer version of nvcc.
+# * find_cuda_device() tries to compile and run a simple CUDA application to
+#   detect the number of CUDA-capable devices, and sets CUDA_DEVICE_FOUND if
+#   at least one is present.
 
 function(find_cuda_compatible_host_compiler)
   if(NOT CMAKE_COMPILER_IS_GNUCXX)
@@ -100,4 +104,26 @@ function(common_cuda_compile_options)
   endif()
 endfunction()
 
+# find CUDA capable device
+function(find_cuda_device)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/hasCudaDevice.cpp
+    "#include <cuda_runtime.h>
+     int main()
+     {
+         int deviceCount = 0;
+         if( cudaGetDeviceCount( &deviceCount ) != cudaSuccess )
+             deviceCount = 0;
+         return deviceCount > 0 ? 0 : 1;
+     }")
 
+  try_run(RUN_RESULT_VAR COMPILE_RESULT_VAR
+          ${CMAKE_CURRENT_BINARY_DIR}/hasCudaDevice
+          SOURCES ${CMAKE_CURRENT_BINARY_DIR}/hasCudaDevice.cpp
+          CMAKE_FLAGS -DINCLUDE_DIRECTORIES=${CUDA_INCLUDE_DIRS}
+                      -DLINK_LIBRARIES=${CUDA_LIBRARIES}
+          COMPILE_OUTPUT_VARIABLE COMPILE_OUTPUT_VAR
+          RUN_OUTPUT_VARIABLE RUN_OUTPUT_VAR)
+  if(COMPILE_RESULT_VAR AND NOT RUN_RESULT_VAR)
+    set(CUDA_DEVICE_FOUND TRUE PARENT_SCOPE)
+  endif()
+endfunction()
