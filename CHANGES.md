@@ -1,7 +1,7 @@
 # git master
 
 * [517](https://github.com/Eyescale/CMake/pull/517):
-  Clone sub projects in parallel
+  Clone sub projects in parallel. This feature can be optionally disabled.
 * [510](https://github.com/Eyescale/CMake/pull/510):
   Also create project-all target for super project
 * [507](https://github.com/Eyescale/CMake/pull/507):
