@@ -235,7 +235,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
   set(__subprojects_collect)
 
   # Clone all subprojects in parallel
-  if(${COMMON_SUBPROJECT_PARALLEL_CLONE})
+  if(COMMON_SUBPROJECT_PARALLEL_CLONE)
     set(__all_subprojects "${__subprojects}")
     set(__clone_subprojects)
     foreach(__subproject ${__subprojects})
@@ -245,7 +245,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       list(GET __subproject_list 2 __tag)
       set(__dir "${__common_source_dir}/${__name}")
 
-      if(NOT EXISTS "${__dir}" AND ${COMMON_SUBPROJECT_PARALLEL_CLONE})
+      if(NOT EXISTS "${__dir}" AND COMMON_SUBPROJECT_PARALLEL_CLONE)
         message(STATUS "git clone --recursive ${__repo} ${__name} [${__tag}]")
         file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake"
           "execute_process("
@@ -259,7 +259,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
           "  WORKING_DIRECTORY ${__dir})\n"
           "if(nok)\n"
           "  message(FATAL_ERROR \"git checkout ${__tag} in ${__dir} failed: \${error}\")\n"
-          "endif()\n"
+          "endif()\n")
         list(APPEND __clone_subprojects COMMAND "${CMAKE_COMMAND}" -P
           "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake")
       endif()
