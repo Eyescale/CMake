@@ -90,6 +90,39 @@ public:
         return getMajor()==@NAMESPACE@_VERSION_MAJOR &&
                getMinor()==@NAMESPACE@_VERSION_MINOR;
     }
+
+    /** @return JSON schema describing this object. */
+    static std::string getSchema()
+    {
+        return R"(
+                {
+                  "title": "Version",
+                  "type": "object",
+                  "description": "Version information of the running application",
+                  "properties": {
+                    "major": { "type": "integer" },
+                    "minor": { "type": "integer" },
+                    "patch": { "type": "integer" },
+                    "abi": { "type": "integer" },
+                    "revision": { "type": "string" }
+                  }
+               }
+               )";
+    }
+
+    /** @return JSON-encoded data for this object. */
+    static std::string toJSON()
+    {
+        return R"(
+               {
+                 "major": @PROJECT_VERSION_MAJOR@,
+                 "minor": @PROJECT_VERSION_MINOR@,
+                 "patch": @PROJECT_VERSION_PATCH@,
+                 "abi": @PROJECT_VERSION_ABI@,
+                 "revision": "@GIT_REVISION@"
+               }
+               )";
+    }
 };
 
 }
