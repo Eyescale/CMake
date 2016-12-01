@@ -1,5 +1,9 @@
 # git master
 
+* [527](https://github.com/Eyescale/CMake/pull/527):
+  Refactor INSTALL_PACKAGES out of SubProject.cmake, also fixing a bug that
+  the dependencies of a project were not installed if it did not have a
+  .gitsubprojects file.
 * [517](https://github.com/Eyescale/CMake/pull/517):
   Clone sub projects in parallel. This feature can be optionally disabled.
 * [510](https://github.com/Eyescale/CMake/pull/510):
