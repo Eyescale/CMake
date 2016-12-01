@@ -1,5 +1,10 @@
 # Common settings
 #
+# Input variables
+# - INSTALL_PACKAGES: command line cache variable which will "apt-get", "yum" or
+#   "port install" the known system packages. This variable is unset after this
+#   script is parsed by top level project. See InstallDependencies for details.
+#
 # Output variables
 # - UPPER_PROJECT_NAME - lower-case ${PROJECT_NAME}
 # - LOWER_PROJECT_NAME - upper-case ${PROJECT_NAME}
@@ -144,4 +149,15 @@ include(GitTargets)
 include(ProjectInfo)
 include(UpdateGitExternal)
 
+if(INSTALL_PACKAGES)
+  include(InstallDependencies)
+  install_dependencies(${PROJECT_NAME})
+endif()
+
 include(SubProject)
+
+if(NOT ${PROJECT_NAME}_IS_SUBPROJECT)
+  # If this variable was given in the command line, ensure that the package
+  # installation is only run in this cmake invocation.
+  unset(INSTALL_PACKAGES CACHE)
+endif()
