@@ -8,6 +8,13 @@
 # This defines the common_compile_options() function to apply compiler flags and
 # features for the given target.
 #
+# CMake options:
+# * COMMON_WARN_DEPRECATED: Enable compiler deprecation warnings, default ON
+# * COMMON_ENABLE_CXX11_STDLIB: Enable C++11 stdlib, default OFF
+# * COMMON_DISABLE_WERROR: Disable -Werror flags, default OFF
+# * COMMON_ENABLE_CXX11_ABI: Enable C++11 ABI for gcc 5 or later, default ON,
+#   can be set to OFF with env variable CMAKE_COMMON_USE_CXX03_ABI
+#
 # Input Variables
 # * COMMON_MINIMUM_GCC_VERSION check for a minimum gcc version, default 4.8
 #
@@ -76,10 +83,6 @@ if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_GCC)
     if(GCC_COMPILER_VERSION VERSION_LESS COMMON_MINIMUM_GCC_VERSION)
       message(FATAL_ERROR "Using gcc ${GCC_COMPILER_VERSION}, need at least ${COMMON_MINIMUM_GCC_VERSION}")
-    endif()
-    if(GCC_COMPILER_VERSION VERSION_LESS 4.8)
-      # http://stackoverflow.com/questions/4438084
-      add_definitions(-D_GLIBCXX_USE_NANOSLEEP)
     endif()
     if(NOT COMMON_ENABLE_CXX11_ABI)
       # http://stackoverflow.com/questions/30668560
