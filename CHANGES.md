@@ -1,11 +1,23 @@
 # git master
 
+# 2016.12(09-Dec-2016)
+
 * [527](https://github.com/Eyescale/CMake/pull/527):
   Refactor INSTALL_PACKAGES out of SubProject.cmake, also fixing a bug that
   the dependencies of a project were not installed if it did not have a
   .gitsubprojects file.
+* [526](https://github.com/Eyescale/CMake/pull/526):
+  Provide getSchema() and toJSON() for generated version.h
 * [517](https://github.com/Eyescale/CMake/pull/517):
-  Clone sub projects in parallel. This feature can be optionally disabled.
+  Clone sub projects in parallel. This feature can be optionally disabled with
+  COMMON_SUBPROJECT_PARALLEL_CLONE set to OFF.
+* [516](https://github.com/Eyescale/CMake/pull/516):
+  Support for GCC 6
+* [515](https://github.com/Eyescale/CMake/pull/515):
+  Tweaked configure output to only list not found dependencies; show all with
+  COMMON_FIND_PACKAGE_QUIET set to OFF
+* [512](https://github.com/Eyescale/CMake/pull/512):
+  Add COMMON_DISABLE_WERROR option
 * [510](https://github.com/Eyescale/CMake/pull/510):
   Also create project-all target for super project
 * [507](https://github.com/Eyescale/CMake/pull/507):
@@ -19,15 +31,15 @@
     * Add support for yum to subproject_install_packages
     * Make sure that package installation is only attempted if INSTALL_PACKAGES
       is in the command line (i.e. do not cache the variable).
-
-# 2016.06 (30-Jun-2016)
-
 * [503](https://github.com/Eyescale/CMake/pull/503):
   Added optional MODULE argument to common_find_package() as a hint for
   pkg_config. Example usage: common_find_package(RSVG MODULE librsvg-2.0)
 * [500](https://github.com/Eyescale/CMake/pull/500):
   Added WIN32 option to CommonApplication to be able to build WinMain-based
   apps (no console).
+
+# 2016.06 (30-Jun-2016)
+
 * [497](https://github.com/Eyescale/CMake/pull/497):
   Fix install directory of common_application data
 * [494](https://github.com/Eyescale/CMake/pull/494):
