@@ -79,7 +79,6 @@ if(${USE_PYTHON_VERSION} STREQUAL 3)
   set(PYTHON_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4 3.3 3.2)
   set(Python_ADDITIONAL_VERSIONS 3.9 3.8 3.7 3.6 3.5 3.4 3.3 3.2)
   set(PythonLibs_FIND_VERSION 3)
-  set(PythonInterp_FIND_VERSION 3)
   add_definitions(-DUSE_PYTHON3=1)
   set(USE_BOOST_PYTHON_VERSION ${__boost_python_library_suffix})
   # This shouldn't be necessary but helps detecting the Python libs
@@ -94,13 +93,12 @@ if(${USE_PYTHON_VERSION} STREQUAL 3)
   endif()
 else()
   set(PythonLibs_FIND_VERSION 2)
-  set(PythonInterp_FIND_VERSION 2)
 endif()
 
 if(NOT PYTHON_EXECUTABLE)
   # Regardless of auto-detection, now we need to find the interpreter to
   # query the library suffix.
-  find_package(PythonInterp QUIET)
+  find_package(PythonInterp ${USE_PYTHON_VERSION} QUIET)
 endif()
 execute_process(COMMAND
   ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1,0,prefix=''))"
