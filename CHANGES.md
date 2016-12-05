@@ -2,6 +2,8 @@
 
 # 2016.12(09-Dec-2016)
 
+* [529](https://github.com/Eyescale/CMake/pull/529):
+  Fix python3 finding on OSX with -DUSE_PYTHON_VERSION=3
 * [527](https://github.com/Eyescale/CMake/pull/527):
   Refactor INSTALL_PACKAGES out of SubProject.cmake, also fixing a bug that
   the dependencies of a project were not installed if it did not have a
