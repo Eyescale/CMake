@@ -40,10 +40,6 @@
 #   downloaded in this path instead of CMAKE_SOURCE_DIR.
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 #
-# Options (global) which control behaviour:
-#  COMMON_SUBPROJECT_PARALLEL_CLONE
-#    This option turns on parallel git clone of the subprojects. ON by default.
-#
 # How to create a dependency graph:
 #  cmake --graphviz=graph.dot
 #  tred graph.dot > graph2.dot
@@ -54,7 +50,6 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CommonGraph.cmake)
-option(COMMON_SUBPROJECT_PARALLEL_CLONE "Do parallel git clone of all subprojects" ON)
 
 if(TARGET git_subproject_${PROJECT_NAME}_done)
   return()
@@ -141,71 +136,21 @@ macro(git_subproject name url tag)
         if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
             ${NAME}_FOUND_SUBPROJECT)
           # not found externally, add as sub project
-          if(__subprojects_collect)
-            list(APPEND __subprojects "${name} ${url} ${tag}")
-          else()
-            git_external(${__common_source_dir}/${name} ${url} ${tag})
-            add_subproject(${name})
-          endif()
+          git_external(${__common_source_dir}/${name} ${url} ${tag})
+          add_subproject(${name})
         endif()
       endif()
-      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(__included)
-        list(APPEND __subprojects "${name} ${url} ${tag}")
-      endif()
+    endif()
+    get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+    if(__included)
+      list(APPEND __subprojects "${name} ${url} ${tag}")
     endif()
   endif()
 endmacro()
 
 # Interpret .gitsubprojects
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
-  # Gather all subprojects
-  set(__subprojects_collect 1)
-  set(__subprojects) # all appended on each git_subproject invocation
-  include(.gitsubprojects)
-  set(__subprojects_collect)
-
-  # Clone all subprojects in parallel
-  if(COMMON_SUBPROJECT_PARALLEL_CLONE)
-    set(__all_subprojects "${__subprojects}")
-    set(__clone_subprojects)
-    foreach(__subproject ${__subprojects})
-      string(REPLACE " " ";" __subproject_list ${__subproject})
-      list(GET __subproject_list 0 __name)
-      list(GET __subproject_list 1 __repo)
-      list(GET __subproject_list 2 __tag)
-      set(__dir "${__common_source_dir}/${__name}")
-
-      if(NOT EXISTS "${__dir}" AND COMMON_SUBPROJECT_PARALLEL_CLONE)
-        message(STATUS "git clone --recursive ${__repo} ${__name} [${__tag}]")
-        file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake"
-          "execute_process("
-          "  COMMAND \"${GIT_EXECUTABLE}\" clone --recursive ${__repo} ${__dir}"
-          "  RESULT_VARIABLE nok ERROR_VARIABLE error)\n"
-          "if(nok)\n"
-          "  message(FATAL_ERROR \"${__name} clone failed: \${error}\")\n"
-          "endif()\n"
-          "execute_process(COMMAND \"${GIT_EXECUTABLE}\" checkout ${__tag}"
-          "  RESULT_VARIABLE nok ERROR_VARIABLE error"
-          "  WORKING_DIRECTORY ${__dir})\n"
-          "if(nok)\n"
-          "  message(FATAL_ERROR \"git checkout ${__tag} in ${__dir} failed: \${error}\")\n"
-          "endif()\n")
-        list(APPEND __clone_subprojects COMMAND "${CMAKE_COMMAND}" -P
-          "${CMAKE_CURRENT_BINARY_DIR}/${__name}Clone.cmake")
-      endif()
-    endforeach()
-    if(__clone_subprojects)
-      execute_process(${__clone_subprojects}
-        RESULT_VARIABLE nok ERROR_VARIABLE error
-        WORKING_DIRECTORY "${__common_source_dir}")
-      if(nok)
-        message(FATAL_ERROR "Cloning of projects failed: ${error}")
-      endif()
-    endif()
-  endif()
-
-  set(__subprojects) # activate projects on each git_subproject invocation
+  set(__subprojects) # appended on each git_subproject invocation
   include(.gitsubprojects)
   if(__subprojects)
     get_property(__subproject_paths GLOBAL PROPERTY SUBPROJECT_PATHS)
