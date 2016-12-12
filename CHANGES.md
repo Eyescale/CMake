@@ -1,5 +1,7 @@
 # git master
 
+* [531](https://github.com/Eyescale/CMake/pull/531):
+  Revert parallel clone due to failure of clones in CI
 * [530](https://github.com/Eyescale/CMake/pull/530):
   Fix return value of Version::getRevision to 64 bit for longer git SHAs
 
