@@ -1,6 +1,9 @@
 # git master
 
-# 2016.12(09-Dec-2016)
+* [530](https://github.com/Eyescale/CMake/pull/530):
+  Fix return value of Version::getRevision to 64 bit for longer git SHAs
+
+# 2016.12 (09-Dec-2016)
 
 * [529](https://github.com/Eyescale/CMake/pull/529):
   Fix python3 finding on OSX with -DUSE_PYTHON_VERSION=3

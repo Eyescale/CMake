@@ -26,7 +26,7 @@ namespace @namespace@
 #   define @NAMESPACE@_VERSION_REVISION 0x@GIT_REVISION@
 
     /** The current binary interface. */
-#   define @NAMESPACE@_VERSION_ABI @PROJECT_VERSION_ABI@
+#   define @NAMESPACE@_VERSION_ABI @PROJECT_VERSION_ABI@ull
 
 /** True if the current version is newer than the given one. */
 #   define @NAMESPACE@_VERSION_GT( MAJOR, MINOR, PATCH )       \
@@ -69,7 +69,7 @@ public:
     static std::string getString();
 
     /** @return the SCM revision. */
-    static int getRevision();
+    static unsigned long long getRevision();
 
     /** @return the current binary interface version of @Name@. */
     static int getABI();

@@ -33,7 +33,7 @@ std::string Version::getString()
     return version.str();
 }
 
-int Version::getRevision()
+unsigned long long Version::getRevision()
 {
     return @NAMESPACE@_VERSION_REVISION;
 }
