@@ -14,7 +14,7 @@
 # sub directories. See also: cmake command 'add_subdirectory'.
 #
 # The following targets are created by SubProject.cmake:
-# - An '${PROJECT_NAME}-update-git-subprojects' target to update the <gittag> of
+# - A '${PROJECT_NAME}-update-gitsubprojects' target to update the <gittag> of
 #   all the .gitsubprojects entries to their latest respective origin/master ref
 # - A generic 'update' target to execute 'update-git-subrojects' recursively
 #
@@ -51,12 +51,11 @@
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CommonGraph.cmake)
 
-if(TARGET git_subproject_${PROJECT_NAME}_done)
+get_property(SUBPROJECT_DONE GLOBAL PROPERTY GIT_SUBPROJECT_DONE_${PROJECT_NAME})
+if(SUBPROJECT_DONE)
   return()
 endif()
-add_custom_target(git_subproject_${PROJECT_NAME}_done)
-set_target_properties(git_subproject_${PROJECT_NAME}_done PROPERTIES
-  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
+set_property(GLOBAL PROPERTY GIT_SUBPROJECT_DONE_${PROJECT_NAME} ON)
 
 set(COMMON_SOURCE_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH
   "Location of common directory of all sources")
@@ -157,11 +156,12 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
     set(GIT_SUBPROJECTS_SCRIPT
       "${CMAKE_CURRENT_BINARY_DIR}/UpdateSubprojects.cmake")
     file(WRITE "${GIT_SUBPROJECTS_SCRIPT}"
-      "file(WRITE .gitsubprojects \"# -*- mode: cmake -*-\n\")\n")
+      "file(READ .gitsubprojects GIT_SUBPROJECTS_FILE)\n")
     foreach(__subproject ${__subprojects})
       string(REPLACE " " ";" __subproject_list ${__subproject})
       list(GET __subproject_list 0 __subproject_name)
       list(GET __subproject_list 1 __subproject_repo)
+      list(GET __subproject_list 2 __subproject_oldref)
       list(APPEND SUBPROJECTS ${__subproject_name})
       set(__subproject_dir "${__common_source_dir}/${__subproject_name}")
       file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
@@ -172,29 +172,30 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
         "  OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
         "  WORKING_DIRECTORY \"${__subproject_dir}\")\n"
         "if(newref)\n"
-        "  file(APPEND .gitsubprojects\n"
-        "    \"git_subproject(${__subproject_name} ${__subproject_repo} \${newref})\\n\")\n"
-        "else()\n"
-        "  file(APPEND .gitsubprojects \"git_subproject(${__subproject})\n\")\n"
+        "  string(REPLACE \"${__subproject_name} ${__subproject_repo} ${__subproject_oldref}\"\n"
+        "                 \"${__subproject_name} ${__subproject_repo} \${newref}\"\n"
+        "                 GIT_SUBPROJECTS_FILE \${GIT_SUBPROJECTS_FILE})\n"
         "endif()\n")
         list(APPEND __subproject_paths ${__subproject_dir})
     endforeach()
+    file(APPEND "${GIT_SUBPROJECTS_SCRIPT}"
+      "file(WRITE .gitsubprojects \${GIT_SUBPROJECTS_FILE})\n")
 
     list(REMOVE_DUPLICATES __subproject_paths)
     set_property(GLOBAL PROPERTY SUBPROJECT_PATHS ${__subproject_paths})
 
-    add_custom_target(${PROJECT_NAME}-update-git-subprojects
+    add_custom_target(${PROJECT_NAME}-update-gitsubprojects
       COMMAND ${CMAKE_COMMAND} -P ${GIT_SUBPROJECTS_SCRIPT}
       COMMENT "Update ${PROJECT_NAME}/.gitsubprojects"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    set_target_properties(${PROJECT_NAME}-update-git-subprojects PROPERTIES
+    set_target_properties(${PROJECT_NAME}-update-gitsubprojects PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/zzphony)
 
     if(NOT TARGET update)
       add_custom_target(update)
       set_target_properties(update PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
     endif()
-    add_dependencies(update ${PROJECT_NAME}-update-git-subprojects)
+    add_dependencies(update ${PROJECT_NAME}-update-gitsubprojects)
   endif()
 
 endif()

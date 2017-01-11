@@ -1,5 +1,10 @@
 # git master
 
+* [532](https://github.com/Eyescale/CMake/pull/532):
+  Only update SHA-1s in .gitsubprojects after ```update``` instead of rewriting
+  the whole file
+* [532](https://github.com/Eyescale/CMake/pull/532):
+  Fix missing ```git submodule update``` after ```rebase```
 * [531](https://github.com/Eyescale/CMake/pull/531):
   Revert parallel clone due to failure of clones in CI
 * [530](https://github.com/Eyescale/CMake/pull/530):
