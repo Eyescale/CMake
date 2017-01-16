@@ -1,5 +1,7 @@
 # git master
 
+* [533](https://github.com/Eyescale/CMake/pull/533):
+  Add application-help-to-doxygen extraction
 * [532](https://github.com/Eyescale/CMake/pull/532):
   Only update SHA-1s in .gitsubprojects after ```update``` instead of rewriting
   the whole file

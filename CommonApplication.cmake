@@ -1,12 +1,13 @@
-# Copyright (c) 2014-2016 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2014-2017 Stefan.Eilemann@epfl.ch
 #                         Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
-#   common_application(<Name> [GUI] [EXAMPLE])
+#   common_application(<Name> [GUI] [EXAMPLE] [DOXYGEN])
 #
 # Arguments:
 # * GUI: if set, build cross-platform GUI application
 # * EXAMPLE: install all sources in share/Project/examples/Name
+# * DOXYGEN: opt into doxygen help extraction for GUI applications
 #
 # Input:
 # * NAME_SOURCES for all compilation units
@@ -120,6 +121,34 @@ function(common_application Name)
       install(FILES ${${NAME}_DATA}
         DESTINATION share/${PROJECT_NAME}/data COMPONENT examples)
     endif()
+  endif()
+
+  if(NOT THIS_GUI OR THIS_DOXYGEN)
+    # run binary with --help to capture output for doxygen
+    set(_doc "${PROJECT_BINARY_DIR}/help/${Name}.md")
+    set(_cmake "${CMAKE_CURRENT_BINARY_DIR}/${Name}.cmake")
+    file(WRITE ${_cmake} "
+      execute_process(COMMAND \${APP} --help
+      OUTPUT_FILE ${_doc} ERROR_FILE ${_doc}.error)
+      file(READ ${_doc} _doc_content)
+      if(NOT _doc_content)
+        message(FATAL_ERROR \"${Name} is missing --help\")
+      endif()
+      file(WRITE ${_doc} \"${Name} {#${Name}}
+============
+
+```
+\${_doc_content}
+```
+\")
+")
+    add_custom_command(OUTPUT ${_doc}
+      COMMAND ${CMAKE_COMMAND} -DAPP=$<TARGET_FILE:${Name}> -P ${_cmake}
+      DEPENDS ${Name}
+      COMMENT "Creating help for ${Name}")
+    add_custom_target(${Name}-help ALL DEPENDS ${_doc})
+    add_dependencies(${PROJECT_NAME}-all ${Name}-help)
+    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
   endif()
 
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)

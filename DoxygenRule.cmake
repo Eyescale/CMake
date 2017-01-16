@@ -88,6 +88,19 @@ if(NOT COMMON_ORGANIZATION_NAME)
   set(COMMON_ORGANIZATION_NAME Unknown)
 endif()
 
+# collect application help page
+get_property(__help GLOBAL PROPERTY ${PROJECT_NAME}_HELP)
+if(__help)
+  set(__index "${PROJECT_BINARY_DIR}/help/applications.md")
+  file(WRITE ${__index} "Application Help {#apps}
+============
+
+")
+  foreach(_help ${__help})
+    file(APPEND ${__index} "* @subpage ${_help}\n")
+  endforeach()
+endif()
+
 # list-to-string transform
 string(REPLACE ";" " " DOXYGEN_EXTRA_INPUT "${DOXYGEN_EXTRA_INPUT}")
 
