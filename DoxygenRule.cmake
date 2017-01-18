@@ -26,7 +26,7 @@
 #   generally set by the project() command in the top-level CMakeLists.txt.
 #
 # Input Global Properties
-# * ${PROJECT_NAME}-HELP a list of doxygen page anchors to add to the
+# * ${PROJECT_NAME}_HELP a list of doxygen page anchors to add to the
 #   "Application Help" page
 #
 # Optional project information

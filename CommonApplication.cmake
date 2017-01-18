@@ -2,7 +2,7 @@
 #                         Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
-#   common_application(<Name> [GUI] [EXAMPLE] [DOXYGEN])
+#   common_application(<Name> [GUI] [EXAMPLE] [NOHELP])
 #
 # Arguments:
 # * GUI: if set, build cross-platform GUI application
@@ -21,7 +21,7 @@
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
 # Output Global Properties
-# * ${PROJECT_NAME}-HELP help page names generated (see DoxygenRule.cmake)
+# * ${PROJECT_NAME}_HELP help page names generated (see DoxygenRule.cmake)
 #
 # Builds Name application and installs it.
 
