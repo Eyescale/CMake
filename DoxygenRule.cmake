@@ -25,6 +25,10 @@
 # * ${PROJECT_NAME}_VERSION_(MINOR|MAJOR) The project's major/minor version,
 #   generally set by the project() command in the top-level CMakeLists.txt.
 #
+# Input Global Properties
+# * ${PROJECT_NAME}-HELP a list of doxygen page anchors to add to the
+#   "Application Help" page
+#
 # Optional project information
 # Output to a metadata file for html index page generation by Jekyll
 # * ${UPPER_PROJECT_NAME}_DESCRIPTION A short description of the project
@@ -91,6 +95,7 @@ endif()
 # collect application help page
 get_property(__help GLOBAL PROPERTY ${PROJECT_NAME}_HELP)
 if(__help)
+  list(APPEND DOXYGEN_EXTRA_INPUT ${PROJECT_BINARY_DIR}/help)
   set(__index "${PROJECT_BINARY_DIR}/help/applications.md")
   file(WRITE ${__index} "Application Help {#apps}
 ============

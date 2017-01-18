@@ -757,7 +757,6 @@ WARN_LOGFILE           =
 
 INPUT                  = @CMAKE_INSTALL_PREFIX@/include/@PROJECT_INCLUDE_NAME@ \
                          @PROJECT_SOURCE_DIR@/doc \
-                         @PROJECT_BINARY_DIR@/help \
                          @DOXYGEN_EXTRA_INPUT@
 
 # This tag can be used to specify the character encoding of the source files

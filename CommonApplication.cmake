@@ -7,7 +7,7 @@
 # Arguments:
 # * GUI: if set, build cross-platform GUI application
 # * EXAMPLE: install all sources in share/Project/examples/Name
-# * DOXYGEN: opt into doxygen help extraction for GUI applications
+# * NOHELP: opt out of doxygen help extraction
 #
 # Input:
 # * NAME_SOURCES for all compilation units
@@ -20,6 +20,9 @@
 # * NAME_ICON optional .icns file (Mac OS GUI applications only)
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
+# Output Global Properties
+# * ${PROJECT_NAME}-HELP help page names generated (see DoxygenRule.cmake)
+#
 # Builds Name application and installs it.
 
 include(AppleCheckOpenGL)
@@ -28,7 +31,7 @@ include(CMakeParseArguments)
 include(StringifyShaders)
 
 function(common_application Name)
-  set(_opts GUI EXAMPLE WIN32)
+  set(_opts GUI EXAMPLE NOHELP WIN32)
   set(_singleArgs)
   set(_multiArgs)
   cmake_parse_arguments(THIS "${_opts}" "${_singleArgs}" "${_multiArgs}"
@@ -123,7 +126,7 @@ function(common_application Name)
     endif()
   endif()
 
-  if(NOT THIS_GUI OR THIS_DOXYGEN)
+  if(NOT THIS_NOHELP)
     # run binary with --help to capture output for doxygen
     set(_doc "${PROJECT_BINARY_DIR}/help/${Name}.md")
     set(_cmake "${CMAKE_CURRENT_BINARY_DIR}/${Name}.cmake")
