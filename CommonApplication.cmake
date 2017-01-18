@@ -150,7 +150,10 @@ function(common_application Name)
       DEPENDS ${Name}
       COMMENT "Creating help for ${Name}")
     add_custom_target(${Name}-help ALL DEPENDS ${_doc})
-    add_dependencies(${PROJECT_NAME}-all ${Name}-help)
+    if(NOT TARGET ${PROJECT_NAME}-help)
+      add_custom_target(${PROJECT_NAME}-help)
+    endif()
+    add_dependencies(${PROJECT_NAME}-help ${Name}-help)
     set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
   endif()
 
