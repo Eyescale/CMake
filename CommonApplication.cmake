@@ -1,12 +1,13 @@
-# Copyright (c) 2014-2016 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2014-2017 Stefan.Eilemann@epfl.ch
 #                         Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
-#   common_application(<Name> [GUI] [EXAMPLE])
+#   common_application(<Name> [GUI] [EXAMPLE] [NOHELP])
 #
 # Arguments:
 # * GUI: if set, build cross-platform GUI application
 # * EXAMPLE: install all sources in share/Project/examples/Name
+# * NOHELP: opt out of doxygen help extraction
 #
 # Input:
 # * NAME_SOURCES for all compilation units
@@ -19,6 +20,9 @@
 # * NAME_ICON optional .icns file (Mac OS GUI applications only)
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
+# Output Global Properties
+# * ${PROJECT_NAME}_HELP help page names generated (see DoxygenRule.cmake)
+#
 # Builds Name application and installs it.
 
 include(AppleCheckOpenGL)
@@ -27,7 +31,7 @@ include(CMakeParseArguments)
 include(StringifyShaders)
 
 function(common_application Name)
-  set(_opts GUI EXAMPLE WIN32)
+  set(_opts GUI EXAMPLE NOHELP WIN32)
   set(_singleArgs)
   set(_multiArgs)
   cmake_parse_arguments(THIS "${_opts}" "${_singleArgs}" "${_multiArgs}"
@@ -120,6 +124,41 @@ function(common_application Name)
       install(FILES ${${NAME}_DATA}
         DESTINATION share/${PROJECT_NAME}/data COMPONENT examples)
     endif()
+  endif()
+
+  if(NOT THIS_NOHELP)
+    # run binary with --help to capture output for doxygen
+    set(_doc "${PROJECT_BINARY_DIR}/help/${Name}.md")
+    set(_cmake "${CMAKE_CURRENT_BINARY_DIR}/${Name}.cmake")
+    file(WRITE ${_cmake} "
+      execute_process(COMMAND \${APP} --help
+      OUTPUT_FILE ${_doc} ERROR_FILE ${_doc}.error)
+      file(READ ${_doc} _doc_content)
+      if(NOT _doc_content)
+        message(FATAL_ERROR \"${Name} is missing --help\")
+      endif()
+      file(WRITE ${_doc} \"${Name} {#${Name}}
+============
+
+```
+\${_doc_content}
+```
+\")
+")
+    add_custom_command(OUTPUT ${_doc}
+      COMMAND ${CMAKE_COMMAND} -DAPP=$<TARGET_FILE:${Name}> -P ${_cmake}
+      DEPENDS ${Name} COMMENT "Creating help for ${Name}")
+    add_custom_target(${Name}-help DEPENDS ${_doc})
+    set_target_properties(${Name}-help PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
+    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
+
+    if(NOT TARGET ${PROJECT_NAME}-help)
+      add_custom_target(${PROJECT_NAME}-help)
+      set_target_properties(${PROJECT_NAME}-help PROPERTIES
+        EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
+    endif()
+    add_dependencies(${PROJECT_NAME}-help ${Name}-help)
   endif()
 
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)
