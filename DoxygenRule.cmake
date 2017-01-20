@@ -221,7 +221,6 @@ set_target_properties(${PROJECT_NAME}-doxycopy PROPERTIES
 
 if(NOT TARGET doxycopy)
   add_custom_target(doxycopy)
-  set_target_properties(doxycopy PROPERTIES
-    EXCLUDE_FROM_DEFAULT_BUILD ON)
+  set_target_properties(doxycopy PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 add_dependencies(doxycopy ${PROJECT_NAME}-doxycopy)

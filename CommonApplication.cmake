@@ -147,14 +147,18 @@ function(common_application Name)
 ")
     add_custom_command(OUTPUT ${_doc}
       COMMAND ${CMAKE_COMMAND} -DAPP=$<TARGET_FILE:${Name}> -P ${_cmake}
-      DEPENDS ${Name}
-      COMMENT "Creating help for ${Name}")
-    add_custom_target(${Name}-help ALL DEPENDS ${_doc})
+      DEPENDS ${Name} COMMENT "Creating help for ${Name}")
+    add_custom_target(${Name}-help DEPENDS ${_doc})
+    set_target_properties(${Name}-help PROPERTIES
+      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
+    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
+
     if(NOT TARGET ${PROJECT_NAME}-help)
       add_custom_target(${PROJECT_NAME}-help)
+      set_target_properties(${PROJECT_NAME}-help PROPERTIES
+        EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
     endif()
     add_dependencies(${PROJECT_NAME}-help ${Name}-help)
-    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
   endif()
 
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)
