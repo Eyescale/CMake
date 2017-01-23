@@ -38,6 +38,8 @@ The following CMake modules can be included in your project:
       default warnings can be set on given target to common_compile_options();
       automatically applied for targets created with common_application() and
       common_library()
+    * [CommonHelp](CommonHelp.cmake) *common_help* function to create a
+      documentation page from an application's --help output.
     * [GitInfo](GitInfo.cmake) sets variables with information about the git
       source tree.
     * [GitTargets](GitTargets.cmake) *branch*, *cut*, *tag*, *erase*, *retag*,
