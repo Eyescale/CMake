@@ -20,13 +20,11 @@
 # * NAME_ICON optional .icns file (Mac OS GUI applications only)
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
-# Output Global Properties
-# * ${PROJECT_NAME}_HELP help page names generated (see DoxygenRule.cmake)
-#
-# Builds Name application and installs it.
+# Builds Name application, generates doxygen help page and installs it.
 
 include(AppleCheckOpenGL)
 include(CommonCheckTargets)
+include(CommonHelp)
 include(CMakeParseArguments)
 include(StringifyShaders)
 
@@ -127,38 +125,7 @@ function(common_application Name)
   endif()
 
   if(NOT THIS_NOHELP)
-    # run binary with --help to capture output for doxygen
-    set(_doc "${PROJECT_BINARY_DIR}/help/${Name}.md")
-    set(_cmake "${CMAKE_CURRENT_BINARY_DIR}/${Name}.cmake")
-    file(WRITE ${_cmake} "
-      execute_process(COMMAND \${APP} --help
-      OUTPUT_FILE ${_doc} ERROR_FILE ${_doc}.error)
-      file(READ ${_doc} _doc_content)
-      if(NOT _doc_content)
-        message(FATAL_ERROR \"${Name} is missing --help\")
-      endif()
-      file(WRITE ${_doc} \"${Name} {#${Name}}
-============
-
-```
-\${_doc_content}
-```
-\")
-")
-    add_custom_command(OUTPUT ${_doc}
-      COMMAND ${CMAKE_COMMAND} -DAPP=$<TARGET_FILE:${Name}> -P ${_cmake}
-      DEPENDS ${Name} COMMENT "Creating help for ${Name}")
-    add_custom_target(${Name}-help DEPENDS ${_doc})
-    set_target_properties(${Name}-help PROPERTIES
-      EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
-    set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_HELP ${Name})
-
-    if(NOT TARGET ${PROJECT_NAME}-help)
-      add_custom_target(${PROJECT_NAME}-help)
-      set_target_properties(${PROJECT_NAME}-help PROPERTIES
-        EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
-    endif()
-    add_dependencies(${PROJECT_NAME}-help ${Name}-help)
+    common_help(${Name})
   endif()
 
   if(NOT ${NAME}_OMIT_CHECK_TARGETS)
