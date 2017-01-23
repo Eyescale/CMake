@@ -67,8 +67,7 @@ function(common_graph Name)
     set(dest ${PROJECT_BINARY_DIR}/doc/images)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot
       COMMAND ${TRED_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/${Name}.dot >
-               ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot
-      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${Name}.dot)
+               ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot)
     add_custom_command(OUTPUT ${dest}/${Name}.png
       COMMAND ${CMAKE_COMMAND} -E make_directory ${dest}
       COMMAND ${DOT_EXECUTABLE} -o ${dest}/${Name}.png -Tpng ${CMAKE_CURRENT_BINARY_DIR}/${Name}_tred.dot
