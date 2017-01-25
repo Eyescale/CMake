@@ -1,5 +1,7 @@
 # git master
 
+* [537](https://github.com/Eyescale/CMake/pull/537):
+  Automatically add a pre-commit hook to git repos for running clang-format.
 * [533](https://github.com/Eyescale/CMake/pull/533):
   Add application-help-to-doxygen extraction
 * [532](https://github.com/Eyescale/CMake/pull/532):

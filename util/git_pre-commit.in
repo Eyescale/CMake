@@ -1,0 +1,28 @@
+#!/bin/bash
+# Copyright (c) 2017, Juan Hernando <juan.hernando@epfl.ch>
+
+GIT=${GIT_EXECUTABLE}
+CLANG_FORMAT=${CLANG_FORMAT}
+
+# Checking if this project has a .clang-format style file at the root dir.
+if ! [[ -e $PWD/.clang-format ]]; then
+    exit 0
+fi
+
+files=$($GIT diff --cached --name-only --diff-filter=ACM)
+
+for file in $files; do
+    for ext in c cpp h hpp ipp frag vert glsl ispc ih; do
+        if [[ "$file" == *.$ext ]]; then
+            # We run clang-format only in files that are fully staged and warn
+            # about the others
+            if [[ $($GIT diff --name-only "$file") == "$file" ]]; then
+                echo "clang-format not run on partially added file $file"
+            else
+                $CLANG_FORMAT -i -style=file $PWD/$file
+                $GIT add $file
+            fi
+            break;
+        fi
+    done
+done
