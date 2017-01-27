@@ -146,6 +146,7 @@ include(CommonCompiler)
 include(CommonCoverage)
 include(GitInfo)
 include(GitTargets)
+include(GitHooks)
 include(ProjectInfo)
 include(UpdateGitExternal)
 
