@@ -76,12 +76,12 @@ function(add_subproject name)
   if(argc GREATER 0)
     list(GET ARGN 0 path)
   else()
-    set(path ${name})
+    set(path ${__common_source_dir}/${name})
   endif ()
 
-  if(NOT EXISTS "${__common_source_dir}/${path}/")
+  if(NOT EXISTS "${path}/")
     message(FATAL_ERROR
-      "Subproject ${path} not found in ${__common_source_dir}")
+      "Subproject ${name} not found in ${path}")
   endif()
   # enter again to catch direct add_subproject() calls
   common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
@@ -109,7 +109,7 @@ function(add_subproject name)
   # add the source sub directory to our build and set the binary dir
   # to the build tree
 
-  add_subdirectory("${__common_source_dir}/${path}"
+  add_subdirectory("${path}"
     "${CMAKE_BINARY_DIR}/${name}")
   set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
 
