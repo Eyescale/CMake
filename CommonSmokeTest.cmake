@@ -1,5 +1,4 @@
 # Copyright (c) 2017 Stefan.Eilemann@epfl.ch
-#                         Daniel.Nachbaur@epfl.ch
 
 # Create a smoke test target for the given target executable,
 # running it from the installation folder with the given arguments as a smoke
@@ -37,6 +36,11 @@ function(common_smoke_test Target)
   ")
 
   set(_app $<TARGET_FILE_NAME:${Target}>)
+  get_target_property(_isMacGUI ${Target} MACOSX_BUNDLE_INFO_PLIST)
+  if(_isMacGUI)
+    set(_app ${_app}.app/Contents/MacOS/${_app})
+  endif()
+
   add_custom_target(${Target}-smoketest DEPENDS ${PROJECT_NAME}-install
     COMMAND ${CMAKE_COMMAND} -DAPP="${CMAKE_INSTALL_PREFIX}/bin/${_app}" -P ${_cmake}
     COMMENT "Running smoke test ${Name}"
