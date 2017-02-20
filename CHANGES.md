@@ -1,5 +1,7 @@
 # git master
 
+* [540](https://github.com/Eyescale/CMake/pull/540):
+  Add CommonSmokeTest.cmake
 * [537](https://github.com/Eyescale/CMake/pull/537):
   Automatically add a pre-commit hook to git repos for running clang-format.
 * [533](https://github.com/Eyescale/CMake/pull/533):

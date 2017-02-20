@@ -17,6 +17,7 @@
 #
 # Output targets
 # - A <project>-all target to build only the given (sub)project
+# - A <project>-install target to build and install the given (sub)project
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
@@ -128,6 +129,12 @@ if(NOT TARGET ${PROJECT_NAME}-all)
   set_target_properties(${PROJECT_NAME}-all PROPERTIES FOLDER ${PROJECT_NAME})
 endif()
 
+add_custom_target(${PROJECT_NAME}-install
+  ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/cmake_install.cmake
+  DEPENDS ${PROJECT_NAME}-all)
+set_target_properties(${PROJECT_NAME}-install PROPERTIES
+  EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER ${PROJECT_NAME}/doxygen)
+
 set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc)
 
 include(ChoosePython) # Must be before any find_package to python
@@ -144,6 +151,7 @@ include(CommonInstall)
 include(CommonLibrary)
 include(CommonCompiler)
 include(CommonCoverage)
+include(CommonSmokeTest)
 include(GitInfo)
 include(GitTargets)
 include(GitHooks)
