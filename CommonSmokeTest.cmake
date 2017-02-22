@@ -28,7 +28,7 @@ function(common_smoke_test Target)
   file(WRITE ${_cmake} "
     set(ENV{LD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib)
     set(ENV{DYLD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib)
-    execute_process(COMMAND \${APP} $ARGN TIMEOUT 60
+    execute_process(COMMAND \${APP} ${ARGN} TIMEOUT 60
     OUTPUT_VARIABLE _output ERROR_VARIABLE _output RESULT_VARIABLE _result)
     if(NOT _result EQUAL 0)
       message(FATAL_ERROR \"${Target} failed to run:\${_output}\")
