@@ -114,10 +114,8 @@ if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
   list(APPEND COMMON_CXX_FLAGS_RELEASE -Wuninitialized)
 
 elseif(CMAKE_COMPILER_IS_INTEL)
-  set(COMMON_C_FLAGS
-    -Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas)
-  set(COMMON_CXX_FLAGS
-    -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo)
+  set(COMMON_C_FLAGS -Wno-unknown-pragmas)
+  set(COMMON_CXX_FLAGS -Wno-deprecated -Wno-unknown-pragmas -fno-strict-aliasing)
 
   # Release: automatically generate instructions for the highest
   # supported compilation host
