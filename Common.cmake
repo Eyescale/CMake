@@ -143,7 +143,7 @@ include(CommonFindPackage)
 # OPT: reduce CMake runtime by finding Doxygen only once per superproject, not
 # in every include of Doxygen.cmake
 if(NOT DOXYGEN_FOUND)
-  find_package(Doxygen QUIET)
+  common_find_package(Doxygen QUIET)
 endif()
 
 include(CommonApplication)
