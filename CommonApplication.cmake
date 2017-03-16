@@ -17,7 +17,8 @@
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * ARGN for optional add_executable parameters
 # * NAME_DATA files for share/Project/data (in binary and install dir)
-# * NAME_ICON optional .icns file (Mac OS GUI applications only)
+# * NAME_DESKTOP optional .desktop file (Linux GUI applications only)
+# * NAME_ICON optional .icns (Mac OS) or .png (Linux) file (GUI app. only)
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
 # Builds Name application, generates doxygen help page and installs it.
@@ -66,6 +67,16 @@ function(common_application Name)
   add_dependencies(${PROJECT_NAME}-all ${Name})
   target_link_libraries(${Name} ${LINK_LIBRARIES})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
+
+  if(THIS_GUI AND NOT APPLE AND NOT MSVC)
+    if(${NAME}_ICON)
+      install(FILES ${${NAME}_ICON} DESTINATION share/pixmaps COMPONENT apps)
+    endif()
+    if(${NAME}_DESKTOP)
+      install(FILES ${${NAME}_DESKTOP} DESTINATION share/applications
+        COMPONENT apps)
+    endif()
+  endif()
 
   if(THIS_GUI AND APPLE)
     if(${NAME}_ICON)
