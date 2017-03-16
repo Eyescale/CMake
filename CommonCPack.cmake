@@ -173,15 +173,23 @@ else()
   endif()
 
   if(CPACK_GENERATOR STREQUAL "DEB")
-    # dpkg requires lowercase package names
-    string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_DEBIAN_PACKAGE_NAME)
+    # Follow Debian package naming conventions:
+    # https://www.debian.org/doc/manuals/debian-faq/ch-pkg_basics.en.html
 
+    # Build version, e.g. 1.3.2~xenial or 1.3.2-1~xenial when re-releasing.
+    # Note: the ~codename is not part of any standard and could be omitted.
     if(NOT CPACK_DEBIAN_PACKAGE_VERSION)
       set(CPACK_DEBIAN_PACKAGE_VERSION
-        "${CPACK_PACKAGE_VERSION}~${CPACK_PACKAGE_NAME_EXTRA}${LSB_RELEASE}")
+        "${CPACK_PACKAGE_VERSION}~${LSB_CODENAME}")
     endif()
+
+    # Get architecture name, e.g. amd64. Reference:
+    # https://www.debian.org/doc/debian-policy/ch-customized-programs.html#s-arch-spec
+    execute_process(COMMAND dpkg --print-architecture OUTPUT_VARIABLE _deb_arch
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+
     set(CPACK_PACKAGE_FILE_NAME
-      "${CPACK_PACKAGE_NAME}-${CPACK_DEBIAN_PACKAGE_VERSION}.${CMAKE_SYSTEM_PROCESSOR}")
+      "${CPACK_PACKAGE_NAME}_${CPACK_DEBIAN_PACKAGE_VERSION}_${_deb_arch}")
 
     if(NOT CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA)
       set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "/sbin/ldconfig")
