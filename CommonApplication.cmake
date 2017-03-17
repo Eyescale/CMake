@@ -17,8 +17,10 @@
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
 # * ARGN for optional add_executable parameters
 # * NAME_DATA files for share/Project/data (in binary and install dir)
-# * NAME_DESKTOP optional .desktop file (Linux GUI applications only)
+# * NAME_DESKTOP optional .desktop file (Linux GUI applications only).
+#   Default: "lowercase(Name).desktop" if the file exists
 # * NAME_ICON optional .icns (Mac OS) or .png (Linux) file (GUI app. only)
+#   Default: "lowercase(Name).{icns|png}" if the file exists
 # * NAME_COPYRIGHT optional copyright notice (Mac OS GUI applications only)
 #
 # Builds Name application, generates doxygen help page and installs it.
@@ -69,8 +71,15 @@ function(common_application Name)
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
 
   if(THIS_GUI AND NOT APPLE AND NOT MSVC)
+    if(NOT DEFINED ${NAME}_ICON AND EXISTS ${name}.png)
+      set(${NAME}_ICON ${name}.png)
+    endif()
     if(${NAME}_ICON)
       install(FILES ${${NAME}_ICON} DESTINATION share/pixmaps COMPONENT apps)
+    endif()
+
+    if(NOT DEFINED ${NAME}_DESKTOP AND EXISTS ${name}.desktop)
+      set(${NAME}_DESKTOP ${name}.desktop)
     endif()
     if(${NAME}_DESKTOP)
       install(FILES ${${NAME}_DESKTOP} DESTINATION share/applications
@@ -79,6 +88,9 @@ function(common_application Name)
   endif()
 
   if(THIS_GUI AND APPLE)
+    if(NOT DEFINED ${NAME}_ICON AND EXISTS ${name}.icns)
+      set(${NAME}_ICON ${name}.icns)
+    endif()
     if(${NAME}_ICON)
       set_source_files_properties(${${NAME}_ICON}
         PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
