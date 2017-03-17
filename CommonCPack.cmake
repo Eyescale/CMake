@@ -1,11 +1,22 @@
-
-# Copyright (c) 2012-2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2013-2017 Stefan.Eilemann@epfl.ch
+#                         Raphael.Dumusc@epfl.ch
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
+#
+# Configures the packaging of the project using CPack.
+#
+# Also includes CommonPackageConfig (legacy, to be removed in the future).
+#
+# Input:
+# * COMMON_PACKAGE_ABI add the ABI version to the package name (default: ON)
 
 # No support for subproject packaging
 if(NOT PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   include(CommonPackageConfig)
   return()
+endif()
+
+if(NOT DEFINED COMMON_PACKAGE_ABI)
+  set(COMMON_PACKAGE_ABI ON)
 endif()
 
 if(NOT CPACK_PROJECT_NAME)
@@ -48,7 +59,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(CPACK_PACKAGE_NAME "${LOWER_PACKAGE_NAME_PREFIX}")
 
   set(OLD_PACKAGES)
-  if(${PROJECT_NAME}_VERSION_ABI)
+  if(COMMON_PACKAGE_ABI AND ${PROJECT_NAME}_VERSION_ABI)
     set(CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}${${PROJECT_NAME}_VERSION_ABI}")
     math(EXPR NUM_OLD_PACKAGES "${${PROJECT_NAME}_VERSION_ABI} - 1")
     foreach(i RANGE ${NUM_OLD_PACKAGES})
