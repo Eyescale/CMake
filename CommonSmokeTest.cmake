@@ -26,8 +26,8 @@ endif()
 function(common_smoke_test Target)
   set(_cmake "${CMAKE_CURRENT_BINARY_DIR}/${Target}.smoke.cmake")
   file(WRITE ${_cmake} "
-    set(ENV{LD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib)
-    set(ENV{DYLD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib)
+    set(ENV{LD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib:\$ENV{LD_LIBRARY_PATH})
+    set(ENV{DYLD_LIBRARY_PATH} ${CMAKE_INSTALL_PREFIX}/lib:\$ENV{DYLD_LIBRARY_PATH})
     execute_process(COMMAND \${APP} ${ARGN} TIMEOUT 60
     OUTPUT_VARIABLE _output ERROR_VARIABLE _output RESULT_VARIABLE _result)
     if(NOT _result EQUAL 0)
