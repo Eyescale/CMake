@@ -2,12 +2,13 @@
 #                         Raphael.Dumusc@epfl.ch
 
 # Configures the build for a simple application:
-#   common_application(<Name> [GUI] [EXAMPLE] [NOHELP])
+#   common_application(<Name> [GUI] [EXAMPLE] [NOHELP] [WIN32])
 #
 # Arguments:
 # * GUI: if set, build cross-platform GUI application
 # * EXAMPLE: install all sources in share/Project/examples/Name
 # * NOHELP: opt out of doxygen help extraction
+# * WIN32: build an executable with a WinMain entry point on Windows
 #
 # Input:
 # * NAME_SOURCES for all compilation units
@@ -38,66 +39,70 @@ function(common_application Name)
   cmake_parse_arguments(THIS "${_opts}" "${_singleArgs}" "${_multiArgs}"
     ${ARGN})
 
+  if(THIS_WIN32 AND MSVC)
+    set(_options WIN32)
+  elseif(THIS_GUI AND APPLE)
+    set(_options MACOSX_BUNDLE)
+  endif()
+
   string(TOUPPER ${Name} NAME)
   string(TOLOWER ${Name} name)
-  set(SOURCES ${${NAME}_SOURCES})
-  set(HEADERS ${${NAME}_HEADERS})
-  set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
-  set(_ICON ${${NAME}_ICON}) # also used to configure Info.plist
+  set(_sources ${${NAME}_SOURCES})
+  set(_headers ${${NAME}_HEADERS})
+  set(_libraries ${${NAME}_LINK_LIBRARIES})
 
   if(${NAME}_SHADERS)
     stringify_shaders(${${NAME}_SHADERS})
-    list(APPEND SOURCES ${SHADER_SOURCES})
+    list(APPEND _sources ${SHADER_SOURCES})
   endif()
 
-  set(OPTIONS)
   if(THIS_GUI)
     if(APPLE)
-      set(OPTIONS MACOSX_BUNDLE)
+      set(_icon_file_candidate ${name}.icns)
+    elseif(NOT MSVC)
+      set(_icon_file_candidate ${name}.png)
+      set(_desktop_file_candidate ${name}.desktop)
+      if(DEFINED ${NAME}_DESKTOP)
+        set(_desktop ${${NAME}_DESKTOP})
+      elseif(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${_desktop_file_candidate})
+        set(_desktop ${_desktop_file_candidate})
+      endif()
+    endif()
+
+    # EXISTS only works with absolute file path
+    if(DEFINED ${NAME}_ICON)
+      set(_icon ${${NAME}_ICON})
+    elseif(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${_icon_file_candidate})
+      set(_icon ${_icon_file_candidate})
     endif()
   endif()
 
-  if(THIS_WIN32)
-    if(MSVC)
-      set(OPTIONS WIN32)
-    endif()
-  endif()
-
-  add_executable(${Name} ${OPTIONS} ${_ICON} ${HEADERS} ${SOURCES})
+  add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
+                 ${_sources})
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
   common_compile_options(${Name})
   add_dependencies(${PROJECT_NAME}-all ${Name})
-  target_link_libraries(${Name} ${LINK_LIBRARIES})
+  target_link_libraries(${Name} ${_libraries})
   install(TARGETS ${Name} DESTINATION bin COMPONENT apps)
 
   if(THIS_GUI AND NOT APPLE AND NOT MSVC)
-    if(NOT DEFINED ${NAME}_ICON AND EXISTS ${name}.png)
-      set(${NAME}_ICON ${name}.png)
+    if(_icon)
+      install(FILES ${_icon} DESTINATION share/pixmaps COMPONENT apps)
     endif()
-    if(${NAME}_ICON)
-      install(FILES ${${NAME}_ICON} DESTINATION share/pixmaps COMPONENT apps)
-    endif()
-
-    if(NOT DEFINED ${NAME}_DESKTOP AND EXISTS ${name}.desktop)
-      set(${NAME}_DESKTOP ${name}.desktop)
-    endif()
-    if(${NAME}_DESKTOP)
-      install(FILES ${${NAME}_DESKTOP} DESTINATION share/applications
-        COMPONENT apps)
+    if(_desktop)
+      install(FILES ${_desktop} DESTINATION share/applications COMPONENT apps)
     endif()
   endif()
 
   if(THIS_GUI AND APPLE)
-    if(NOT DEFINED ${NAME}_ICON AND EXISTS ${name}.icns)
-      set(${NAME}_ICON ${name}.icns)
-    endif()
-    if(${NAME}_ICON)
-      set_source_files_properties(${${NAME}_ICON}
-        PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    if(_icon)
+      set_source_files_properties(${_icon} PROPERTIES MACOSX_PACKAGE_LOCATION
+        Resources)
     endif()
     # Configure bundle property file using current version, copyright and icon
     set(_BUNDLE_NAME ${Name})
     set(_COPYRIGHT ${${NAME}_COPYRIGHT})
+    set(_ICON ${_icon})
     set(_VERSION ${${PROJECT_NAME}_VERSION})
     configure_file(${CMAKE_SOURCE_DIR}/CMake/common/Info.plist.in
       ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
