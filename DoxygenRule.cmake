@@ -35,6 +35,7 @@
 # * ${UPPER_PROJECT_NAME}_ISSUES_URL A link pointing to the ticket tracker
 # * ${UPPER_PROJECT_NAME}_PACKAGE_URL A link pointing to the package repository
 # * ${UPPER_PROJECT_NAME}_MATURITY EP, RD or RS
+# * ${UPPER_PROJECT_NAME}_URL A link pointing to the package homepage
 #
 # IO Variables (set if not set as input)
 # * GIT_DOCUMENTATION_REPO or GIT_ORIGIN_ORG (from GithubInfo.cmake) is used

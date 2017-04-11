@@ -6,8 +6,8 @@
 #   script is parsed by top level project. See InstallDependencies for details.
 #
 # Output variables
-# - UPPER_PROJECT_NAME - lower-case ${PROJECT_NAME}
-# - LOWER_PROJECT_NAME - upper-case ${PROJECT_NAME}
+# - UPPER_PROJECT_NAME - upper-case ${PROJECT_NAME}
+# - LOWER_PROJECT_NAME - lower-case ${PROJECT_NAME}
 # - TRAVIS - if environment is travis build system
 # - BLUEGENE - if machine is BlueGene
 # - LINUX - if machine is Linux
