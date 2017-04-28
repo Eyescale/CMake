@@ -16,6 +16,7 @@
 # * NAME_LIBRARY_TYPE or COMMON_LIBRARY_TYPE for SHARED or STATIC library, with
 #   COMMON_LIBRARY_TYPE being an option stored in the CMakeCache.
 # * NAME_OMIT_LIBRARY_HEADER when set, no library header (name.h) is generated.
+# * NAME_OMIT_VERSION_HEADERS when set, no api.h, version.h|cpp are generated.
 # * NAME_INCLUDE_NAME for the include directory and library header
 # * NAME_NAMESPACE for api.h and version.h
 # * NAME_OMIT_CHECK_TARGETS do not create cppcheck targets
@@ -68,27 +69,8 @@ function(common_library Name)
   set(LINK_LIBRARIES ${${NAME}_LINK_LIBRARIES})
 
   # Generate api.h and version.h/cpp for non-interface libraries
-  if(${NAME}_SOURCES)
-    set(PROJECT_VERSION_ABI ${${PROJECT_NAME}_VERSION_ABI})
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/api.h
-      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.h
-      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.cpp
-      ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
-
-    # Exclude this file for coverage report in CommonCoverage.cmake
-    set_property(GLOBAL APPEND PROPERTY
-                 COMMON_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
-
-    # ${NAMESPACE}_API= -> Fix cppcheck error about not including version.h
-    list(APPEND CPPCHECK_EXTRA_ARGS
-      -D${NAME}_STATIC= -D${NAMESPACE}_API=)
-
-    list(APPEND PUBLIC_HEADERS
-      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h
-      ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h)
-    list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+  if(${NAME}_SOURCES AND NOT ${NAME}_OMIT_VERSION_HEADERS)
+    generate_version_headers()
   endif()
 
   if(NOT ${NAME}_OMIT_LIBRARY_HEADER)
@@ -189,6 +171,29 @@ function(common_library Name)
     set_property(GLOBAL APPEND PROPERTY ${PROJECT_NAME}_COVERAGE_INPUT_DIRS ${CMAKE_CURRENT_BINARY_DIR})
   endif()
 endfunction()
+
+macro(generate_version_headers)
+  set(PROJECT_VERSION_ABI ${${PROJECT_NAME}_VERSION_ABI})
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/api.h
+    ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h @ONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.h
+    ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h @ONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/common/cpp/version.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/version.cpp @ONLY)
+
+  # Exclude this file for coverage report in CommonCoverage.cmake
+  set_property(GLOBAL APPEND PROPERTY
+               COMMON_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+
+  # ${NAMESPACE}_API= -> Fix cppcheck error about not including version.h
+  list(APPEND CPPCHECK_EXTRA_ARGS
+    -D${NAME}_STATIC= -D${NAMESPACE}_API=)
+
+  list(APPEND PUBLIC_HEADERS
+    ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/api.h
+    ${PROJECT_BINARY_DIR}/include/${INCLUDE_NAME}/version.h)
+  list(APPEND SOURCES ${CMAKE_CURRENT_BINARY_DIR}/version.cpp)
+endmacro()
 
 macro(generate_library_header NAME)
   get_filename_component(__base_name ${INCLUDE_NAME} NAME)
