@@ -33,6 +33,7 @@
 # then it can check the variable ${PROJECT_NAME}_IS_SUBPROJECT.
 #
 # SubProject.cmake respects the following variables:
+# - CLONE_SUBPROJECTS: when set, subprojects are git-cloned if missing.
 # - DISABLE_SUBPROJECTS: when set, does not load sub projects. Useful for
 #   example for continuous integration builds
 # - SUBPROJECT_${name}: If set to OFF, the subproject is not added.
@@ -81,7 +82,9 @@ function(add_subproject name)
 
   if(NOT EXISTS "${path}/")
     message(FATAL_ERROR
-      "Subproject ${name} not found in ${path}")
+      "Subproject ${name} not found in ${path}, do:\n"
+      "cmake -DCLONE_SUBPROJECTS=ON\n"
+      "to git-clone it automatically.")
   endif()
   # enter again to catch direct add_subproject() calls
   common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
@@ -135,7 +138,9 @@ macro(git_subproject name url tag)
         if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
             ${NAME}_FOUND_SUBPROJECT)
           # not found externally, add as sub project
-          git_external(${__common_source_dir}/${name} ${url} ${tag})
+          if(CLONE_SUBPROJECTS)
+            git_external(${__common_source_dir}/${name} ${url} ${tag})
+          endif()
           add_subproject(${name})
         endif()
       endif()
