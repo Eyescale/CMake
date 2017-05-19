@@ -113,7 +113,12 @@ function(GIT_EXTERNAL DIR REPO tag)
     if(nok)
       message(FATAL_ERROR "git checkout ${TAG} in ${DIR} failed: ${error}\n")
     else()
-      execute_process(COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive
+      # init submodules of the subproject, excluding CMake/common if present
+      execute_process(COMMAND "${GIT_EXECUTABLE}" submodule init
+        WORKING_DIRECTORY "${DIR}" OUTPUT_QUIET)
+      execute_process(COMMAND "${GIT_EXECUTABLE}" submodule deinit CMake/common
+        WORKING_DIRECTORY "${DIR}" OUTPUT_QUIET ERROR_QUIET)
+      execute_process(COMMAND "${GIT_EXECUTABLE}" submodule update --recursive
         WORKING_DIRECTORY "${DIR}")
     endif()
   endif()
