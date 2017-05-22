@@ -1,8 +1,22 @@
 # CMake Modules
 
 This repository contains common CMake modules and a collection of find scripts
-to locate non-CMake dependencies. To use it, create a .gitexternals file in your
-project with the content:
+to locate non-CMake dependencies. The recommended way to use it is:
+
+## As a git submodule
+
+In your project source dir, do:
+
+    git submodule add https://github.com/Eyescale/CMake CMake/common
+
+And include it in the top-level CMakeLists.txt as follows:
+
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common)
+    include(Common)
+
+## As a git externals (deprecated)
+
+Create a .gitexternals file in your project with the content:
 
     # -*- mode: cmake -*-
     # CMake/common https://github.com/Eyescale/CMake.git master
