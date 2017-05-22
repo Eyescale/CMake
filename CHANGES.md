@@ -1,5 +1,12 @@
 # git master
 
+* [551](https://github.com/Eyescale/CMake/pull/551):
+  Subproject changes:
+    * Cloning of subprojects has been disabled by default. Users must explicitly
+      set -DCLONE_SUBPROJECTS=ON to clone missing dependencies during the cmake
+      run.
+    * CMake/common can be integrated as a .gitmodule without getting an
+      unnecessary copy in each subproject.
 * [540](https://github.com/Eyescale/CMake/pull/540):
   Add CommonSmokeTest.cmake to check execution of installed applications
 * [537](https://github.com/Eyescale/CMake/pull/537):
