@@ -65,7 +65,7 @@ endif()
 # If VERSION_ABI has not been declared, use the following common conventions:
 # - ABI version matches MAJOR version (ABI only changes with MAJOR releases)
 # - MINOR and PATCH releases preserve backward ABI compatibility
-# - PATCH releases preseve forward+backward API compatibility (no new features)
+# - PATCH releases preserve forward+backward API compatibility (no new features)
 if(NOT DEFINED ${PROJECT_NAME}_VERSION_ABI)
   set(${PROJECT_NAME}_VERSION_ABI ${${PROJECT_NAME}_VERSION_MAJOR})
   message(STATUS "VERSION_ABI not set for ${PROJECT_NAME}. Using VERSION_MAJOR=${${PROJECT_NAME}_VERSION_MAJOR} as the ABI version.")
@@ -156,7 +156,6 @@ include(GitInfo)
 include(GitTargets)
 include(GitHooks)
 include(ProjectInfo)
-include(UpdateGitExternal)
 
 if(INSTALL_PACKAGES)
   include(InstallDependencies)

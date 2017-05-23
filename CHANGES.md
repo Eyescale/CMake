@@ -1,4 +1,4 @@
-# git master
+# 2017.05 (23-May-2017)
 
 * [551](https://github.com/Eyescale/CMake/pull/551):
   Subproject changes:
@@ -7,10 +7,29 @@
       run.
     * CMake/common can be integrated as a .gitmodule without getting an
       unnecessary copy in each subproject.
+* [550](https://github.com/Eyescale/CMake/pull/550):
+  CommonLibrary: NAME_OMIT_VERSION_HEADERS to disable api.h/version.h|cpp
+* [549](https://github.com/Eyescale/CMake/pull/549):
+  Remove Tuvok finder in favor of provided package config
+* [545](https://github.com/Eyescale/CMake/pull/545):
+  CommonCPack fixes: follow Debian package naming conventions, make ABI version
+  in package name optional
+* [545](https://github.com/Eyescale/CMake/pull/545):
+  common_application(GUI): install application icon and launcher on Linux
+* [544](https://github.com/Eyescale/CMake/pull/544):
+  FindLibJpegTurbo.cmake parses jconfig.h for version check
 * [540](https://github.com/Eyescale/CMake/pull/540):
   Add CommonSmokeTest.cmake to check execution of installed applications
+* [539](https://github.com/Eyescale/CMake/pull/539):
+  Add Findrados.cmake
+* [538](https://github.com/Eyescale/CMake/pull/538):
+  Allow integration of subprojects outside of COMMON_SOURCE_DIR
 * [537](https://github.com/Eyescale/CMake/pull/537):
   Automatically add a pre-commit hook to git repos for running clang-format
+* [535](https://github.com/Eyescale/CMake/pull/535):
+  New common_help() to generate help page for doxygen
+* [534](https://github.com/Eyescale/CMake/pull/534):
+  Remove unneeded zmq finder
 * [533](https://github.com/Eyescale/CMake/pull/533):
   Add application-help-to-doxygen extraction
 * [532](https://github.com/Eyescale/CMake/pull/532):
@@ -22,6 +41,8 @@
   Revert parallel clone due to failure of clones in CI
 * [530](https://github.com/Eyescale/CMake/pull/530):
   Fix return value of Version::getRevision to 64 bit for longer git SHAs
+* [529](https://github.com/Eyescale/CMake/pull/529):
+  Fix python3 finding on OSX with -DUSE_PYTHON_VERSION=3
 
 # 2016.12 (09-Dec-2016)
 
