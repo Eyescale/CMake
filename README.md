@@ -100,5 +100,7 @@ Additional features:
   This is only implemented for Linux distributions using apt-get and yum
   package managers and MacPorts in OS X. The actual support depends on the
   project declaring its dependencies for each particular case.
+* [CommonGraph](CommonGraph.cmake) adds *graphs* target to generate .png tree
+  view of dependencies, gathered by CommonFindPackage and SubProject.
 
 [Detailed Change Log](CHANGES.md)

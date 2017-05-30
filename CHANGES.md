@@ -165,8 +165,8 @@
 * cmake 3 is required for finding a project with find_package() from
   outside the build tree/from the install tree.
 * Optimized cmake run speed significantly
-* New project-png target generating a dependency graph if graphviz is
-  found
+* New PROJECT_NAME-graph target generating a .png dependency graph if graphviz
+  is found
 * New explicit rebase target to update sub projects and externals to
   configured revision
 * FindPackages.cmake should no longer be used; use common_package() for each
