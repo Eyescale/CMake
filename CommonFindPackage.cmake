@@ -85,8 +85,19 @@ macro(common_find_package Package_Name)
       ${__find_quiet})
   endif()
 
+  # Check find operation result and add graph dependency
+
+  if(${Package_Name}_IS_SUBPROJECT)
+    set(_is_subproject SOURCE)
+  else()
+    set(_is_subproject)
+  endif()
+
   if(__pkg_REQUIRED)  # required find
-    if((NOT ${Package_Name}_FOUND) AND (NOT ${PACKAGE_NAME}_FOUND))
+    if(${Package_Name}_FOUND OR ${PACKAGE_NAME}_FOUND)
+      common_graph_dep(${PROJECT_NAME} ${Package_Name} ${_is_subproject} REQUIRED)
+    else()
+      common_graph_dep(${PROJECT_NAME} ${Package_Name} ${_is_subproject} REQUIRED NOTFOUND)
       if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
         message(FATAL_ERROR "Not configured ${PROJECT_NAME}: Required ${Package_Name} not found")
       else()
@@ -94,10 +105,15 @@ macro(common_find_package Package_Name)
       endif()
       return()
     endif()
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} TRUE FALSE)
   else()  # optional find
-    common_graph_dep(${PROJECT_NAME} ${Package_Name} FALSE FALSE)
+    if(${Package_Name}_FOUND OR ${PACKAGE_NAME}_FOUND)
+      common_graph_dep(${PROJECT_NAME} ${Package_Name} ${_is_subproject})
+    else()
+      common_graph_dep(${PROJECT_NAME} ${Package_Name} ${_is_subproject} NOTFOUND)
+    endif()
   endif()
+
+  # Set common found variables, link and include directories
 
   if(${PACKAGE_NAME}_FOUND)
     set(${Package_Name}_name ${PACKAGE_NAME})
