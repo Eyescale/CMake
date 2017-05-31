@@ -39,6 +39,8 @@
 # - SUBPROJECT_${name}: If set to OFF, the subproject is not added.
 # - COMMON_SOURCE_DIR: When set, the source code of subprojects will be
 #   downloaded in this path instead of CMAKE_SOURCE_DIR.
+# - ${PROJECT_NAME}_IS_METAPROJECT: Enable CommonGraph compatibility for a
+#   top-level project which does not use common_find_package().
 # A sample project can be found at https://github.com/Eyescale/Collage.git
 #
 # How to create a dependency graph:
@@ -86,8 +88,6 @@ function(add_subproject name)
       "cmake -DCLONE_SUBPROJECTS=ON\n"
       "to git-clone it automatically.")
   endif()
-  # enter again to catch direct add_subproject() calls
-  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
 
   # allow exclusion of subproject via set(SUBPROJECT_${name} OFF)
   if(DEFINED SUBPROJECT_${name} AND NOT SUBPROJECT_${name})
@@ -111,9 +111,7 @@ function(add_subproject name)
 
   # add the source sub directory to our build and set the binary dir
   # to the build tree
-
-  add_subdirectory("${path}"
-    "${CMAKE_BINARY_DIR}/${name}")
+  add_subdirectory("${path}" "${CMAKE_BINARY_DIR}/${name}")
   set(${name}_IS_SUBPROJECT ON PARENT_SCOPE)
 
   # Mark globally that we've already used name as a sub project
@@ -121,36 +119,41 @@ function(add_subproject name)
 endfunction()
 
 macro(git_subproject name url tag)
-  # enter early to catch all dependencies
-  common_graph_dep(${PROJECT_NAME} ${name} TRUE TRUE)
-  if(NOT DISABLE_SUBPROJECTS)
-    string(TOUPPER ${name} NAME)
-    if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-      get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-      if(NOT __included)
-        if(NOT EXISTS ${__common_source_dir}/${name})
-          # Always try first using Config mode, then Module mode.
-          find_package(${name} QUIET CONFIG)
-          if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
-            find_package(${name} QUIET MODULE)
-          endif()
+  if(DISABLE_SUBPROJECTS)
+    return()
+  endif()
+
+  # add graph dependency for meta-projects with no common_find_package() calls
+  if(${PROJECT_NAME}_IS_METAPROJECT)
+    common_graph_dep(${PROJECT_NAME} ${name} SOURCE TOPLEVEL REQUIRED)
+  endif()
+
+  string(TOUPPER ${name} NAME)
+  if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+    get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+    if(NOT __included)
+      if(NOT EXISTS ${__common_source_dir}/${name})
+        # Always try first using Config mode, then Module mode.
+        find_package(${name} QUIET CONFIG)
+        if(NOT ${NAME}_FOUND AND NOT ${name}_FOUND)
+          find_package(${name} QUIET MODULE)
         endif()
-        if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
-            ${NAME}_FOUND_SUBPROJECT)
-          # not found externally, add as sub project
-          if(CLONE_SUBPROJECTS)
-            git_external(${__common_source_dir}/${name} ${url} ${tag})
-          endif()
-          add_subproject(${name})
+      endif()
+      if((NOT ${NAME}_FOUND AND NOT ${name}_FOUND) OR
+          ${NAME}_FOUND_SUBPROJECT)
+        # not found externally, add as sub project
+        if(CLONE_SUBPROJECTS)
+          git_external(${__common_source_dir}/${name} ${url} ${tag})
         endif()
+        add_subproject(${name})
       endif()
     endif()
-    get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
-    if(__included)
-      list(APPEND __subprojects "${name} ${url} ${tag}")
-      if(TARGET ${PROJECT_NAME}-install AND TARGET ${name}-install)
-        add_dependencies(${PROJECT_NAME}-install ${name}-install)
-      endif()
+  endif()
+  get_property(__included GLOBAL PROPERTY ${name}_IS_SUBPROJECT)
+  if(__included)
+    list(APPEND __subprojects "${name} ${url} ${tag}")
+    if(TARGET ${PROJECT_NAME}-install AND TARGET ${name}-install)
+      add_dependencies(${PROJECT_NAME}-install ${name}-install)
     endif()
   endif()
 endmacro()
@@ -204,6 +207,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.gitsubprojects")
       set_target_properties(update PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD ON)
     endif()
     add_dependencies(update ${PROJECT_NAME}-update-gitsubprojects)
-  endif()
 
+    if(${PROJECT_NAME}_IS_METAPROJECT)
+      common_graph(${PROJECT_NAME})
+    endif()
+  endif()
 endif()
