@@ -28,6 +28,14 @@ namespace @namespace@
     /** The current binary interface. */
 #   define @NAMESPACE@_VERSION_ABI @PROJECT_VERSION_ABI@ull
 
+    /** The current major.minor.version as a string. */
+#   define @NAMESPACE@_VERSION_STRING \
+    "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
+
+    /** The current major.minor.version.revision as a string. */
+#   define @NAMESPACE@_REV_STRING \
+    "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@.0x@GIT_REVISION@"
+
 /** True if the current version is newer than the given one. */
 #   define @NAMESPACE@_VERSION_GT( MAJOR, MINOR, PATCH )       \
     ( (@NAMESPACE@_VERSION_MAJOR>MAJOR) ||                     \

@@ -1,3 +1,8 @@
+# git master
+
+* [555](https://github.com/Eyescale/CMake/pull/555):
+  Add missing defines to version.h to ease usage w/o the need for linking
+
 # 2017.05 (23-May-2017)
 
 * [551](https://github.com/Eyescale/CMake/pull/551):
