@@ -10,6 +10,8 @@
 # - <project>-smoketests: run all smoke tests of the given (sub)project
 # - <Target>-smoketest: run the given smoke test
 
+include(CommonInstallProject)
+
 if(NOT TARGET smoketests)
   add_custom_target(smoketests)
   set_target_properties(smoketests PROPERTIES

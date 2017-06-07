@@ -129,12 +129,6 @@ if(NOT TARGET ${PROJECT_NAME}-all)
   set_target_properties(${PROJECT_NAME}-all PROPERTIES FOLDER ${PROJECT_NAME})
 endif()
 
-add_custom_target(${PROJECT_NAME}-install
-  ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/cmake_install.cmake
-  DEPENDS ${PROJECT_NAME}-all)
-set_target_properties(${PROJECT_NAME}-install PROPERTIES
-  EXCLUDE_FROM_DEFAULT_BUILD ON)
-
 set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc)
 
 include(ChoosePython) # Must be before any find_package to python
