@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015 Stefan.Eilemann@epfl.ch
+# Copyright (c) 2014-2017 Stefan.Eilemann@epfl.ch
 #                         Daniel.Nachbaur@epfl.ch
 
 # Provides common_find_package(Package_Name args) and common_find_package_post()
@@ -185,6 +185,7 @@ macro(common_find_package_disable)
 endmacro()
 
 macro(common_find_package_post)
+  common_add_install_dependencies(${${PROJECT_NAME}_FIND_PACKAGES_FOUND})
   if(WIN32)
     set(__system Win32)
   endif()

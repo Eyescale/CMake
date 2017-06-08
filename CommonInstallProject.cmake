@@ -1,7 +1,8 @@
 # Copyright (c) 2017 Stefan.Eilemann@epfl.ch
 #
-# Generates ${PROJECT_NAME}-install rule. reentrant, to be called by every
-# module depending on ${PROJECT_NAME}-install.
+# Generates ${PROJECT_NAME}-install rule. Adds common_add_install_dependencies
+# function which takes a list of dependencies and adds their install target to
+# the project install, if available.
 #
 # This rule is for targets which depend on the installed artefacts, e.g.,
 # doxygen and smoke tests. CMake does not provide this, so this is a workaround.
@@ -19,10 +20,11 @@ if(NOT TARGET ${PROJECT_NAME}-install)
     EXCLUDE_FROM_DEFAULT_BUILD ON)
 endif()
 
-# redo dependency chaining each time: a new common_find_package might have been called
-string(REPLACE " " ";" __deps "${${PROJECT_NAME}_FIND_PACKAGES_FOUND}") # string-to-list
-foreach(__dep ${__deps})
-  if(TARGET ${PROJECT_NAME}-install AND TARGET ${__dep}-install)
-    add_dependencies(${PROJECT_NAME}-install ${__dep}-install)
-  endif()
-endforeach()
+function(COMMON_ADD_INSTALL_DEPENDENCIES)
+  string(REPLACE " " ";" __deps "${ARGN}") # string-to-list
+  foreach(__dep ${__deps})
+    if(TARGET ${PROJECT_NAME}-install AND TARGET ${__dep}-install)
+      add_dependencies(${PROJECT_NAME}-install ${__dep}-install)
+    endif()
+  endforeach()
+endfunction()

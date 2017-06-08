@@ -142,6 +142,7 @@ endif()
 
 include(CommonApplication)
 include(CommonInstall)
+include(CommonInstallProject)
 include(CommonLibrary)
 include(CommonCompiler)
 include(CommonCoverage)
