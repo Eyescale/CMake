@@ -64,6 +64,7 @@ if(NOT TARGET ${PROJECT_NAME}-all)
 endif()
 
 include(CommonDate)
+
 if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubInfo)
   set(GIT_DOCUMENTATION_REPO ${GIT_ORIGIN_ORG})

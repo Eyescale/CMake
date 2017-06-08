@@ -1,5 +1,7 @@
 # git master
 
+* [556](https://github.com/Eyescale/CMake/pull/556):
+  Fix rare bug with project-install missing dependencies
 * [555](https://github.com/Eyescale/CMake/pull/555):
   Add missing defines to version.h to ease usage w/o the need for linking
 
