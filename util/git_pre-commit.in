@@ -19,7 +19,7 @@ for file in $files; do
             if [[ $($GIT diff --name-only "$file") == "$file" ]]; then
                 echo "clang-format not run on partially added file $file"
             else
-                $CLANG_FORMAT -i -style=file $PWD/$file
+                $CLANG_FORMAT -i -style=file -fallback-style=none $PWD/$file
                 $GIT add $file
             fi
             break;
