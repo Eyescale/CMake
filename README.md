@@ -14,26 +14,6 @@ And include it in the top-level CMakeLists.txt as follows:
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/common)
     include(Common)
 
-## As a git externals (deprecated)
-
-Create a .gitexternals file in your project with the content:
-
-    # -*- mode: cmake -*-
-    # CMake/common https://github.com/Eyescale/CMake.git master
-
-Copy [GitExternal](GitExternal.cmake) from this repository to CMake/,
-and use it in your top-level CMakeLists.txt as follows:
-
-    list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-                                  ${CMAKE_SOURCE_DIR}/CMake/common)
-    include(GitExternal)
-    include(Common)
-
-This will clone the latest version of this repository into your project at
-the beginning of the CMake run, and make all its features available. Run the
-'update' target (e.g. 'make update') after the first successful cmake run to pin
-the git external to a SHA1 tag instead of a moving master tag.
-
 ## Documentation
 
 The following CMake modules can be included in your project:
