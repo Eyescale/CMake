@@ -1,18 +1,11 @@
 # Configures an external git repository
 #
-# Usage:
-#  * Automatically reads, parses and updates a .gitexternals file if it only
-#    contains lines in the form "# <directory> <giturl> <gittag>".
-#    This function parses the file for this pattern and then calls
-#    git_external on each found entry. Additionally it provides an
-#    update target to bump the tag to the master revision by
-#    recreating .gitexternals.
-#  * Provides function
-#      git_external(<directory> <giturl> <gittag> [VERBOSE]
-#        [RESET <files>])
-#    which will check out directory in CMAKE_SOURCE_DIR (if relative)
-#    or in the given absolute path using the given repository and tag
-#    (commit-ish).
+# Provides function
+#    git_external(<directory> <giturl> <gittag> [VERBOSE]
+#      [RESET <files>])
+#  which will check out directory in CMAKE_SOURCE_DIR (if relative)
+#  or in the given absolute path using the given repository and tag
+#  (commit-ish).
 #
 # Options which can be supplied to the function:
 #  VERBOSE, when present, this option tells the function to output
@@ -231,114 +224,3 @@ function(GIT_EXTERNAL DIR REPO tag)
   endif()
 endfunction()
 
-set(GIT_EXTERNALS ${GIT_EXTERNALS_FILE})
-if(NOT GIT_EXTERNALS)
-  set(GIT_EXTERNALS "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals")
-endif()
-
-if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
-  include(${GIT_EXTERNALS})
-  file(READ ${GIT_EXTERNALS} GIT_EXTERNAL_FILE)
-  string(REGEX REPLACE "\n" ";" GIT_EXTERNAL_FILE "${GIT_EXTERNAL_FILE}")
-  foreach(LINE ${GIT_EXTERNAL_FILE})
-    if(NOT LINE MATCHES "^#.*$")
-      message(FATAL_ERROR "${GIT_EXTERNALS} contains non-comment line: ${LINE}")
-    endif()
-    string(REGEX REPLACE "^#[ ]*(.+[ ]+.+[ ]+.+)$" "\\1" DATA ${LINE})
-    if(NOT LINE STREQUAL DATA)
-      string(REGEX REPLACE "[ ]+" ";" DATA "${DATA}")
-      list(LENGTH DATA DATA_LENGTH)
-      if(DATA_LENGTH EQUAL 3)
-        list(GET DATA 0 DIR)
-        list(GET DATA 1 REPO)
-        list(GET DATA 2 TAG)
-
-        # Create a unique, flat name
-        string(REPLACE "/" "-" GIT_EXTERNAL_NAME ${DIR})
-
-        if(NOT TARGET ${PROJECT_NAME}-update-gitexternal-${GIT_EXTERNAL_NAME}) # not done
-          # pull in identified external
-          git_external(${DIR} ${REPO} ${TAG})
-
-          # Create update script and target to bump external spec
-          if(NOT TARGET update)
-            add_custom_target(update)
-          endif()
-          if(NOT TARGET ${PROJECT_NAME}-update-gitexternals)
-            add_custom_target(${PROJECT_NAME}-update-gitexternals)
-            add_custom_target(${PROJECT_NAME}-flatten-gitexternals)
-            add_dependencies(update ${PROJECT_NAME}-update-gitexternals)
-          endif()
-
-          # Create a unique, flat name
-          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_SOURCE_DIR}
-            ${GIT_EXTERNALS})
-          string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS_BASE})
-
-          set(GIT_EXTERNAL_TARGET ${PROJECT_NAME}-write-gitexternal-${GIT_EXTERNAL_NAME})
-          if(NOT TARGET ${GIT_EXTERNAL_TARGET})
-            set(GIT_EXTERNAL_SCRIPT
-              "${CMAKE_CURRENT_BINARY_DIR}/${GIT_EXTERNAL_TARGET}.cmake")
-            file(WRITE "${GIT_EXTERNAL_SCRIPT}"
-              "file(WRITE ${GIT_EXTERNALS} \"# -*- mode: cmake -*-\n\")\n")
-            add_custom_target(${GIT_EXTERNAL_TARGET}
-              COMMAND "${CMAKE_COMMAND}" -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
-              COMMENT "Recreate ${GIT_EXTERNALS_BASE}"
-              WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-          endif()
-
-          set(GIT_EXTERNAL_SCRIPT
-            "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
-          file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
-include(\"${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake\")
-execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q
-  WORKING_DIRECTORY \"${CMAKE_SOURCE_DIR}/${DIR}\")
-execute_process(
-  COMMAND \"${GIT_EXECUTABLE}\" show-ref --hash=7 refs/remotes/origin/master
-  OUTPUT_VARIABLE newref OUTPUT_STRIP_TRAILING_WHITESPACE
-  WORKING_DIRECTORY \"${CMAKE_SOURCE_DIR}/${DIR}\")
-if(newref)
-  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} \${newref}\\n\")
-  git_external(${DIR} ${REPO} \${newref})
-else()
-  file(APPEND ${GIT_EXTERNALS} \"# ${DIR} ${REPO} ${TAG}\n\")
-endif()")
-          add_custom_target(${PROJECT_NAME}-update-gitexternal-${GIT_EXTERNAL_NAME}
-            COMMAND "${CMAKE_COMMAND}" -DGIT_EXTERNAL_SCRIPT_MODE=1 -P ${GIT_EXTERNAL_SCRIPT}
-            COMMENT "Update ${REPO} in ${GIT_EXTERNALS_BASE}"
-            DEPENDS ${GIT_EXTERNAL_TARGET}
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-          add_dependencies(${PROJECT_NAME}-update-gitexternals
-            ${PROJECT_NAME}-update-gitexternal-${GIT_EXTERNAL_NAME})
-
-          # Flattens a git external repository into its parent repo:
-          # * Clean any changes from external
-          # * Unlink external from git: Remove external/.git and .gitexternals
-          # * Add external directory to parent
-          # * Commit with flattened repo and tag info
-          # - Depend on release branch checked out
-          add_custom_target(${PROJECT_NAME}-flatten-gitexternal-${GIT_EXTERNAL_NAME}
-            COMMAND "${GIT_EXECUTABLE}" clean -dfx
-            COMMAND "${CMAKE_COMMAND}" -E remove_directory .git
-            COMMAND "${CMAKE_COMMAND}" -E remove -f "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals"
-            COMMAND "${GIT_EXECUTABLE}" add -f .
-            COMMAND "${GIT_EXECUTABLE}" commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . "${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals"
-            COMMENT "Flatten ${REPO} into ${DIR}"
-            DEPENDS ${PROJECT_NAME}-make-branch
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
-          add_dependencies(${PROJECT_NAME}-flatten-gitexternals
-            ${PROJECT_NAME}-flatten-gitexternal-${GIT_EXTERNAL_NAME})
-
-          foreach(_target ${PROJECT_NAME}-flatten-gitexternal-${GIT_EXTERNAL_NAME}
-                          ${PROJECT_NAME}-flatten-gitexternals
-                          ${PROJECT_NAME}-update-gitexternal-${GIT_EXTERNAL_NAME}
-                          ${PROJECT_NAME}-update-gitexternals
-                          ${GIT_EXTERNAL_TARGET} update)
-            set_target_properties(${_target} PROPERTIES
-              EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
-          endforeach()
-        endif()
-      endif()
-    endif()
-  endforeach()
-endif()
