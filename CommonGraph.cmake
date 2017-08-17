@@ -98,14 +98,20 @@ function(common_graph Name)
 
   set(_loop_count 0)
   while(nDepends)
-    list(GET _dependencies 0 dep)
+    list(GET _dependencies 0 dependency)
     list(REMOVE_AT _dependencies 0)
 
-    get_property(_dep_graph GLOBAL PROPERTY ${dep}_COMMON_GRAPH)
+    get_property(_dep_graph GLOBAL PROPERTY ${dependency}_COMMON_GRAPH)
     set(_graph "${_dep_graph} ${_graph}")
 
-    get_property(_dep_depends GLOBAL PROPERTY ${dep}_COMMON_GRAPH_DEPENDS)
-    list(APPEND _dependencies ${_dep_depends})
+    get_property(_dep_depends GLOBAL PROPERTY
+      ${dependency}_COMMON_GRAPH_DEPENDS)
+    foreach(dep ${_dep_depends})
+      list(FIND _dependencies ${dep} _found)
+      if(_found EQUAL "-1")
+        list(APPEND _dependencies ${dep})
+      endif()
+    endforeach()
     list(LENGTH _dependencies nDepends)
 
     # prevent infinite looping in the case of circular dependencies
