@@ -35,7 +35,7 @@ function(common_add_python_test TEST_SOURCE)
   add_test(NAME ${TEST_NAME} COMMAND ${PYTHON_EXECUTABLE} ${TEST_FILE})
 
   add_custom_target(ctest_${TEST_NAME}
-    COMMAND ${CMAKE_CTEST_COMMAND} -Q -T test --no-compress-output
+    COMMAND ${CMAKE_CTEST_COMMAND} -T test --no-compress-output
       -R '^${TEST_NAME}$$' -C $<CONFIGURATION> \${ARGS}
     DEPENDS ${PYTHON_TEST_DEPENDENCIES} ${TEST_FILE}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -65,4 +65,3 @@ if(NOT TARGET ${PROJECT_NAME}-pythontests)
 endif()
 
 add_dependencies(${PROJECT_NAME}-pythontests ${ALL_PYTHON_TESTS})
-
