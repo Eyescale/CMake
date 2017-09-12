@@ -103,6 +103,7 @@ macro(common_cpack_set_base_parameters)
   endif()
 
   set(CPACK_STRIP_FILES TRUE) # strip binaries from symbols of other arch
+  set(_package_license ${${UPPER_PROJECT_NAME}_LICENSE})
 endmacro()
 
 macro(common_cpack_set_components_all NAME)
@@ -166,14 +167,12 @@ common_cpack_set_base_parameters()
 if(NOT CPACK_COMPONENTS_ALL)
   common_cpack_set_components_all(${PROJECT_NAME})
 endif()
+if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.in.spec)
+  configure_file(${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.in.spec
+    ${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.spec @ONLY)
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  # Legacy?
-  if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.in.spec)
-    configure_file(${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.in.spec
-      ${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}.spec @ONLY)
-  endif()
-
   # Optional: append ABI version to package name and make a list of old packages
   if(${UPPER_PROJECT_NAME}_PACKAGE_USE_ABI AND ${PROJECT_NAME}_VERSION_ABI)
     set(_abi_version ${${PROJECT_NAME}_VERSION_ABI})
@@ -239,7 +238,6 @@ elseif(CPACK_GENERATOR STREQUAL "RPM")
   set(CPACK_PACKAGE_FILE_NAME
     "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${CMAKE_SYSTEM_PROCESSOR}")
 
-  set(_package_license ${${UPPER_PROJECT_NAME}_LICENSE})
   if(NOT _package_license)
     message(FATAL_ERROR "Missing Package License")
   endif()
