@@ -21,7 +21,9 @@ find_path(LibJpegTurbo_INCLUDE_DIR
 
 # Search for header with version: jconfig.h
 if(LibJpegTurbo_INCLUDE_DIR)
-  if(EXISTS "${LibJpegTurbo_INCLUDE_DIR}/jconfig.h")
+  if(EXISTS "${LibJpegTurbo_INCLUDE_DIR}/jconfig-64.h")
+    set(_version_header "${LibJpegTurbo_INCLUDE_DIR}/jconfig-64.h")
+  elseif(EXISTS "${LibJpegTurbo_INCLUDE_DIR}/jconfig.h")
     set(_version_header "${LibJpegTurbo_INCLUDE_DIR}/jconfig.h")
   elseif(EXISTS "${LibJpegTurbo_INCLUDE_DIR}/x86_64-linux-gnu/jconfig.h")
     set(_version_header "${LibJpegTurbo_INCLUDE_DIR}/x86_64-linux-gnu/jconfig.h")
