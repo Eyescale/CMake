@@ -60,6 +60,9 @@ if(NOT TARGET ${PROJECT_NAME}-pythontests)
   set_target_properties(${PROJECT_NAME}-pythontests PROPERTIES
     EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER "Tests")
 
+  if(NOT TARGET ${PROJECT_NAME}-tests)
+    add_custom_target(${PROJECT_NAME}-tests)
+  endif()
   add_dependencies(${PROJECT_NAME}-tests ${PROJECT_NAME}-pythontests)
   add_dependencies(tests ${PROJECT_NAME}-tests)
 endif()
