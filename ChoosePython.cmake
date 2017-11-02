@@ -17,7 +17,7 @@
 #
 # Output Variables:
 # * USE_PYTHON3: Set to 1 if and only if Python 3 is chosen.
-# * USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is choosen, empty string
+# * USE_BOOST_PYTHON_VERSION: Equals 3 if Python 3 is chosen, empty string
 #   otherwise
 # * PYTHON_LIBRARY_SUFFIX: The suffix path where Python site packages are
 #     to be installed for the chosen Python version.
