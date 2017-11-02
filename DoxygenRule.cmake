@@ -49,7 +49,7 @@
 #   documention folder, which is assumed to be located at:
 #   PROJECT_SOURCE_DIR/../GIT_DOCUMENTATION_REPO or
 #   PROJECT_SOURCE_DIR/../GIT_ORIGIN_org
-#   When using subprojects, it is the responsiblity of the user to clone
+#   When using subprojects, it is the responsibility of the user to clone
 #   the documentation repository in the project's parent folder.
 
 if(NOT DOXYGEN_FOUND)

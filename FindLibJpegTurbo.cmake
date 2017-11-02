@@ -6,7 +6,7 @@
 #  LibJpegTurbo_LIBRARIES - link these to use libjpeg-turbo
 #  LibJpegTurbo_VERSION - the version of libjpeg-turbo
 #
-# this file is modeled after http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
+# this file is modelled after http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
 
 include(LibFindMacros)
 

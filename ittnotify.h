@@ -1141,7 +1141,7 @@ ITT_STUBV(ITTAPI, void, model_task_end_2,  (void))
  * @brief ANNOTATE_LOCK_ACQUIRE/ANNOTATE_LOCK_RELEASE support
  *
  * lock_acquire/release model a potential lock for both lockset and
- * performance modeling.  Each unique address is modeled as a separate
+ * performance modeling.  Each unique address is modelled as a separate
  * lock, with invalid addresses being valid lock IDs.  Specifically:
  * no storage is accessed by the API at the specified address - it is only
  * used for lock identification.  Lock acquires may be self-nested and are
