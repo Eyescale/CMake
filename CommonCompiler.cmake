@@ -162,10 +162,7 @@ elseif(MSVC)
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS /DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR
     /D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS
-    /wd4068 # disable unknown pragma warnings
-    /wd4244 # conversion from X to Y, possible loss of data
-    /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
-    /wd4351 # new behavior: elements of array 'array' will be default initialized
+    /W0
   )
   set(COMMON_CXX_FLAGS_DEBUG /WX)
 else()
