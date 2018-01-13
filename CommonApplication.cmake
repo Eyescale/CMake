@@ -76,9 +76,14 @@ function(common_application Name)
       set(_icon ${_icon_file_candidate})
     endif()
   endif()
-
-  add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
-                 ${_sources})
+  
+  if (${CUDA_FOUND})
+    cuda_add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
+                   ${_sources})
+  else()
+    add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
+                   ${_sources})
+  endif()
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
   common_compile_options(${Name})
   add_dependencies(${PROJECT_NAME}-all ${Name})

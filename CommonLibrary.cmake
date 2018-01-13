@@ -103,14 +103,23 @@ function(common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-      add_library(${LibName} INTERFACE)
+      if (${CUDA_FOUND})
+        cuda_add_library(${LibName} INTERFACE)
+      else()
+        add_library(${LibName} INTERFACE)
+      endif()
       _target_include_directories(INTERFACE)
     else()
       # append a debug suffix to library name on windows or if user requests it
       common_set_lib_name_postfix()
 
-      add_library(${LibName} ${LIBRARY_TYPE}
-        ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      if (${CUDA_FOUND})
+        cuda_add_library(${LibName} ${LIBRARY_TYPE}
+          ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      else()
+        add_library(${LibName} ${LIBRARY_TYPE}
+          ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      endif()
       set_target_properties(${LibName} PROPERTIES
         VERSION ${${PROJECT_NAME}_VERSION}
         SOVERSION ${${PROJECT_NAME}_VERSION_ABI}
@@ -132,7 +141,11 @@ function(common_library Name)
     # add an alias with PROJECT_NAME to the target to ease detection of
     # subproject inclusion in CommonConfig.cmake
     if(NOT TARGET ${PROJECT_NAME}_ALIAS)
-      add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
+      if (${CUDA_FOUND})
+        cuda_add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
+      else()
+        add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
+      endif()
     endif()
 
     if(NOT ${NAME}_OMIT_INSTALL)
