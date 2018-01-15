@@ -141,11 +141,7 @@ function(common_library Name)
     # add an alias with PROJECT_NAME to the target to ease detection of
     # subproject inclusion in CommonConfig.cmake
     if(NOT TARGET ${PROJECT_NAME}_ALIAS)
-      if (${CUDA_FOUND})
-        cuda_add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
-      else()
         add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
-      endif()
     endif()
 
     if(NOT ${NAME}_OMIT_INSTALL)
