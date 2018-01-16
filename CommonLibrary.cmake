@@ -45,7 +45,7 @@
 include(CommonCheckTargets)
 include(InstallFiles)
 
-set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
+set(COMMON_LIBRARY_TYPE STATIC CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
 set_property(CACHE COMMON_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
