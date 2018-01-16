@@ -162,9 +162,11 @@ elseif(MSVC)
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS /DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR
     /D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS
-    /W0
   )
-  set(COMMON_CXX_FLAGS_DEBUG /WX)
+  
+  if (NOT COMMON_DISABLE_WERROR)
+    set(COMMON_CXX_FLAGS /WX)
+  endif()
 else()
   message(FATAL_ERROR "Unknown/unsupported compiler ${CMAKE_CXX_COMPILER_ID}")
 endif()
