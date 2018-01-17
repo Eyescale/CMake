@@ -77,7 +77,7 @@ function(common_application Name)
     endif()
   endif()
   
-  if (${CUDA_FOUND} AND ${NAME}_USE_CUDA)
+  if (CUDA_FOUND AND ${NAME}_USE_CUDA)
     cuda_add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
                    ${_sources})
   else()

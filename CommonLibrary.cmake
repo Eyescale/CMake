@@ -103,7 +103,7 @@ function(common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-        if (${CUDA_FOUND} AND ${NAME}_USE_CUDA)
+        if (CUDA_FOUND AND ${NAME}_USE_CUDA)
         cuda_add_library(${LibName} INTERFACE)
       else()
         add_library(${LibName} INTERFACE)
@@ -113,7 +113,7 @@ function(common_library Name)
       # append a debug suffix to library name on windows or if user requests it
       common_set_lib_name_postfix()
 
-      if (${CUDA_FOUND} AND ${NAME}_USE_CUDA)
+      if (CUDA_FOUND AND ${NAME}_USE_CUDA)
         cuda_add_library(${LibName} ${LIBRARY_TYPE}
           ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
       else()
