@@ -89,6 +89,7 @@ function(common_library Name)
 
   source_group(\\ FILES CMakeLists.txt)
   source_group(${INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+  source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
 
   if(NOT ${NAME}_LIBRARY_TYPE)
     set(${NAME}_LIBRARY_TYPE ${COMMON_LIBRARY_TYPE})

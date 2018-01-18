@@ -76,6 +76,8 @@ function(common_application Name)
       set(_icon ${_icon_file_candidate})
     endif()
   endif()
+
+  source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${_sources} ${_headers})
   
   if (CUDA_FOUND AND ${NAME}_USE_CUDA)
     cuda_add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
