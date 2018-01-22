@@ -87,8 +87,6 @@ function(common_library Name)
     list(SORT PUBLIC_HEADERS)
   endif()
 
-  source_group(\\ FILES CMakeLists.txt)
-  source_group(${INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
 
   if(NOT ${NAME}_LIBRARY_TYPE)
