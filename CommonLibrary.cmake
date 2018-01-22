@@ -87,8 +87,6 @@ function(common_library Name)
     list(SORT PUBLIC_HEADERS)
   endif()
 
-  source_group(\\ FILES CMakeLists.txt)
-  source_group(${INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
   source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
 
   if(NOT ${NAME}_LIBRARY_TYPE)
@@ -104,11 +102,7 @@ function(common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-        if (CUDA_FOUND AND ${NAME}_USE_CUDA)
-        cuda_add_library(${LibName} INTERFACE)
-      else()
         add_library(${LibName} INTERFACE)
-      endif()
       _target_include_directories(INTERFACE)
     else()
       # append a debug suffix to library name on windows or if user requests it
