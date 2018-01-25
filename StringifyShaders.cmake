@@ -23,6 +23,7 @@ function(STRINGIFY_SHADERS)
     list(APPEND OUTPUTS ${OUTPUT_FILES})
   endforeach(FILE ${ARGN})
 
+  set_property(SOURCE ${OUTPUTS} PROPERTY SKIP_AUTOGEN ON)
   set(SHADER_SOURCES ${OUTPUTS} PARENT_SCOPE)
 endfunction()
 
