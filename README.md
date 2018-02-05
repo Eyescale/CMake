@@ -28,10 +28,10 @@ The following CMake modules can be included in your project:
       more convenience over find_package and *common_find_package_post* (must be
       last after all common_find_package calls) to generate defines.h and
       options.cmake for feature checking.
-    * [CommonCompiler](CommonCompiler.cmake): Default compiler flags and useful
-      default warnings can be set on given target to common_compile_options();
-      automatically applied for targets created with common_application() and
-      common_library()
+    * [CommonCompiler](CommonCompiler.cmake): Default compiler flags (including
+      C++14) and useful default warnings can be set on given target to
+      common_compile_options(); automatically applied for targets created with
+      common_application() and common_library()
     * [CommonHelp](CommonHelp.cmake) *common_help* function to create a
       documentation page from an application's --help output.
     * [GitInfo](GitInfo.cmake) sets variables with information about the git
@@ -70,8 +70,8 @@ The following CMake modules can be included in your project:
   PROJECT_SOURCE_DIR. See [SubProject](SubProject.cmake) documentation for
   more details.
   A simple example project can be found at
-  https://github.com/Eyescale/Collage.git, and a complex one at
-  https://github.com/BlueBrain/Livre.git.
+  https://github.com/Eyescale/Collage.git, and a more complex one at
+  https://github.com/BlueBrain/Brayns.git.
 
 Additional features:
 * [InstallDependencies](InstallDependencies.cmake) lets users install known

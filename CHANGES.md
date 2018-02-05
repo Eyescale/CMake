@@ -1,3 +1,8 @@
+# git master
+
+* [579](https://github.com/Eyescale/CMake/pull/579):
+  New minimum required C++ standard: move from C++11 to C++14
+
 # 2018.02 (06-Feb-2018)
 
 * [575](https://github.com/Eyescale/CMake/pull/575):
