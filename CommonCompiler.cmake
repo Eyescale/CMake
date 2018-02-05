@@ -1,9 +1,10 @@
-# Copyright (c) 2012-2016 Fabien Delalondre <fabien.delalondre@epfl.ch>
+# Copyright (c) 2012-2018 Fabien Delalondre <fabien.delalondre@epfl.ch>
 #                         Stefan.Eilemann@epfl.ch
+#                         Daniel.Nachbaur@epfl.ch
 #
 # Sets compiler optimization, definition and warnings according to
-# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (4.4
-# or later) and Visual Studio (2008 or later).
+# chosen compiler. Supported compilers are XL, Intel, Clang, gcc (5.x
+# or later) and Visual Studio (2015 or later).
 #
 # This defines the common_compile_options() function to apply compiler flags and
 # features for the given target.
@@ -53,16 +54,16 @@ else()
   option(COMMON_ENABLE_CXX11_ABI "Enable C++11 ABI for gcc 5 or later" ON)
 endif()
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(COMMON_WARN_DEPRECATED)
   add_definitions(-DWARN_DEPRECATED) # projects have to pick this one up
 endif()
 
 # https://cmake.org/cmake/help/v3.1/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html
-set(COMMON_CXX11_FEATURES
-  cxx_alias_templates cxx_nullptr cxx_override cxx_final)
-if(NOT MSVC OR MSVC_VERSION VERSION_GREATER 1800)
-  list(APPEND COMMON_CXX11_FEATURES cxx_noexcept)
-endif()
+set(COMMON_CXX_FEATURES
+  cxx_alias_templates cxx_nullptr cxx_override cxx_final cxx_noexcept)
 
 function(compiler_dumpversion OUTPUT_VERSION)
   execute_process(COMMAND
@@ -122,11 +123,6 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   set(COMMON_C_FLAGS_RELEASE -xhost)
   set(COMMON_CXX_FLAGS_RELEASE -xhost)
 
-  set(CMAKE_CXX11_COMPILE_FEATURES ${COMMON_CXX11_FEATURES})
-  set(CMAKE_CXX_COMPILE_FEATURES ${CMAKE_CXX11_COMPILE_FEATURES})
-  set(CMAKE_CXX11_STANDARD_COMPILE_OPTION "-std=c++11")
-  set(CMAKE_CXX11_EXTENSION_COMPILE_OPTION "-std=c++11")
-  list(APPEND COMMON_CXX_FLAGS -std=c++11)
   if(NOT COMMON_ENABLE_CXX11_ABI)
     # http://stackoverflow.com/questions/30668560
     add_definitions("-D_GLIBCXX_USE_CXX11_ABI=0")
@@ -181,11 +177,7 @@ function(common_compile_options Name)
     set(__interface 1)
     set(__visibility INTERFACE)
   endif()
-  if(NOT __interface)
-    set_property(TARGET ${Name} PROPERTY C_STANDARD 11)
-    set_property(TARGET ${Name} PROPERTY CXX_STANDARD 11)
-  endif()
-  target_compile_features(${Name} ${__visibility} ${COMMON_CXX11_FEATURES})
+  target_compile_features(${Name} ${__visibility} ${COMMON_CXX_FEATURES})
   if(APPLE)
     target_compile_definitions(${Name} ${__visibility} Darwin)
   endif()
