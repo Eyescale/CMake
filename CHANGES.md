@@ -1,9 +1,32 @@
-# git master
+# 2018.02 (06-Feb-2018)
 
+* [575](https://github.com/Eyescale/CMake/pull/575):
+  Add macro in CommonCPackUtils to help package subprojects
+* [574](https://github.com/Eyescale/CMake/pull/574):
+  Disable warnings on windows
+* [569](https://github.com/Eyescale/CMake/pull/569):
+  Minor fix for GitInfo if GIT_BRANCH could not be determined
+* [568](https://github.com/Eyescale/CMake/pull/568):
+  Create projects-tests target for adding python tests if not existing
+* [567](https://github.com/Eyescale/CMake/pull/567):
+  Make PYTHON_TEST_EXCLUDE work as documented
+* [566](https://github.com/Eyescale/CMake/pull/566):
+  Fix finding libjpeg-turbo-devel .rpm package with jconfig-64.h
+* [565](https://github.com/Eyescale/CMake/pull/565):
+  Fix bitrot in rpm spec license config
+* [564](https://github.com/Eyescale/CMake/pull/564):
+  Don't quiet python tests (as is done with C++)
+* [563](https://github.com/Eyescale/CMake/pull/563):
+  Fixed false circular dependency warning in big metaprojects
+* [560](https://github.com/Eyescale/CMake/pull/560):
+  Simplify GitExternals
 * [556](https://github.com/Eyescale/CMake/pull/556):
   Fix rare bug with project-install missing dependencies
 * [555](https://github.com/Eyescale/CMake/pull/555):
   Add missing defines to version.h to ease usage w/o the need for linking
+* [553](https://github.com/Eyescale/CMake/pull/553),
+  [554](https://github.com/Eyescale/CMake/pull/554):
+  Fix CommonGraph target
 
 # 2017.05 (23-May-2017)
 
