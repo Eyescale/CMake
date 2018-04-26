@@ -12,6 +12,9 @@ include(LibFindMacros)
 
 # Use pkg-config to get hints about paths
 libfind_pkg_check_modules(LibJpegTurbo_PKGCONF LibJpegTurbo)
+if(NOT LibJpegTurbo_PKGCONF_FOUND)
+  libfind_pkg_check_modules(LibJpegTurbo_PKGCONF libturbojpeg)
+endif()
 
 # Include dir
 find_path(LibJpegTurbo_INCLUDE_DIR
