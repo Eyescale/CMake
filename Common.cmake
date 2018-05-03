@@ -29,7 +29,6 @@ cmake_policy(SET CMP0020 NEW) # Automatically link Qt executables to qtmain targ
 cmake_policy(SET CMP0037 NEW) # Target names should not be reserved and should match a validity pattern.
 cmake_policy(SET CMP0038 NEW) # Targets may not link directly to themselves.
 cmake_policy(SET CMP0048 NEW) # The project() command manages VERSION variables.
-cmake_policy(SET CMP0054 OLD) # Only interpret if() arguments as variables or keywords when unquoted.
 
 # WAR for CMake >=3.1 bug (observed with 3.2.3)
 # If not set to false, any call to pkg_check_modules() or pkg_search_module()
