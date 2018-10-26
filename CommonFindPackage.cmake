@@ -29,8 +29,8 @@
 # Output variables
 #  - COMMON_FIND_PACKAGE_DEFINES - accumulated defines of found packages for
 #    options.cmake and defines.h, written by common_find_package_post()
-#  - ${PROJECT_NAME}_FIND_PACKAGES_FOUND - string of found packages
-#  - ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND - string of not-found packages
+#  - ${PROJECT_NAME}_FIND_PACKAGES_FOUND - list of found packages
+#  - ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND - list of not-found packages
 
 include(CommonGraph)
 include(InstallFiles)
@@ -123,18 +123,14 @@ macro(common_find_package Package_Name)
     set(${PACKAGE_NAME}_FOUND TRUE)
   else()
     # for common_find_package_post()
-    set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
-      "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND} ${Package_Name}")
+    list(APPEND ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND "${Package_Name}")
   endif()
   if(${Package_Name}_name)
     # for common_find_package_post()
-    set(${PROJECT_NAME}_FIND_PACKAGES_FOUND
-      "${${PROJECT_NAME}_FIND_PACKAGES_FOUND} ${Package_Name}")
+    list(APPEND ${PROJECT_NAME}_FIND_PACKAGES_FOUND "${Package_Name}")
 
     # for defines.h
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
-    string(REPLACE "-" "_" __use_package_define ${__use_package_define})
-    string(REPLACE "+" "P" __use_package_define ${__use_package_define})
     list(APPEND COMMON_FIND_PACKAGE_DEFINES ${__use_package_define})
 
     # for CommonPackageConfig.cmake
@@ -174,13 +170,12 @@ macro(common_find_package_disable)
     set(${Package_Name}_name)
     set(${Package_Name}_FOUND)
     set(${PACKAGE_NAME}_FOUND)
+
     set(__use_package_define "${UPPER_PROJECT_NAME}_USE_${PACKAGE_NAME}")
-    string(REGEX REPLACE "-" "_" __use_package_define ${__use_package_define})
     list(REMOVE_ITEM COMMON_FIND_PACKAGE_DEFINES ${__use_package_define})
-    string(REPLACE " ${Package_Name}" "" ${PROJECT_NAME}_FIND_PACKAGES_FOUND
-      "${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
-    set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND
-      "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND} ${Package_Name}")
+
+    list(REMOVE_ITEM ${PROJECT_NAME}_FIND_PACKAGES_FOUND "${Package_Name}")
+    list(REMOVE_ITEM ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND "${Package_Name}")
   endforeach()
 endmacro()
 
@@ -228,6 +223,8 @@ macro(common_find_package_post)
     "#define ${PROJECT_NAME}_DEFINES_${__system}_H\n\n")
   file(WRITE ${__options_cmake_file_in} "# Optional modules enabled during build\n")
   foreach(DEF ${COMMON_FIND_PACKAGE_DEFINES})
+    string(REPLACE "-" "_" DEF ${DEF})
+    string(REPLACE "+" "P" DEF ${DEF})
     add_definitions(-D${DEF}=1)
     file(APPEND ${__defines_file_in}
       "#ifndef ${DEF}\n"
@@ -278,12 +275,12 @@ macro(common_find_package_post)
 
   set(__configure_msg "${PROJECT_NAME} [${GIT_STATE}]")
   if(${PROJECT_NAME}_FIND_PACKAGES_FOUND AND NOT COMMON_FIND_PACKAGE_QUIET)
-    set(__configure_msg
-      "${__configure_msg} with${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
+    string(REPLACE ";" " " __found_deps "${${PROJECT_NAME}_FIND_PACKAGES_FOUND}")
+    set(__configure_msg "${__configure_msg} with ${__found_deps}")
   endif()
   if(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND)
-    set(__configure_msg
-      "${__configure_msg} without${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND}")
+    string(REPLACE ";" " " __missing_deps "${${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND}")
+    set(__configure_msg "${__configure_msg} without ${__missing_deps}")
   endif()
   common_graph(${PROJECT_NAME})
   message(STATUS ${__configure_msg})
