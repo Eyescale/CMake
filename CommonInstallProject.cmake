@@ -21,8 +21,7 @@ if(NOT TARGET ${PROJECT_NAME}-install)
 endif()
 
 function(COMMON_ADD_INSTALL_DEPENDENCIES)
-  string(REPLACE " " ";" __deps "${ARGN}") # string-to-list
-  foreach(__dep ${__deps})
+  foreach(__dep ${ARGN})
     if(TARGET ${PROJECT_NAME}-install AND TARGET ${__dep}-install)
       add_dependencies(${PROJECT_NAME}-install ${__dep}-install)
     endif()
