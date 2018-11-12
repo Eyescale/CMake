@@ -18,10 +18,15 @@ function(find_cuda_compatible_host_compiler)
     return()
   endif()
 
-  set(_host_config "${CUDA_INCLUDE_DIRS}/host_config.h")
+  # With later CUDA versions host_config.h path is different
+  set(_host_config "${CUDA_INCLUDE_DIRS}/crt/host_config.h")
   if(NOT EXISTS "${_host_config}")
-    message(SEND_ERROR "host_config.h CUDA header not found")
-    return()
+      set(_host_config "${CUDA_INCLUDE_DIRS}/host_config.h")
+  endif()
+
+  if(NOT EXISTS "${_host_config}")
+      message(SEND_ERROR "host_config.h CUDA header not found")
+      return()
   endif()
 
   # Finding the maximum version of gcc supported by the CUDA installation
