@@ -60,7 +60,7 @@ function(install_dependencies name)
   # add common build requirements
   if(__pkg_type STREQUAL DEB)
     set(_dependencies cmake ccache doxygen git git-review graphviz
-      ninja-build pkg-config lcov cppcheck clang clang-format-3.5)
+      ninja-build pkg-config lcov cppcheck clang clang-format)
   elseif(APPLE)
     set(_dependencies cppcheck)
   else()
