@@ -45,6 +45,9 @@ The following CMake modules can be included in your project:
       code coverage report as html, if COMMON_ENABLE_COVERAGE option is set.
       Additional compiler flags are set in that case, so it should be enabled
       only for debug builds.
+    * [CommonCheckTargets](CommonCheckTargets.cmake) adds test targets for
+      various static code checkers if the COMMON_ENABLE_STATIC_TESTS option is
+      set.
     * [CommonCPPCheck](CommonCPPCheck.cmake): *cppcheck* target for
       static code analysis. Also adds all cppcheck targets to *tests* target.
     * [CommonClangCheck](CommonClangCheck.cmake): *clangcheck* target for

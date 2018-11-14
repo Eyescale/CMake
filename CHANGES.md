@@ -1,5 +1,8 @@
 # git master
 
+* [591](https://github.com/Eyescale/CMake/pull/591):
+  Static code analysis (cppcheck) is disabled by default. The test targets can
+  be enabled by setting COMMON_ENABLE_STATIC_TESTS=ON.
 * [579](https://github.com/Eyescale/CMake/pull/579):
   New minimum required C++ standard: move from C++11 to C++14
 
