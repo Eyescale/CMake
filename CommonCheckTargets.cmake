@@ -2,6 +2,11 @@
 #
 # Provide the function common_check_targets to add check targets (clangcheck,
 # cppcheck, cpplint) to the given target.
+#
+# CMake options:
+#  - COMMON_ENABLE_STATIC_TESTS to enable the checks
+
+option(COMMON_ENABLE_STATIC_TESTS "Enable static code analysis test targets" OFF)
 
 include(GetSourceFilesFromTarget)
 include(CommonClangCheck)
@@ -9,6 +14,10 @@ include(CommonCPPCheck)
 include(CommonCPPLint)
 
 function(common_check_targets _name)
+  if(NOT COMMON_ENABLE_STATIC_TESTS)
+    return()
+  endif()
+
   # Qt moc & qrc files, C and Objective-C files
   set(_exclude_pattern ".*moc_|.*qrc_.*\\.c.*|.*\\.mm.*$")
 
