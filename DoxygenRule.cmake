@@ -18,6 +18,7 @@
 #   Doxyfile.
 # * DOXYGEN_PROJECT_BRIEF A short description of the project. Defaults to
 #   ${UPPER_PROJECT_NAME}_DESCRIPTION if not provided.
+# * DOXYGEN_PROJECT_LOGO the logo to use next to the documentation title.
 # * DOXYGEN_PROJECT_NAME the name to use in the documentation title. Defaults
 #   to PROJECT_NAME if not provided.
 # * DOXYGEN_PROJECT_VERSION The full version of the project. Defaults to
