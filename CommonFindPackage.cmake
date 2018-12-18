@@ -47,6 +47,17 @@ option(COMMON_FIND_PACKAGE_QUIET "Use QUIET for common_find_package command" ON)
 macro(common_find_package Package_Name)
   string(TOUPPER ${Package_Name} PACKAGE_NAME)
 
+  # ensure outputs vars exists
+  if(NOT COMMON_FIND_PACKAGE_DEFINES)
+    set(COMMON_FIND_PACKAGE_DEFINES "")
+  endif()
+  if(NOT ${PROJECT_NAME}_FIND_PACKAGES_FOUND)
+    set(${PROJECT_NAME}_FIND_PACKAGES_FOUND "")
+  endif()
+  if(NOT ${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND)
+    set(${PROJECT_NAME}_FIND_PACKAGES_NOTFOUND "")
+  endif()
+
   # Parse macro arguments
   set(__options QUIET REQUIRED SYSTEM)
   set(__oneValueArgs MODULE)
