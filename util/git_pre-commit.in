@@ -9,7 +9,7 @@ if ! [[ -e $PWD/.clang-format ]]; then
     exit 0
 fi
 
-files=$($GIT diff --cached --name-only --diff-filter=ACM)
+files=$($GIT diff --cached --name-only --diff-filter=ACMR)
 
 for file in $files; do
     for ext in c cpp h hpp ipp frag vert glsl ispc ih; do
