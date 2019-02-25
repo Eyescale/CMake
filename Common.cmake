@@ -19,16 +19,17 @@
 # - A <project>-all target to build only the given (sub)project
 # - A <project>-install target to build and install the given (sub)project
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1...3.13 FATAL_ERROR)
 
 if(CMAKE_INSTALL_PREFIX STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "Cannot install into build directory")
 endif()
 
-cmake_policy(SET CMP0020 NEW) # Automatically link Qt executables to qtmain target on Windows.
-cmake_policy(SET CMP0037 NEW) # Target names should not be reserved and should match a validity pattern.
-cmake_policy(SET CMP0038 NEW) # Targets may not link directly to themselves.
-cmake_policy(SET CMP0048 NEW) # The project() command manages VERSION variables.
+if(${CMAKE_VERSION} VERSION_LESS 3.13)
+  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+  cmake_policy(VERSION 3.13)
+endif()
 
 # WAR for CMake >=3.1 bug (observed with 3.2.3)
 # If not set to false, any call to pkg_check_modules() or pkg_search_module()
