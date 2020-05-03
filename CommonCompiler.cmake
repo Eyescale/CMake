@@ -12,7 +12,7 @@
 # CMake options:
 # * COMMON_WARN_DEPRECATED: Enable compiler deprecation warnings, default ON
 # * COMMON_ENABLE_CXX11_STDLIB: Enable C++11 stdlib, default OFF
-# * COMMON_DISABLE_WERROR: Disable -Werror flags, default OFF
+# * COMMON_DISABLE_WERROR: Disable -Werror flags, default ON
 # * COMMON_ENABLE_CXX11_ABI: Enable C++11 ABI for gcc 5 or later, default ON,
 #   can be set to OFF with env variable CMAKE_COMMON_USE_CXX03_ABI
 #
@@ -47,7 +47,7 @@ endif()
 
 option(COMMON_WARN_DEPRECATED "Enable compiler deprecation warnings" ON)
 option(COMMON_ENABLE_CXX11_STDLIB "Enable C++11 stdlib" OFF)
-option(COMMON_DISABLE_WERROR "Disable -Werror flag" OFF)
+option(COMMON_DISABLE_WERROR "Disable -Werror flag" ON)
 if($ENV{CMAKE_COMMON_USE_CXX03_ABI}) # set by viz/env module
   option(COMMON_ENABLE_CXX11_ABI "Enable C++11 ABI for gcc 5 or later" OFF)
 else()
@@ -158,9 +158,11 @@ elseif(MSVC)
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(COMMON_CXX_FLAGS /DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR
     /D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS
-    /W0
   )
-  set(COMMON_CXX_FLAGS_DEBUG /WX)
+  
+  if (NOT COMMON_DISABLE_WERROR)
+    set(COMMON_CXX_FLAGS /WX)
+  endif()
 else()
   message(FATAL_ERROR "Unknown/unsupported compiler ${CMAKE_CXX_COMPILER_ID}")
 endif()
