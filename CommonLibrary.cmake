@@ -142,14 +142,14 @@ function(common_library Name)
         install(TARGETS ${LibName}
           ARCHIVE DESTINATION lib COMPONENT dev
           RUNTIME DESTINATION bin COMPONENT lib
-          LIBRARY DESTINATION lib COMPONENT lib
+          LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT lib
           INCLUDES DESTINATION include)
       else()
         install(TARGETS ${LibName}
           EXPORT ${PROJECT_NAME}Targets
           ARCHIVE DESTINATION lib COMPONENT dev
           RUNTIME DESTINATION bin COMPONENT lib
-          LIBRARY DESTINATION lib COMPONENT lib
+          LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT lib
           INCLUDES DESTINATION include)
       endif()
     endif()
