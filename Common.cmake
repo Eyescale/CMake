@@ -129,7 +129,7 @@ if(NOT TARGET ${PROJECT_NAME}-all)
   set_target_properties(${PROJECT_NAME}-all PROPERTIES FOLDER ${PROJECT_NAME})
 endif()
 
-set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc)
+set(COMMON_DOC_DIR share/${PROJECT_NAME}/doc CACHE PATH "DOC_DIR")
 
 include(ChoosePython) # Must be before any find_package to python
 include(CommonFindPackage)
