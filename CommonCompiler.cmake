@@ -94,7 +94,7 @@ if(CMAKE_COMPILER_IS_GCC OR CMAKE_COMPILER_IS_CLANG)
   set(COMMON_C_FLAGS
     -Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wshadow)
   set(COMMON_CXX_FLAGS
-    -Wnon-virtual-dtor -Wsign-promo -Wvla -fno-strict-aliasing)
+    -Wnon-virtual-dtor -Wsign-promo -Wno-deprecated-copy -Wvla -fno-strict-aliasing)
 
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT COMMON_DISABLE_WERROR)
     list(APPEND COMMON_C_FLAGS -Werror)

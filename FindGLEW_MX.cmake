@@ -66,7 +66,7 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(GLEW_MX DEFAULT_MSG
                                   _glew_mx_LIBRARY _glew_mx_INCLUDE_DIR)
 
-set(GLEW_MX_INCLUDE_DIRS ${_glew_mx_INCLUDE_DIR})
+set(GLEW_MX_INCLUDE_DIRS SYSTEM ${_glew_mx_INCLUDE_DIR})
 set(GLEW_MX_LIBRARIES ${_glew_mx_LIBRARY})
 if(GLEW_MX_FOUND AND _glew_mx_output)
   message(STATUS
