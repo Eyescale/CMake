@@ -45,7 +45,7 @@
 include(CommonCheckTargets)
 include(InstallFiles)
 
-set(COMMON_LIBRARY_TYPE SHARED CACHE STRING
+set(COMMON_LIBRARY_TYPE STATIC CACHE STRING
   "Library type {any combination of SHARED, STATIC}")
 set_property(CACHE COMMON_LIBRARY_TYPE PROPERTY STRINGS SHARED STATIC)
 
@@ -87,8 +87,7 @@ function(common_library Name)
     list(SORT PUBLIC_HEADERS)
   endif()
 
-  source_group(\\ FILES CMakeLists.txt)
-  source_group(${INCLUDE_NAME} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+  source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
 
   if(NOT ${NAME}_LIBRARY_TYPE)
     set(${NAME}_LIBRARY_TYPE ${COMMON_LIBRARY_TYPE})
@@ -103,14 +102,19 @@ function(common_library Name)
     endif()
 
     if(NOT ${NAME}_SOURCES)
-      add_library(${LibName} INTERFACE)
+        add_library(${LibName} INTERFACE)
       _target_include_directories(INTERFACE)
     else()
       # append a debug suffix to library name on windows or if user requests it
       common_set_lib_name_postfix()
 
-      add_library(${LibName} ${LIBRARY_TYPE}
-        ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      if (CUDA_FOUND AND ${NAME}_USE_CUDA)
+        cuda_add_library(${LibName} ${LIBRARY_TYPE}
+          ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      else()
+        add_library(${LibName} ${LIBRARY_TYPE}
+          ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+      endif()
       set_target_properties(${LibName} PROPERTIES
         VERSION ${${PROJECT_NAME}_VERSION}
         SOVERSION ${${PROJECT_NAME}_VERSION_ABI}
@@ -132,7 +136,7 @@ function(common_library Name)
     # add an alias with PROJECT_NAME to the target to ease detection of
     # subproject inclusion in CommonConfig.cmake
     if(NOT TARGET ${PROJECT_NAME}_ALIAS)
-      add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
+        add_library(${PROJECT_NAME}_ALIAS ALIAS ${LibName})
     endif()
 
     if(NOT ${NAME}_OMIT_INSTALL)

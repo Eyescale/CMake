@@ -77,8 +77,15 @@ function(common_application Name)
     endif()
   endif()
 
-  add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
-                 ${_sources})
+  source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${_sources} ${_headers})
+  
+  if (CUDA_FOUND AND ${NAME}_USE_CUDA)
+    cuda_add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
+                   ${_sources})
+  else()
+    add_executable(${Name} ${_options} ${_icon} ${_desktop} ${_headers}
+                   ${_sources})
+  endif()
   set_target_properties(${Name} PROPERTIES FOLDER ${PROJECT_NAME})
   common_compile_options(${Name})
   add_dependencies(${PROJECT_NAME}-all ${Name})
